@@ -1,0 +1,43 @@
+/* CSS declarations go here */
+:root {
+    /*
+    --p1-color: #ff7f7f;
+    --p2-color: #7f7fff;
+    --p3-color: #7fff7f;
+*/
+    --p1-color: #F39F9E;
+    --p2-color: #B0B0F0;
+    --p3-color: #96E696;
+
+    --p1-highlight: #710C0C;
+    --p2-highlight: #074D4D;
+    --p3-highlight: #24780B;
+}
+
+.word-search-line {
+}
+
+/* Remove ctrl-F ability */
+.word-search-letter:before {
+    content: attr(protected-text);
+}
+
+.word-search-letter {
+    display: inline-block;
+    background-color: lightgrey;
+    width: 32px;
+    height: 32px;
+    margin: 2px;
+    
+    line-height: 32px;
+    text-align: center;
+    vertical-align: middle;
+    
+    font-family: sans-serif;
+    font-size: 24px;
+    user-select: none;
+}
+
+.letter-selected {
+    background-color: #ff0000;
+}
