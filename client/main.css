@@ -38,6 +38,19 @@
     user-select: none;
 }
 
+/* For letters that we've found */
+.letter-found-p1 {
+    background-color: var(--p1-color);
+}
+
+.letter-found-p2 {
+    background-color: var(--p2-color);
+}
+
+.letter-found-p3 {
+    background-color: var(--p3-color);
+}
+
 .letter-selected {
     background-color: #ff0000;
 }
