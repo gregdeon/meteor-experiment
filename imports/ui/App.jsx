@@ -93,6 +93,10 @@ class ConsentForm extends Component {
 
 class App extends Component {
     render() {
+
+        // For testing
+        let draw_consent = false;
+
         if(!this.props.ready) {
             return (
                 <div>Loading...</div>
@@ -101,9 +105,8 @@ class App extends Component {
 
         return (
             <div>
-                <ConsentForm />
+                {(draw_consent ? <ConsentForm /> : '')}
                 <WordSearchPuzzle 
-                    ready={this.props.ready}
                     puzzle={this.props.puzzle}
                     puzzleinstance={this.props.puzzleinstance}
                 />

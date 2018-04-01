@@ -3,7 +3,7 @@
 // Contents:
 // - puzzle: ID of a puzzle
 // - found: list of true/false for each word
-// - 
+// - state: current state of the puzzle (waiting, in puzzle, in score screen, finished)
 
 
 import {Meteor} from 'meteor/meteor'; 
@@ -18,6 +18,13 @@ if (Meteor.isServer) {
     });
 }
 
+export const PuzzleInstanceStates = {
+    WAITING: 0,
+    PUZZLE: 1,
+    SCORE: 2,
+    FINISHED: 3,
+}
+
 export function addPuzzleInstance(puzzle_id) {
     let puzzle = Puzzles.findOne({_id: puzzle_id});
     let num_words = puzzle.words.length;
@@ -25,6 +32,7 @@ export function addPuzzleInstance(puzzle_id) {
     PuzzleInstances.insert({
         puzzle: puzzle._id,
         found: found_list,
+        state: PuzzleInstanceStates.PUZZLE,
     });
 }
 

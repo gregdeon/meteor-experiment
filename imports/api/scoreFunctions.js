@@ -67,6 +67,12 @@ export function getScores(instance, score_mode) {
     return getAllScores(instance.found, per_line_scores);
 }
 
+export const RewardModes = {
+    EQUAL: 0,
+    PROPORTIONAL: 1,
+    SHAPLEY: 2,
+};
+
 export function getRewards(instance, reward_mode) {
     // TODO
     return [10, 20, 30];
