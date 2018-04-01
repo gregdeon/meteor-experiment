@@ -1,8 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import {Puzzles} from '../imports/api/puzzles.js';
+import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js'
 
 Meteor.startup(() => {
     Puzzles.remove({});
+    PuzzleInstances.remove({});
 
     let puzzle = {
         letters: [
@@ -19,11 +21,13 @@ Meteor.startup(() => {
         ],
 
         words: [
-            {x: 0, y: 0, dx: 1, dy: 1, len: 4, player: 0, found: false},
-            {x: 0, y: 2, dx: 1, dy: 1, len: 4, player: 1, found: false},
-            {x: 0, y: 4, dx: 1, dy: 1, len: 4, player: 2, found: false},
+            {x: 0, y: 0, dx: 1, dy: 1, len: 4, player: 0},
+            {x: 0, y: 2, dx: 1, dy: 1, len: 4, player: 1},
+            {x: 0, y: 4, dx: 1, dy: 1, len: 4, player: 2},
         ],
     };
 
     Puzzles.insert(puzzle);
+    puzzle = Puzzles.findOne();
+    addPuzzleInstance(puzzle._id);
 });

@@ -14,6 +14,11 @@
     --p3-highlight: #24780B;
 }
 
+.word-search-container {
+    display: flex;
+    margin: 10px;
+}
+
 .word-search-line {
 }
 
@@ -53,4 +58,37 @@
 
 .letter-selected {
     background-color: #ff0000;
+}
+
+.word-search-sidebox {
+    background-color: lightgrey;
+    padding: 10px;
+    border-radius: 10px;
+    /*float: left;*/
+    width: 400px;
+    /* Put an auto-sized margin on the bottom */
+    margin: 0 auto auto 30px;
+}
+
+.word-search-sidebox th,
+.word-search-sidebox td {
+    padding: 0px;
+    text-align: center;
+    width: 100px;
+}
+
+.word-search-header {
+    background-color: lightgrey;
+    padding: 0px 10px 10px 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.word-search-word {
+    padding: 2px;
+}
+
+.word-found {
+    text-decoration: line-through;
 }

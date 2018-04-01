@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {WordSearchStatus} from './WordSearchStatus.jsx';
 
 // Highlighting types 
 const LetterHighlights = {
@@ -127,8 +128,9 @@ export class WordSearchPuzzle extends Component {
 
     addWordHighlighting(arr, word_num) {
         let word = this.props.puzzle.words[word_num];
+        let found = this.props.puzzleinstance.found[word_num];
         
-        if(!word.found) {
+        if(!found) {
             return arr;
         }
 
@@ -222,8 +224,8 @@ export class WordSearchPuzzle extends Component {
 
     handleSelectedWord() {
         Meteor.call(
-            'puzzles.findWord', 
-            this.props.puzzle._id,
+            'puzzleinstances.findWord', 
+            this.props.puzzleinstance._id,
             this.state.selection_start,
             this.state.selection_end
         );
@@ -246,8 +248,15 @@ export class WordSearchPuzzle extends Component {
             />
         ));
         return (
-            <div className='word-search-grid'>
-                {lines}
+            <div className='word-search-container'>
+                <div className='word-search-grid'>
+                    {lines}
+                </div>
+                <WordSearchStatus
+                    puzzle={this.props.puzzle}
+                    puzzleinstance={this.props.puzzleinstance}
+                    
+                />
             </div>
         );
     }
