@@ -255,7 +255,6 @@ export class WordSearchPuzzle extends Component {
                 <WordSearchStatus
                     puzzle={this.props.puzzle}
                     puzzleinstance={this.props.puzzleinstance}
-                    
                 />
             </div>
         );

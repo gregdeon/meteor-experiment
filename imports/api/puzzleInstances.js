@@ -2,12 +2,13 @@
 // Collection for storing a single play of a puzzle
 // Contents:
 // - puzzle: ID of a puzzle
-// - found: list of 
+// - found: list of true/false for each word
+// - 
 
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
-import {Puzzles} from './puzzles.js'
+import {Puzzles, getWord} from './puzzles.js'
 
 export const PuzzleInstances = new Mongo.Collection('puzzleinstances');
 
@@ -25,6 +26,34 @@ export function addPuzzleInstance(puzzle_id) {
         puzzle: puzzle._id,
         found: found_list,
     });
+}
+
+// Return an object like
+// { 0: [ { word: "word", found: true },
+//        { word: "word", found: false },
+//      ],
+//   1: [ ... ],
+//   ...
+// }
+export function getWordList(puzzle, instance) {
+    let found_list = instance.found;
+    ret = {};
+
+    for(let i = 0; i < puzzle.words.length; i++) {
+        let player = puzzle.words[i].player;
+        if (!ret.hasOwnProperty(player)) {
+            ret[player] = [];
+        }
+
+        ret_obj = {
+            word: getWord(puzzle, i),
+            found: found_list[i],
+        };
+
+        ret[player].push(ret_obj);
+    }
+
+    return ret;
 }
 
 function checkIsMatch(word, start_pos, end_pos) {

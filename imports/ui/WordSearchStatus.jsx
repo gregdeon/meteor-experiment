@@ -1,36 +1,8 @@
 import React, { Component } from 'react';
-import {getWord} from '../api/puzzles.js';
+import {getWordList} from '../api/puzzleInstances.js';
+import {getScores, ScoreModes} from '../api/scoreFunctions.js';
 
 export class WordSearchStatus extends Component {
-    // Return an object like
-    // { 0: [ { word: "word", found: true },
-    //        { word: "word", found: false },
-    //      ],
-    //   1: [ ... ],
-    //   ...
-    // }
-    getWordList() {
-        let puzzle = this.props.puzzle;
-        let found_list = this.props.puzzleinstance.found;
-        ret = {};
-
-        for(let i = 0; i < puzzle.words.length; i++) {
-            let player = puzzle.words[i].player;
-            if (Object.keys(ret).indexOf(player) < 0) {
-                ret[player] = [];
-            }
-
-            ret_obj = {
-                word: getWord(puzzle, i),
-                found: found_list[i],
-            };
-
-            ret[player].push(ret_obj);
-        }
-
-        return ret;
-    }
-
     renderHeaderItem(title, text, idx) {
         return (
             <div key={idx}>
@@ -70,8 +42,12 @@ export class WordSearchStatus extends Component {
     }
 
     renderWordList() {
-        let word_list = this.getWordList();
+        let word_list = getWordList(this.props.puzzle, this.props.puzzleinstance);
         let player_list = Object.keys(word_list).sort();
+
+        // Calculate scores here
+        // TODO: read score mode from puzzleInstance
+        let score_obj = getScores(this.props.puzzleinstance, ScoreModes.SUPERADDITIVE);
 
         let players = player_list.map((player_num) => (
             <th key={player_num}>Player {parseInt(player_num) + 1}</th>
@@ -93,15 +69,20 @@ export class WordSearchStatus extends Component {
             word_table.push(
                 <tr key={i}>
                     {words_line}
-                    {/* TODO: update scores */}
-                    <td key={-1}>0</td>
+                    <td key={-1}>
+                        {score_obj.scores[i]}
+                    </td>
                 </tr>
             );
         }
 
         // Total scores
         let score_line = player_list.map((_, idx) => (<td key={idx} />));
-        score_line.push((<td key={-1}>0</td>));
+        score_line.push((
+            <td key={-1}>
+                {score_obj.total}
+            </td>
+        ));
 
         return (
             <table><tbody>
