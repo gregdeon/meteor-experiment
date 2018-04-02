@@ -1,97 +1,12 @@
 import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
 import {withTracker} from 'meteor/react-meteor-data';
+import {Workflows} from '../api/workflows.js';
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
+import {Workflow} from './Workflow.jsx';
 import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 import {LoginForm} from './LoginForm.jsx';
-
-class ConsentForm extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            consent: false,
-        };
-    }
-
-    handleSelectRadio(val) {
-        this.setState({consent: val});
-    }
-
-    handleSubmit(event) {
-        event.preventDefault();
-        console.log("Consent: " + this.state.consent);
-    }
-
-    renderButton(text) {
-        return (
-            <div className="consent-button">
-                <button>{text}</button>
-            </div>
-        );
-    }
-
-    render() {
-        let consent_text = [
-            "Consent form goes here",
-            "Another line here",
-        ];
-
-        let lines = consent_text.slice();
-        lines.push("Thank you for considering participation in this study.");
-
-        return (
-            <div className="consent-container">
-                <h1>Consent Form</h1>
-                <hr/>
-                {
-                    lines.map((line, idx) => {
-                        return <p key={idx}>{line}</p>
-                    })
-                }
-                <hr/>
-                <p key={-1}>
-                    {"With full knowledge of all foregoing, I agree, of my own free will, to participate in this study:"}
-                </p>
-                <form
-                    onSubmit={this.handleSubmit.bind(this)}
-                >
-                    <div className="consent-input">
-                    <label>
-                        <input 
-                            type="radio"
-                            value="true"
-                            checked={!!this.state.consent}
-                            onChange={this.handleSelectRadio.bind(this, true)}
-                        />
-                        I Consent
-                    </label>
-                    </div>
-                    <div className="consent-input">
-                    <label>
-                        <input 
-                            type="radio"
-                            value="true"
-                            checked={!this.state.consent}
-                            onChange={this.handleSelectRadio.bind(this, false)}
-                        />
-                        I Do Not Consent
-                    </label>
-                    </div>
-                    <div className="consent-input">
-                    <button
-                        className="consent-button"
-                        type="submit"
-                    >
-                        Submit
-                    </button>
-                    </div>
-                </form>
-            </div>
-        );
-    }
-}
 
 class App extends Component {
     render() {
@@ -99,15 +14,24 @@ class App extends Component {
         // For testing
         let draw_consent = false;
 
+        // Wait for db connections
         if(!this.props.ready) {
             return (
                 <div>Loading...</div>
             );
         }
 
+        // Log in if not logged in
         if(!this.props.user) {
             return (<LoginForm />);
         }
+
+        // Show their workflow
+        return (
+            <Workflow
+                workflow={this.props.workflow}
+            />
+        );
 
         return (
             <div>
@@ -124,9 +48,13 @@ class App extends Component {
 
 export default withTracker(() => {
     const sub = [
+        Meteor.subscribe('workflows'),
+        Meteor.subscribe('consentforms'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),
     ];
+
+    // Check if ready by putting together subscriptions
     let all_ready = true;
     sub.map((sub_item) => {
         if(!sub_item.ready())
@@ -136,6 +64,9 @@ export default withTracker(() => {
     return {
         ready: all_ready,
         user: Meteor.user(),
+        // TODO: find this user's workflow
+        // For now, assume there's only one
+        workflow: Workflows.findOne(),
         puzzle: Puzzles.findOne(),
         puzzleinstance: PuzzleInstances.findOne(),
     };
