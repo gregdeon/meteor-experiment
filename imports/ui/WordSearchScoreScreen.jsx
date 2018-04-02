@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 import {WordSearchStatus} from './WordSearchStatus.jsx';
-import {getRewards, RewardModes} from '../api/scoreFunctions.js';
+import {getRewards, ScoreModes, RewardModes} from '../api/scoreFunctions.js';
 
 class OneRewardDisplay extends Component {
     getRewardString() {
-
-        let ret = "";
-
-        if(this.props.reward <= 0) {
-            return 0;
+        if(this.props.percent <= 0) {
+            return "";
         }
 
         if(this.props.percent < 10) {
@@ -41,7 +38,9 @@ class RewardDisplay extends Component {
         }
 
         let percents = rewards.map((reward) => (100*reward/total));
-
+        if(total === 0) {
+            percents = [33, 34, 33];
+        }
 
         return (
             <div className="score-screen-reward">
@@ -152,7 +151,12 @@ class RewardForm extends Component {
 
 export class WordSearchScoreScreen extends Component {
     render() {
-        let rewards = getRewards(/* TODO */);
+        let rewards = getRewards(
+            this.props.puzzleinstance,
+            RewardModes.SHAPLEY,
+            // TODO: calculate this using instance score mode
+            ScoreModes.SUPERADDITIVE,
+        );
         return (
             <div className='score-screen-container'>
                 <h1>Game Over!</h1>
