@@ -1,19 +1,21 @@
+// App.jsx
+// Main app view
 import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
 import {withTracker} from 'meteor/react-meteor-data';
+
+// API requirements
 import {Workflows} from '../api/workflows.js';
+import {WorkflowInstances} from '../api/workflowInstances.js';
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
+
+// UI
 import {Workflow} from './Workflow.jsx';
-import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 import {LoginForm} from './LoginForm.jsx';
 
 class App extends Component {
     render() {
-
-        // For testing
-        let draw_consent = false;
-
         // Wait for db connections
         if(!this.props.ready) {
             return (
@@ -30,9 +32,11 @@ class App extends Component {
         return (
             <Workflow
                 workflow={this.props.workflow}
+                workflowInstance={this.props.workflowInstance}
             />
         );
 
+/*
         return (
             <div>
                 {(draw_consent ? <ConsentForm /> : '')}
@@ -43,12 +47,14 @@ class App extends Component {
             </div>
 
         );
+*/
     }
 }
 
 export default withTracker(() => {
     const sub = [
         Meteor.subscribe('workflows'),
+        Meteor.subscribe('workflowinstances'),
         Meteor.subscribe('consentforms'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),
@@ -64,10 +70,11 @@ export default withTracker(() => {
     return {
         ready: all_ready,
         user: Meteor.user(),
-        // TODO: find this user's workflow
+        // TODO: find this user's workflow and instance
         // For now, assume there's only one
         workflow: Workflows.findOne(),
+        workflowInstance: WorkflowInstances.findOne(),
         puzzle: Puzzles.findOne(),
-        puzzleinstance: PuzzleInstances.findOne(),
+        puzzleInstance: PuzzleInstances.findOne(),
     };
 })(App);

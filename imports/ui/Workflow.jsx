@@ -91,8 +91,7 @@ class ConsentForm extends Component {
 
 export class Workflow extends Component {
     render() {
-        // TODO: get from WorkflowInstance
-        let stage_num = 0;
+        let stage_num = this.props.workflowInstance.stage;
 
         let stage = this.props.workflow.stages[stage_num];
 

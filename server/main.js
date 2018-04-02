@@ -1,22 +1,29 @@
 import { Meteor } from 'meteor/meteor';
 
 import {Workflows, WorkflowStages} from '../imports/api/workflows.js';
+import {WorkflowInstances} from '../imports/api/workflowInstances.js';
 import {ConsentForms} from '../imports/api/consentForms.js';
 import {Puzzles} from '../imports/api/puzzles.js';
 import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js'
 
 
-function addExampleWorkflow() {
-    let consent_id = ConsentForms.findOne()._id;
-    Workflows.insert({
+function addExampleWorkflow(consent_id) {
+    let workflow_id = Workflows.insert({
         stages: [
             {type: WorkflowStages.CONSENT, id: consent_id},
         ],
     });
+
+    let workflowInstance_id = WorkflowInstances.insert({
+        // TODO: make these on login
+        user_id: 0,
+        workflow_id: workflow_id,
+        stage: 0,
+    })
 }
 
 function addExampleConsentForm() {
-    ConsentForms.insert({
+    let consent_id = ConsentForms.insert({
         text: [
             "This study is being conducted by Greg d'Eon, Dr. Edith Law, and Dr. Kate Larson in the School of Computer Science at the University of Waterloo, Canada. The objective of this project is to investigate how team structures and incentive schemes can affect work quality in crowdsourcing tasks that require multiple crowdworkers to cooperate. This study is funded by a NSERC-CIHR Collaborative Health Project Grant.",
             "Study Details: If you decide to participate in this study, you will be interacting with our web-based group formation, game, and reward allocation interface. Before the study, you will be given a short questionnaire regarding your demographics (age and gender). During the study, you will be placed into teams with 2 other participants. Then, your team will work together on a number of short tasks. After each task, a bonus payment will be calculated based on each team member's performance. After the study, you will be given another questionnaire regarding how you felt about your teammates and your rewards during the study.",
@@ -27,10 +34,12 @@ function addExampleConsentForm() {
             "Confidentiality: It is important for you to know that any information that you provide will be confidential. All of the data will be summarized and no individual could be identified from these summarized results. Furthermore, the interface is programmed to collect responses alone and will not collect any information that could potentially identify you (such as machine identifiers).",
             "When information is transmitted over the internet confidentiality cannot be guaranteed. University of Waterloo practices are to turn off functions that collect machine identifiers such as IP addresses. The host of the system collecting the data (Amazon) may collect this information without our knowledge and make this accessible to us. We will not use or save this information without your consent. If you prefer not to submit your survey responses through this host, please do not sign up for this study.",
             "The data, with no personal identifiers, collected from this study will be maintained on a password-protected computer database in a restricted access area of the university and on an external Amazon EC2 server. As well, the data will be electronically archived after completion of the study and maintained for 8 years and then erased.",
-            "This study has been reviewed and received ethics clearance through a University of Waterloo Research Ethics Committee (ORE# 22705xxxxx). If you have questions for the Committee contact the Chief Ethics Officer, Office of Research Ethics, at 1-519-888-4567 ext. 36005 or oreceo@uwaterloo.ca.",
+            "This study has been reviewed and received ethics clearance through a University of Waterloo Research Ethics Committee (ORE# 22705). If you have questions for the Committee contact the Chief Ethics Officer, Office of Research Ethics, at 1-519-888-4567 ext. 36005 or oreceo@uwaterloo.ca.",
             "Questions: If you have any questions about this study, or if you are interested in receiving a copy of the results of the study, please contact Greg d'Eon (greg.deon@uwaterloo.ca), Edith Law (edith.law@uwaterloo.ca), or Kate Larson (kate.larson@uwaterloo.ca).",
         ],
     })
+
+    return consent_id;
 }
 
 Meteor.startup(() => {
@@ -72,6 +81,6 @@ Meteor.startup(() => {
     Puzzles.insert(puzzle);
     puzzle = Puzzles.findOne();
     addPuzzleInstance(puzzle._id);
-    addExampleConsentForm();
-    addExampleWorkflow();
+    let consent_id = addExampleConsentForm();
+    addExampleWorkflow(consent_id);
 });
