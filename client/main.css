@@ -70,6 +70,43 @@ button:disabled {
     margin: 5px;
 }
 
+/* Questionnaire screen */
+.survey-container {
+    max-width: 800px;
+    text-align: justify;
+    font-size: 20px;
+    font-family: sans-serif;
+    margin: auto;
+}
+
+.survey-container h1 {
+    text-align: center;
+}
+
+.survey-container textarea {
+    font-family: sans-serif;
+    width: 80%;
+    resize: vertical;
+}
+
+.survey-required {
+    color: #ff0000;
+    margin: auto 5px;
+}
+
+.survey-question-text {
+    display: flex;
+}
+
+.survey-choices div {
+    margin: 5px;
+}
+
+.survey-submit {
+    text-align: center;
+}
+
+
 /* Puzzle attributes */
 .word-search-puzzle-container {
     display: flex;

@@ -4,6 +4,7 @@
 // - user_id: reference to user
 // - workflow_id: reference to workflow
 // - stage: current stage of the user
+// - confirm_code: UUID (TODO: generate this with Random.id() from 'meteor/random')
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';

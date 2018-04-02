@@ -2,15 +2,17 @@ import { Meteor } from 'meteor/meteor';
 
 import {Workflows, WorkflowStages} from '../imports/api/workflows.js';
 import {WorkflowInstances} from '../imports/api/workflowInstances.js';
+import {Surveys, QuestionTypes} from '../imports/api/surveys.js';
 import {ConsentForms} from '../imports/api/consentForms.js';
 import {Puzzles} from '../imports/api/puzzles.js';
 import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js'
 
 
-function addExampleWorkflow(consent_id) {
+function addExampleWorkflow(consent_id, survey_id) {
     let workflow_id = Workflows.insert({
         stages: [
             {type: WorkflowStages.CONSENT, id: consent_id},
+            {type: WorkflowStages.SURVEY, id: survey_id},
         ],
     });
 
@@ -18,7 +20,7 @@ function addExampleWorkflow(consent_id) {
         // TODO: make these on login
         user_id: 0,
         workflow_id: workflow_id,
-        stage: 0,
+        stage: 1,
     })
 }
 
@@ -42,11 +44,45 @@ function addExampleConsentForm() {
     return consent_id;
 }
 
+function addExampleSurvey() {
+    let survey_id = Surveys.insert({
+        title: "Pre-Study Questionnaire",
+        questions: [
+            {
+                text: "Age",
+                type: QuestionTypes.MULTIPLE_CHOICE,
+                options: [
+                    "Younger than 25",
+                    "25 - 34",
+                    "35 - 44",
+                    "45 - 54",
+                    "55 or older",
+                ],
+                required: true,
+            },
+            {
+                text: "Gender",
+                type: QuestionTypes.TEXT_SHORT,
+                required: true,
+            },
+            {
+                text: "Test",
+                type: QuestionTypes.TEXT_LONG,
+                required: false,
+            },
+        ],
+    });
+
+    return survey_id;
+}
+
 Meteor.startup(() => {
     Puzzles.remove({});
     PuzzleInstances.remove({});
     ConsentForms.remove({});
+    Surveys.remove({});
     Workflows.remove({});
+    WorkflowInstances.remove({});
 
     let puzzle = {
         letters: [
@@ -82,5 +118,6 @@ Meteor.startup(() => {
     puzzle = Puzzles.findOne();
     addPuzzleInstance(puzzle._id);
     let consent_id = addExampleConsentForm();
-    addExampleWorkflow(consent_id);
+    let survey_id = addExampleSurvey();
+    addExampleWorkflow(consent_id, survey_id);
 });

@@ -49,9 +49,6 @@ class App extends Component {
                 workflowInstance={this.props.workflowInstance}
             />
         );
-
-
-
     }
 }
 
@@ -60,6 +57,7 @@ export default withTracker(() => {
         Meteor.subscribe('workflows'),
         Meteor.subscribe('workflowinstances'),
         Meteor.subscribe('consentforms'),
+        Meteor.subscribe('surveys'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),
     ];
@@ -78,6 +76,8 @@ export default withTracker(() => {
         // For now, assume there's only one
         workflow: Workflows.findOne(),
         workflowInstance: WorkflowInstances.findOne(),
+
+        // TODO: remove these when done debugging
         puzzle: Puzzles.findOne(),
         puzzleInstance: PuzzleInstances.findOne(),
     };

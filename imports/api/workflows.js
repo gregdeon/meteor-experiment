@@ -10,7 +10,7 @@ export const Workflows = new Mongo.Collection('workflows');
 
 export const WorkflowStages = {
     CONSENT: 0, 
-    QUESTIONNAIRE: 1,
+    SURVEY: 1,
     COOP: 2,
 };
 
