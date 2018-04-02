@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import {Meteor} from 'meteor/meteor';
 import {withTracker} from 'meteor/react-meteor-data';
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
+import {LoginForm} from './LoginForm.jsx';
 
 class ConsentForm extends Component {
     constructor(props) {
@@ -103,6 +105,10 @@ class App extends Component {
             );
         }
 
+        if(!this.props.user) {
+            return (<LoginForm />);
+        }
+
         return (
             <div>
                 {(draw_consent ? <ConsentForm /> : '')}
@@ -129,6 +135,7 @@ export default withTracker(() => {
 
     return {
         ready: all_ready,
+        user: Meteor.user(),
         puzzle: Puzzles.findOne(),
         puzzleinstance: PuzzleInstances.findOne(),
     };

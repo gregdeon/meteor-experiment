@@ -30,6 +30,24 @@ button:disabled {
     background-color: #808080;
 }
 
+/* Login screen */
+.login-container {
+    text-align: center;
+    font-size: 20px;
+    font-family: sans-serif;
+}
+
+.login-container, 
+.login-field,
+.login-button
+{
+    margin: 5px;
+}
+
+.login-error {
+    color: #ff0000;
+}
+
 /* Consent form */
 .consent-container {
     text-align: center;
