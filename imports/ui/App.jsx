@@ -13,6 +13,7 @@ import {PuzzleInstances} from '../api/puzzleInstances.js';
 // UI
 import {Workflow} from './Workflow.jsx';
 import {LoginForm} from './LoginForm.jsx';
+import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 
 class App extends Component {
     render() {
@@ -28,6 +29,19 @@ class App extends Component {
             return (<LoginForm />);
         }
 
+        // Debug
+        let debug = false;
+        if(debug) {   
+            return (
+                <div>
+                    <WordSearchPuzzle 
+                        puzzle={this.props.puzzle}
+                        puzzleinstance={this.props.puzzleInstance}
+                    />
+                </div>
+            );
+        }
+
         // Show their workflow
         return (
             <Workflow
@@ -36,18 +50,8 @@ class App extends Component {
             />
         );
 
-/*
-        return (
-            <div>
-                {(draw_consent ? <ConsentForm /> : '')}
-                <WordSearchPuzzle 
-                    puzzle={this.props.puzzle}
-                    puzzleinstance={this.props.puzzleinstance}
-                />
-            </div>
 
-        );
-*/
+
     }
 }
 

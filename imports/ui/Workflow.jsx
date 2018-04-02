@@ -10,7 +10,8 @@ class ConsentForm extends Component {
         super(props);
 
         this.state = {
-            consent: false,
+            consent: null,
+            rejected: false,
         };
     }
 
@@ -21,6 +22,13 @@ class ConsentForm extends Component {
     handleSubmit(event) {
         event.preventDefault();
         console.log("Consent: " + this.state.consent);
+
+        if(!this.state.consent) {
+            this.setState({rejected: true});
+        } 
+        else {
+            // TODO: callback for proceeding to next workflow item
+        }
     }
 
     renderButton(text) {
@@ -28,6 +36,65 @@ class ConsentForm extends Component {
             <div className="consent-button">
                 <button>{text}</button>
             </div>
+        );
+    }
+
+    renderForm(lines) {
+        return (
+            <div className="consent-content">
+            {
+                lines.map((line, idx) => {
+                    return <p key={idx}>{line}</p>
+                })
+            }
+            <hr/>
+            <p key={-1}>
+                {"With full knowledge of all foregoing, I agree, of my own free will, to participate in this study:"}
+            </p>
+            <form
+                onSubmit={this.handleSubmit.bind(this)}
+            >
+                <div className="consent-input">
+                <label>
+                    <input 
+                        type="radio"
+                        value="true"
+                        checked={this.state.consent === true}
+                        onChange={this.handleSelectRadio.bind(this, true)}
+                    />
+                    I Consent
+                </label>
+                </div>
+                <div className="consent-input">
+                <label>
+                    <input 
+                        type="radio"
+                        value="true"
+                        checked={this.state.consent === false}
+                        onChange={this.handleSelectRadio.bind(this, false)}
+                    />
+                    I Do Not Consent
+                </label>
+                </div>
+                <div className="consent-input">
+                <button
+                    className="consent-button"
+                    type="submit"
+                    disabled={this.state.consent === null}
+                >
+                    Submit
+                </button>
+                </div>
+            </form>
+            </div>
+        );
+    }
+
+    renderRejected() {
+        return (
+            <p>
+            We're sorry to hear that. Please close this window and return the HIT.
+            </p>
         );
     }
 
@@ -41,62 +108,23 @@ class ConsentForm extends Component {
             <div className="consent-container">
                 <h1>Consent Form</h1>
                 <hr/>
-                {
-                    lines.map((line, idx) => {
-                        return <p key={idx}>{line}</p>
-                    })
+                { this.state.rejected 
+                    ? this.renderRejected() 
+                    : this.renderForm(lines) 
                 }
-                <hr/>
-                <p key={-1}>
-                    {"With full knowledge of all foregoing, I agree, of my own free will, to participate in this study:"}
-                </p>
-                <form
-                    onSubmit={this.handleSubmit.bind(this)}
-                >
-                    <div className="consent-input">
-                    <label>
-                        <input 
-                            type="radio"
-                            value="true"
-                            checked={!!this.state.consent}
-                            onChange={this.handleSelectRadio.bind(this, true)}
-                        />
-                        I Consent
-                    </label>
-                    </div>
-                    <div className="consent-input">
-                    <label>
-                        <input 
-                            type="radio"
-                            value="true"
-                            checked={!this.state.consent}
-                            onChange={this.handleSelectRadio.bind(this, false)}
-                        />
-                        I Do Not Consent
-                    </label>
-                    </div>
-                    <div className="consent-input">
-                    <button
-                        className="consent-button"
-                        type="submit"
-                    >
-                        Submit
-                    </button>
-                    </div>
-                </form>
             </div>
         );
     }
 }
 
 export class Workflow extends Component {
+    // TODO: add a "move to next stage" callback
+
     render() {
         let stage_num = this.props.workflowInstance.stage;
-
         let stage = this.props.workflow.stages[stage_num];
 
         switch(stage.type) {
-            // TODO: add consent form by ID
             case WorkflowStages.CONSENT:
                 console.log(stage.id);
                 let consentform = ConsentForms.findOne({_id: stage.id});
@@ -106,7 +134,15 @@ export class Workflow extends Component {
                     />
                 );
 
-            // TODO: add other types
+            case WorkflowStages.QUESTIONNAIRE:
+                return (
+                    <div>TODO: questionnaire</div>
+                );
+
+            case WorkflowStages.COOP:
+                return (
+                    <div>TODO: coop workflow</div>
+                );
         }
     }
 }
