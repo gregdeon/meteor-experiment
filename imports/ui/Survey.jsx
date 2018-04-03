@@ -41,7 +41,14 @@ export class Survey extends Component {
 
     handleSubmit() {
         console.log(this.state.responses);
-        // TODO: submit response
+        // Submit
+        Meteor.call(
+            'surveys.addResponse',
+            this.props.survey._id,
+            this.workflow_instance_id,
+            this.state.responses,
+        );
+        // Continue
         this.props.finishedCallback();
     }
 

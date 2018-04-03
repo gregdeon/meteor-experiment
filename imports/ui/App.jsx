@@ -58,6 +58,7 @@ export default withTracker(() => {
         Meteor.subscribe('workflowinstances'),
         Meteor.subscribe('consentforms'),
         Meteor.subscribe('surveys'),
+        Meteor.subscribe('surveyinstances'),
         Meteor.subscribe('feedbackletters'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),

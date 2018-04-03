@@ -7,7 +7,8 @@ import {ConsentForms} from '../imports/api/consentForms.js';
 import {FeedbackLetters} from '../imports/api/feedbackLetters.js';
 
 import {Puzzles} from '../imports/api/puzzles.js';
-import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js'
+import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js';
+import {SurveyInstances} from '../imports/api/surveyInstances.js';
 
 
 function addExampleWorkflow(consent_id, survey_id, letter_id) {
@@ -21,10 +22,9 @@ function addExampleWorkflow(consent_id, survey_id, letter_id) {
 
     let workflowInstance_id = WorkflowInstances.insert({
         // TODO: make these on login
-        user_id: 0,
+        user_id: "75rqcbKdR5ceSnwjc",
         workflow_id: workflow_id,
         stage: 0,
-        // TODO: make this on completion
         confirm_code: null,
     })
 }
@@ -113,6 +113,7 @@ Meteor.startup(() => {
     PuzzleInstances.remove({});
     ConsentForms.remove({});
     Surveys.remove({});
+    SurveyInstances.remove({});
     FeedbackLetters.remove({});
     Workflows.remove({});
     WorkflowInstances.remove({});

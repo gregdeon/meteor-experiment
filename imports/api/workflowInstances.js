@@ -14,13 +14,43 @@ import {Workflows} from './workflows.js';
 export const WorkflowInstances = new Mongo.Collection('workflowinstances');
 
 if (Meteor.isServer) {
-    Meteor.publish('workflowinstances', function workflowInstancePublication(){
-        // TODO: only publish user's workflow
-        return WorkflowInstances.find();
+    Meteor.publish('workflowinstances', function(){
+        // If they're logged in, show their instances
+        if(this.userId) {
+            return WorkflowInstances.find({user_id: this.userId});
+        }
+        else {
+            return null;
+        }
     });
 }
 
 Meteor.methods({
+    'workflowinstances.setUpWorkflow'(user_id, workflow_id) {
+        // DEBUG
+        console.log("Making workflow instance for " + user_id);
+
+        // Try to find an instance for them
+        let instance = WorkflowInstances.findOne({
+            user_id: user_id,
+            workflow_id: workflow_id,
+        });
+
+        // They have one, so 
+        if(instance) {
+            return;
+        }
+
+        // None exist, so make a new one instead
+        // No need to return - props will get updated right away
+        WorkflowInstances.insert({
+            user_id: user_id,
+            workflow_id: workflow_id,
+            stage: 0,
+            confirm_code: null,
+        })
+    },
+
     'workflowinstances.advanceStage'(instance_id) {
         let instance = WorkflowInstances.findOne({_id: instance_id});
         let workflow = Workflows.findOne({_id: instance.workflow_id});
@@ -39,5 +69,5 @@ Meteor.methods({
                 $set: upd
             });
         }
-    }
+    },
 });

@@ -30,6 +30,8 @@ button:disabled {
     background-color: #808080;
 }
 
+
+
 /* Login screen */
 .login-container {
     text-align: center;
@@ -48,6 +50,39 @@ button:disabled {
     color: #ff0000;
 }
 
+/* Top bar */
+.workflow-header {
+    background: #dddddd;
+    width: 100%;
+    font-size: 20px;
+    font-family: sans-serif;
+    text-align: center;
+    overflow: auto;
+}
+
+.workflow-user,
+.workflow-progress,
+.workflow-earnings
+{
+    margin: 20px 10px;
+    display: inline-block;
+}
+
+.workflow-user {
+    float: left;
+    text-align: left;
+}
+
+.workflow-progress {
+    float: center;
+    text-align: center;
+}
+
+.workflow-earnings {
+    float: right;
+    text-align: right;
+}
+
 /* Consent form and feedback letter */
 .consent-container,
 .letter-container {
@@ -61,6 +96,7 @@ button:disabled {
 .consent-container h1,
 .letter-container h1 {
     text-align: center;
+    font-size: 32px;
 }
 
 .consent-input {

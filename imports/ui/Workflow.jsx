@@ -10,7 +10,23 @@ import {ConsentForms} from '../api/consentForms.js';
 import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
 
-
+class WorkflowHeader extends Component {
+    render() {
+        return (
+            <div className="workflow-header">
+                <div className="workflow-user">
+                    Username: {Meteor.user().username + ' '}
+                </div>
+                <div className="workflow-progress">
+                    Progress: TODO
+                </div>
+                <div className="workflow-earnings">
+                    Earnings: TODO
+                </div>
+            </div>
+        );
+    }
+}
 
 export class Workflow extends Component {
     advanceWorkflowStage() {
@@ -20,7 +36,7 @@ export class Workflow extends Component {
         );
     }
 
-    render() {
+    renderStage() {
         console.log(this.props);
         let stage_num = this.props.workflowInstance.stage;
         let stages = this.props.workflow.stages;
@@ -42,6 +58,7 @@ export class Workflow extends Component {
                 return (
                     <Survey 
                         survey={survey}
+                        workflow_instance_id={this.props.workflowInstance._id}
                         finishedCallback={this.advanceWorkflowStage.bind(this)}
                     />
                 );
@@ -61,5 +78,25 @@ export class Workflow extends Component {
                     <div>TODO: coop workflow</div>
                 );
         }
+    }
+
+    render() {
+        // Get a workflow if we don't have one
+        if(!this.props.workflowInstance) {
+            Meteor.call(
+                'workflowinstances.setUpWorkflow',
+                Meteor.user()._id,
+            )
+
+            return (<div>Setting things up for you...</div>);
+        }
+
+        let stage_view = this.renderStage();
+        return (
+            <div>
+                <WorkflowHeader />
+                {stage_view}
+            </div>
+        );
     }
 }
