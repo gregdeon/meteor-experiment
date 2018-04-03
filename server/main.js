@@ -1,21 +1,30 @@
 import { Meteor } from 'meteor/meteor';
 
+// Workflows
 import {Workflows, WorkflowStages} from '../imports/api/workflows.js';
-import {WorkflowInstances} from '../imports/api/workflowInstances.js';
+import {CoopWorkflows, CoopWorkflowStages} from '../imports/api/coopWorkflows.js';
+
+// Other forms
 import {Surveys, QuestionTypes} from '../imports/api/surveys.js';
 import {ConsentForms} from '../imports/api/consentForms.js';
 import {FeedbackLetters} from '../imports/api/feedbackLetters.js';
 
+// Instances 
+import {WorkflowInstances} from '../imports/api/workflowInstances.js';
+import {SurveyInstances} from '../imports/api/surveyInstances.js';
+
+// Puzzles
 import {Puzzles} from '../imports/api/puzzles.js';
 import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js';
-import {SurveyInstances} from '../imports/api/surveyInstances.js';
+
+
 
 
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
         stages: [
-            {type: WorkflowStages.CONSENT, id: consent_id},
-            {type: WorkflowStages.SURVEY, id: survey_id},
+//            {type: WorkflowStages.CONSENT, id: consent_id},
+//            {type: WorkflowStages.SURVEY, id: survey_id},
             {type: WorkflowStages.COOP, id: coop_id},
             {type: WorkflowStages.FEEDBACK, id: letter_id},
         ],
@@ -86,8 +95,13 @@ function addExampleSurvey() {
 }
 
 function addCoopWorkflow() {
-    // TODO
-    return 0;
+    let coop_id = CoopWorkflows.insert({
+        stages: [
+            {type: CoopWorkflowStages.LOBBY, id: null},
+        ],
+    });
+
+    return coop_id;
 }
 
 function addExampleFeedbackLetter() {
@@ -115,6 +129,7 @@ Meteor.startup(() => {
     FeedbackLetters.remove({});
     Workflows.remove({});
     WorkflowInstances.remove({});
+    CoopWorkflows.remove({});
 
     let puzzle = {
         letters: [

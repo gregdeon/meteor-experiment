@@ -1,7 +1,9 @@
-// workflow.js
+// workflows.js
 // Collection for describing experiment steps
 // Contents:
-// - stages: list of WorkflowStages
+// - stages: list of objects with
+//   - type: one of WorkflowStages
+//   - id: ID of a consent form, survey, feedback letter, etc
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';

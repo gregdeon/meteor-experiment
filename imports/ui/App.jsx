@@ -56,6 +56,7 @@ export default withTracker(() => {
     const sub = [
         Meteor.subscribe('workflows'),
         Meteor.subscribe('workflowinstances'),
+        Meteor.subscribe('coopworkflows'),
         Meteor.subscribe('consentforms'),
         Meteor.subscribe('surveys'),
         Meteor.subscribe('surveyinstances'),

@@ -10,6 +10,7 @@ import {WorkflowStages} from '../api/workflows.js';
 import {ConsentForms} from '../api/consentForms.js';
 import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
+import {CoopWorkflows} from '../api/coopWorkflows.js';
 
 class WorkflowHeader extends Component {
     render() {
@@ -67,6 +68,7 @@ export class Workflow extends Component {
             case WorkflowStages.FEEDBACK:
                 let feedback_letter = FeedbackLetters.findOne({_id: stage.id});
                 let confirm_code = this.props.workflowInstance.confirm_code
+                // Note: no finished callback for feedback letters
                 return (
                     <FeedbackLetter
                         feedbackLetter={feedback_letter}
@@ -75,8 +77,11 @@ export class Workflow extends Component {
                 );
 
             case WorkflowStages.COOP:
+                let coop_workflow = CoopWorkflows.findOne({_id: stage.id});
                 return (
                     <CoopWorkflow 
+                        coop_workflow={coop_workflow}
+                        finishedCallback={this.advanceWorkflowStage.bind(this)}
                     />
                 );
         }
