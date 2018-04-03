@@ -41,6 +41,8 @@ export class Survey extends Component {
 
     handleSubmit() {
         console.log(this.state.responses);
+        // TODO: submit response
+        this.props.finishedCallback();
     }
 
     handleText(question_num, event) {

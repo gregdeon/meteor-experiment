@@ -9,6 +9,8 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
+import {Workflows} from './workflows.js';
+
 export const WorkflowInstances = new Mongo.Collection('workflowinstances');
 
 if (Meteor.isServer) {
@@ -17,3 +19,25 @@ if (Meteor.isServer) {
         return WorkflowInstances.find();
     });
 }
+
+Meteor.methods({
+    'workflowinstances.advanceStage'(instance_id) {
+        let instance = WorkflowInstances.findOne({_id: instance_id});
+        let workflow = Workflows.findOne({_id: instance.workflow_id});
+
+        let stage = instance.stage;
+        let new_stage = stage + 1;
+        let num_stages = workflow.stages.length;
+
+        if(new_stage < num_stages) {
+            let upd = {stage: new_stage};
+            if(new_stage === num_stages - 1) {
+                // generate confirm_code here
+                upd.confirm_code = "ABC123";
+            }
+            WorkflowInstances.update(instance_id, {
+                $set: upd
+            });
+        }
+    }
+});

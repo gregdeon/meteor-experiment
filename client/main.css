@@ -48,8 +48,9 @@ button:disabled {
     color: #ff0000;
 }
 
-/* Consent form */
-.consent-container {
+/* Consent form and feedback letter */
+.consent-container,
+.letter-container {
     max-width: 800px;
     text-align: justify;
     font-size: 20px;
@@ -57,7 +58,8 @@ button:disabled {
     margin: auto;
 }
 
-.consent-container h1 {
+.consent-container h1,
+.letter-container h1 {
     text-align: center;
 }
 
@@ -68,6 +70,11 @@ button:disabled {
 
 .consent-button {
     margin: 5px;
+}
+
+.letter-confirm-code {
+    font-size: 24px;
+    text-align: center;
 }
 
 /* Questionnaire screen */

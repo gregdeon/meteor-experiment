@@ -4,15 +4,18 @@ import {Workflows, WorkflowStages} from '../imports/api/workflows.js';
 import {WorkflowInstances} from '../imports/api/workflowInstances.js';
 import {Surveys, QuestionTypes} from '../imports/api/surveys.js';
 import {ConsentForms} from '../imports/api/consentForms.js';
+import {FeedbackLetters} from '../imports/api/feedbackLetters.js';
+
 import {Puzzles} from '../imports/api/puzzles.js';
 import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js'
 
 
-function addExampleWorkflow(consent_id, survey_id) {
+function addExampleWorkflow(consent_id, survey_id, letter_id) {
     let workflow_id = Workflows.insert({
         stages: [
             {type: WorkflowStages.CONSENT, id: consent_id},
             {type: WorkflowStages.SURVEY, id: survey_id},
+            {type: WorkflowStages.FEEDBACK, id: letter_id},
         ],
     });
 
@@ -20,7 +23,9 @@ function addExampleWorkflow(consent_id, survey_id) {
         // TODO: make these on login
         user_id: 0,
         workflow_id: workflow_id,
-        stage: 1,
+        stage: 0,
+        // TODO: make this on completion
+        confirm_code: null,
     })
 }
 
@@ -62,8 +67,19 @@ function addExampleSurvey() {
             },
             {
                 text: "Gender",
-                type: QuestionTypes.TEXT_SHORT,
+                type: QuestionTypes.MULTIPLE_CHOICE,
+                options: [
+                    "Male", 
+                    "Female", 
+                    "Other",
+                    "Prefer not to say",
+                ],
                 required: true,
+            },
+            {
+                text: "Test",
+                type: QuestionTypes.TEXT_SHORT,
+                required: false,
             },
             {
                 text: "Test",
@@ -76,11 +92,28 @@ function addExampleSurvey() {
     return survey_id;
 }
 
+function addExampleFeedbackLetter() {
+    let letter_id = FeedbackLetters.insert({
+        text: [
+            "Dear participant,",
+            "Thank you for your participation in this study titled 'Study on Cooperative Group Performance in Crowdsourcing Tasks'. As a reminder, the purpose of this study is to investigate how team structures and incentive schemes can affect work quality in crowdsourcing tasks that require multiple crowdworkers to cooperate. Please remember that any data pertaining to you as an individual participant will be kept confidential.",
+            "The results and findings from this study will be shared with the research community through seminars, conferences, presentations, and journal articles. If you are interested in receiving more information about these results, or if you have any other questions or comments related to this study, please do not hesitate to contact me by email at greg.deon@uwaterloo.ca.",
+            "This study has been reviewed and received ethics clearance through a University of Waterloo Research Ethics Committee (ORE# 22705). If you have questions for the Committee contact the Chief Ethics Officer, Office of Research Ethics, at 1-519-888-4567 ext. 36005 or ore-ceo@uwaterloo.ca. ",
+            "Greg d'Eon (greg.deon@uwaterloo.ca)",
+            "Cheriton School of Computer Science",
+            "University of Waterloo",
+        ],
+    });
+
+    return letter_id;
+}
+
 Meteor.startup(() => {
     Puzzles.remove({});
     PuzzleInstances.remove({});
     ConsentForms.remove({});
     Surveys.remove({});
+    FeedbackLetters.remove({});
     Workflows.remove({});
     WorkflowInstances.remove({});
 
@@ -119,5 +152,6 @@ Meteor.startup(() => {
     addPuzzleInstance(puzzle._id);
     let consent_id = addExampleConsentForm();
     let survey_id = addExampleSurvey();
-    addExampleWorkflow(consent_id, survey_id);
+    let letter_id = addExampleFeedbackLetter();
+    addExampleWorkflow(consent_id, survey_id, letter_id);
 });

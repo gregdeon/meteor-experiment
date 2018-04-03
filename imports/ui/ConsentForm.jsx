@@ -24,7 +24,7 @@ export class ConsentForm extends Component {
             this.setState({rejected: true});
         } 
         else {
-            // TODO: callback for proceeding to next workflow item
+            this.props.finishedCallback();
         }
     }
 
