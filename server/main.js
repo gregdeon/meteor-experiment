@@ -11,6 +11,7 @@ import {FeedbackLetters} from '../imports/api/feedbackLetters.js';
 
 // Instances 
 import {WorkflowInstances} from '../imports/api/workflowInstances.js';
+import {CoopWorkflowInstances} from '../imports/api/coopWorkflowInstances.js';
 import {SurveyInstances} from '../imports/api/surveyInstances.js';
 
 // Puzzles
@@ -23,9 +24,9 @@ import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
         stages: [
-            {type: WorkflowStages.CONSENT, id: consent_id},
-            {type: WorkflowStages.SURVEY, id: survey_id},
-//            {type: WorkflowStages.COOP, id: coop_id},
+//            {type: WorkflowStages.CONSENT, id: consent_id},
+//            {type: WorkflowStages.SURVEY, id: survey_id},
+            {type: WorkflowStages.COOP, id: coop_id},
             {type: WorkflowStages.FEEDBACK, id: letter_id},
         ],
     });
@@ -131,6 +132,7 @@ Meteor.startup(() => {
     Workflows.remove({});
     WorkflowInstances.remove({});
     CoopWorkflows.remove({});
+    CoopWorkflowInstances.remove({});
 
     let puzzle = {
         letters: [

@@ -6,7 +6,7 @@ import {Survey} from './Survey.jsx';
 import {FeedbackLetter} from './FeedbackLetter.jsx';
 import {CoopWorkflow} from './CoopWorkflow.jsx';
 
-import {WorkflowStages} from '../api/workflows.js';
+import {Workflows, WorkflowStages} from '../api/workflows.js';
 import {ConsentForms} from '../api/consentForms.js';
 import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
@@ -78,9 +78,10 @@ export class Workflow extends Component {
     }
 
     renderStage() {
-        console.log(this.props);
+        console.log(this.props);        
+        let workflow = Workflows.findOne({_id: this.props.workflowInstance.workflow_id});
         let stage_num = this.props.workflowInstance.stage;
-        let stages = this.props.workflow.stages;
+        let stages = workflow.stages;
         let stage = stages[stage_num];
 
         switch(stage.type) {
@@ -116,10 +117,9 @@ export class Workflow extends Component {
                 );
 
             case WorkflowStages.COOP:
-                let coop_workflow = CoopWorkflows.findOne({_id: stage.id});
                 return (
                     <CoopWorkflow 
-                        coop_workflow={coop_workflow}
+                        coop_instance={this.props.coopInstance}
                         finishedCallback={this.advanceWorkflowStage.bind(this)}
                     />
                 );
@@ -132,20 +132,18 @@ export class Workflow extends Component {
             Meteor.call(
                 'workflowinstances.setUpWorkflow',
                 Meteor.user()._id,
-                this.props.workflow._id,
             )
 
             return (<div>Setting things up for you...</div>);
         }
 
-        let stage_view = this.renderStage();
         return (
             <div>
                 <WorkflowHeader
                     workflow_instance={this.props.workflowInstance}
                     coop_instance={this.props.coopInstance}
                  />
-                {stage_view}
+                {this.renderStage()}
             </div>
         );
     }

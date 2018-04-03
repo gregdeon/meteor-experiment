@@ -22,7 +22,7 @@ if (Meteor.isServer) {
             return WorkflowInstances.find({user_id: this.userId});
         }
         else {
-            return null;
+            return this.ready();
         }
     });
 }
@@ -48,8 +48,16 @@ export function getWorkflowProgress(instance, coop_instance) {
                 break;
             
             case WorkflowStages.COOP:
-                total += coop_workflow.stages.length;
-                done += coop_instance.stage;
+                if(coop_instance) {
+                    total += coop_workflow.stages.length;
+                    done += coop_instance.stage;
+                } 
+                else {
+                    // TODO: how to handle this case?
+                    // User doesn't have a coop workflow yet
+                    // Let's just assume length is 5...
+                    total += 5;
+                }
                 break;
         }
     })
@@ -70,14 +78,18 @@ export function getWorkflowEarnings(instance, coop_instance) {
 }
 
 Meteor.methods({
-    'workflowinstances.setUpWorkflow'(user_id, workflow_id) {
+    'workflowinstances.setUpWorkflow'(user_id) {
         // DEBUG
         console.log("Making workflow instance for " + user_id);
+
+        // TODO: find the workflow that they should use
+        // For now, just assume there's only one
+        let workflow = Workflows.findOne();
 
         // Try to find an instance for them
         let instance = WorkflowInstances.findOne({
             user_id: user_id,
-            workflow_id: workflow_id,
+            workflow_id: workflow._id,
         });
 
         // They have one, so 
@@ -89,7 +101,7 @@ Meteor.methods({
         // No need to return - props will get updated right away
         WorkflowInstances.insert({
             user_id: user_id,
-            workflow_id: workflow_id,
+            workflow_id: workflow._id,
             stage: 0,
             confirm_code: null,
         })

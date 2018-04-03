@@ -5,8 +5,8 @@ import {Meteor} from 'meteor/meteor';
 import {withTracker} from 'meteor/react-meteor-data';
 
 // API requirements
-import {Workflows} from '../api/workflows.js';
 import {WorkflowInstances} from '../api/workflowInstances.js';
+import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
 
@@ -45,8 +45,8 @@ class App extends Component {
         // Show their workflow
         return (
             <Workflow
-                workflow={this.props.workflow}
                 workflowInstance={this.props.workflowInstance}
+                coopInstance={this.props.coopInstance}
             />
         );
     }
@@ -57,6 +57,7 @@ export default withTracker(() => {
         Meteor.subscribe('workflows'),
         Meteor.subscribe('workflowinstances'),
         Meteor.subscribe('coopworkflows'),
+        Meteor.subscribe('coopworkflowinstances'),
         Meteor.subscribe('consentforms'),
         Meteor.subscribe('surveys'),
         Meteor.subscribe('surveyinstances'),
@@ -67,19 +68,27 @@ export default withTracker(() => {
 
     // Check if ready by putting together subscriptions
     let all_ready = true;
-    sub.map((sub_item) => {
+    sub.map((sub_item, idx) => {
         if(!sub_item.ready())
+        {
+            console.log("Not ready: " + idx);
             all_ready = false;
+        }
     });
 
     return {
         ready: all_ready,
         user: Meteor.user(),
 
-        // TODO: handle cases where there's more than one workflow
+        // TODO: handle cases where user has joined more than one workflow
         // For now, assume there's only one
-        workflow: Workflows.findOne(),
+
+        // Note that these may be undefined - it's up to the app to
+        // deal with these cases
         workflowInstance: WorkflowInstances.findOne(),
+        coopInstance: CoopWorkflowInstances.findOne(),
+
+
 
         // TODO: remove these when done debugging
         puzzle: Puzzles.findOne(),

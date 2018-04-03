@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {Meteor} from 'meteor/meteor';
 
 import {CoopWorkflows, CoopWorkflowStages} from '../api/coopWorkflows.js';
 import Notify from 'notifyjs';
@@ -59,7 +60,6 @@ class LobbyScreen extends Component {
             this.endAlert();
         }
         this.setState({alert_num_toggles: toggles_left});
-
     }
 
     // Note: only call this with an even number of toggles
@@ -135,10 +135,23 @@ export class CoopWorkflow extends Component {
 
     render() {
         console.log(this.props);
-        // TODO
-        // let stage_num = this.props.workflowInstance.stage;
-        let stage_num = 0;
-        let stages = this.props.coop_workflow.stages;
+
+        // Get a workflow if we don't have one
+        if(!this.props.coop_instance) {
+            Meteor.call(
+                'coopworkflowinstances.setUpWorkflow',
+                Meteor.userId(),
+            )
+
+            return (<div>Setting things up for you...</div>);
+        }
+
+        let coop_workflow = CoopWorkflows.findOne(
+            {_id: this.props.coop_instance.coop_id}
+        );
+
+        let stage_num = this.props.coop_instance.stage;
+        let stages = coop_workflow.stages;
         let stage = stages[stage_num];
 
         switch(stage.type) {
