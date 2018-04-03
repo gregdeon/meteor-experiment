@@ -4,10 +4,11 @@
 // - user_id: reference to user
 // - workflow_id: reference to workflow
 // - stage: current stage of the user
-// - confirm_code: UUID (TODO: generate this with Random.id() from 'meteor/random')
+// - confirm_code: UUID for confirmation code
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
+import {Random} from 'meteor/random';
 
 import {Workflows} from './workflows.js';
 
@@ -61,10 +62,12 @@ Meteor.methods({
 
         if(new_stage < num_stages) {
             let upd = {stage: new_stage};
+
+            // Generate a confirmation code on the final stage
             if(new_stage === num_stages - 1) {
-                // generate confirm_code here
-                upd.confirm_code = "ABC123";
+                upd.confirm_code = Random.id();
             }
+
             WorkflowInstances.update(instance_id, {
                 $set: upd
             });

@@ -74,7 +74,8 @@ export default withTracker(() => {
     return {
         ready: all_ready,
         user: Meteor.user(),
-        // TODO: find this user's workflow and instance
+
+        // TODO: handle cases where there's more than one workflow
         // For now, assume there's only one
         workflow: Workflows.findOne(),
         workflowInstance: WorkflowInstances.findOne(),

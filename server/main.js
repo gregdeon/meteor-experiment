@@ -11,22 +11,15 @@ import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances
 import {SurveyInstances} from '../imports/api/surveyInstances.js';
 
 
-function addExampleWorkflow(consent_id, survey_id, letter_id) {
+function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
         stages: [
             {type: WorkflowStages.CONSENT, id: consent_id},
             {type: WorkflowStages.SURVEY, id: survey_id},
+            {type: WorkflowStages.COOP, id: coop_id},
             {type: WorkflowStages.FEEDBACK, id: letter_id},
         ],
     });
-
-    let workflowInstance_id = WorkflowInstances.insert({
-        // TODO: make these on login
-        user_id: "75rqcbKdR5ceSnwjc",
-        workflow_id: workflow_id,
-        stage: 0,
-        confirm_code: null,
-    })
 }
 
 function addExampleConsentForm() {
@@ -92,6 +85,11 @@ function addExampleSurvey() {
     return survey_id;
 }
 
+function addCoopWorkflow() {
+    // TODO
+    return 0;
+}
+
 function addExampleFeedbackLetter() {
     let letter_id = FeedbackLetters.insert({
         text: [
@@ -153,6 +151,7 @@ Meteor.startup(() => {
     addPuzzleInstance(puzzle._id);
     let consent_id = addExampleConsentForm();
     let survey_id = addExampleSurvey();
+    let coop_id = addCoopWorkflow();
     let letter_id = addExampleFeedbackLetter();
-    addExampleWorkflow(consent_id, survey_id, letter_id);
+    addExampleWorkflow(consent_id, survey_id, coop_id, letter_id);
 });

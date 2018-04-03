@@ -4,6 +4,7 @@ import {Meteor} from 'meteor/meteor';
 import {ConsentForm} from './ConsentForm.jsx';
 import {Survey} from './Survey.jsx';
 import {FeedbackLetter} from './FeedbackLetter.jsx';
+import {CoopWorkflow} from './CoopWorkflow.jsx';
 
 import {WorkflowStages} from '../api/workflows.js';
 import {ConsentForms} from '../api/consentForms.js';
@@ -75,7 +76,8 @@ export class Workflow extends Component {
 
             case WorkflowStages.COOP:
                 return (
-                    <div>TODO: coop workflow</div>
+                    <CoopWorkflow 
+                    />
                 );
         }
     }
@@ -86,6 +88,7 @@ export class Workflow extends Component {
             Meteor.call(
                 'workflowinstances.setUpWorkflow',
                 Meteor.user()._id,
+                this.props.workflow._id,
             )
 
             return (<div>Setting things up for you...</div>);
