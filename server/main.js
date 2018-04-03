@@ -96,6 +96,7 @@ function addExampleSurvey() {
 
 function addCoopWorkflow() {
     let coop_id = CoopWorkflows.insert({
+        size: 3,
         stages: [
             {type: CoopWorkflowStages.LOBBY, id: null},
         ],

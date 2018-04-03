@@ -72,16 +72,32 @@ button:disabled {
 .workflow-user {
     float: left;
     text-align: left;
+    width: 30%;
 }
 
 .workflow-progress {
     float: center;
     text-align: center;
+    display: inline-flex;
+}
+
+.workflow-progress-bar {
+    background: white;
+    margin: 0 10px;
+    border: 2px solid #7f7f7f;
+    width: 200px;
+    height: 20px;
+}
+
+.workflow-progress-filled {
+    background: #26a69a;
+    height: 100%;
 }
 
 .workflow-earnings {
     float: right;
     text-align: right;
+    width: 30%;
 }
 
 /* Consent form and feedback letter */

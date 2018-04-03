@@ -26,6 +26,22 @@ if (Meteor.isServer) {
     });
 }
 
+export function getWorkflowProgress(instance) {
+    // TODO
+    return {
+        done: 3,
+        total: 5,
+    };
+}
+
+export function getWorkflowEarnings(instance) {
+    // TODO
+    return {
+        base: 250,
+        bonus: 173,
+    };
+}
+
 Meteor.methods({
     'workflowinstances.setUpWorkflow'(user_id, workflow_id) {
         // DEBUG

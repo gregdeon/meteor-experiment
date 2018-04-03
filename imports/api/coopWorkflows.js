@@ -1,6 +1,7 @@
 // coopWorkflows.js
 // Collection for describing steps of an experiment with multiple people
 // Contents:
+// - size: number of players required (assuming exact)
 // - stages: list of objects with
 //   - type: one of WorkflowStages
 //   - id: ID of a lobby, game, etc

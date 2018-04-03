@@ -11,20 +11,52 @@ import {ConsentForms} from '../api/consentForms.js';
 import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
 import {CoopWorkflows} from '../api/coopWorkflows.js';
+import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
 
 class WorkflowHeader extends Component {
+    renderProgress() {
+        let progress = getWorkflowProgress(this.props.workflow_instance);
+        let percent_done = progress.done / progress.total * 100;
+        return (
+            <div className="workflow-progress">
+                Progress: 
+                <div className="workflow-progress-bar">
+                    <div 
+                        className="workflow-progress-filled"
+                        style={{width: percent_done + "%"}}
+                    />
+                </div>
+                {progress.done} / {progress.total}
+            </div>
+        );
+    }
+
+    formatPay(cents) {
+        return "$" + Math.floor(cents/100) + "." + (cents%100);
+    }
+
+    renderEarnings() {
+        let earnings = getWorkflowEarnings(this.props.workflow_instance);
+        return (
+            <div className="workflow-earnings">
+                {"Earnings: "
+                    + this.formatPay(earnings.base) 
+                    + ' (Base) + '
+                    + this.formatPay(earnings.bonus)
+                    + ' (Bonus)'
+                }
+            </div>
+        );
+    }
+
     render() {
         return (
             <div className="workflow-header">
                 <div className="workflow-user">
                     Username: {Meteor.user().username + ' '}
                 </div>
-                <div className="workflow-progress">
-                    Progress: TODO
-                </div>
-                <div className="workflow-earnings">
-                    Earnings: TODO
-                </div>
+                {this.renderProgress()}
+                {this.renderEarnings()}
             </div>
         );
     }
@@ -102,7 +134,9 @@ export class Workflow extends Component {
         let stage_view = this.renderStage();
         return (
             <div>
-                <WorkflowHeader />
+                <WorkflowHeader
+                    workflow_instance={this.props.workflowInstance}
+                 />
                 {stage_view}
             </div>
         );
