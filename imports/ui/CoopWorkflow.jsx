@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
 
 import {CoopWorkflows, CoopWorkflowStages} from '../api/coopWorkflows.js';
+import {isFull} from '../api/coopWorkflowInstances.js';
 import Notify from 'notifyjs';
 
 // Left-pad a number with 0s
@@ -99,15 +100,21 @@ class LobbyScreen extends Component {
     }
 
     render() {   
+        // If our group is full, move on
+        if(isFull(this.props.coop_instance)) {
+            this.props.finishedCallback();
+        }
+
         return (
             <div className="lobby-container">
                 <h1>Pre-Task Lobby</h1>
                 <p>Before you begin the task, we need to find a team for you.</p>
-                <p>We'll send you an alert when your team is ready.</p>
-                <p>You can click `Test Alert' to confirm that this works.</p>
                 <div id="lobby-loader" />
                 <p>Waiting for teammates...</p>
                 <p>Time in queue: {this.getQueueTimeString()}</p>
+            {/* 
+                <p>We'll send you an alert when your team is ready.</p>
+                <p>You can click `Test Alert' to confirm that this works.</p>
                 <div className="lobby-button" >
                     <button 
                         onClick={this.startAlert.bind(this, 6)}
@@ -115,6 +122,7 @@ class LobbyScreen extends Component {
                         Test Alert
                     </button>
                 </div>
+            */}
             </div>
         );
     }
@@ -129,8 +137,13 @@ class LobbyScreen extends Component {
 }
 
 export class CoopWorkflow extends Component {
-    advanceCoopStage() {
-        console.log("TODO");
+    advanceCoopStage(current_stage) {
+        console.log(this.props.coop_instance);
+        Meteor.call(
+            'coopworkflowinstances.advanceStage',
+            this.props.coop_instance._id,
+            current_stage,
+        );
     }
 
     render() {
@@ -146,6 +159,7 @@ export class CoopWorkflow extends Component {
             return (<div>Setting things up for you...</div>);
         }
 
+
         let coop_workflow = CoopWorkflows.findOne(
             {_id: this.props.coop_instance.coop_id}
         );
@@ -154,18 +168,26 @@ export class CoopWorkflow extends Component {
         let stages = coop_workflow.stages;
         let stage = stages[stage_num];
 
-        switch(stage.type) {
-            case CoopWorkflowStages.LOBBY:
-                return (
-                    <LobbyScreen 
-                        finishedCallback={this.advanceCoopStage.bind(this)}
-                    />
-                );
+        // Move on if we're past the end
+        if(stage_num >= stages.length) {
+            this.props.finishedCallback();
+            return null;
+        }
+        else {
+            switch(stage.type) {
+                case CoopWorkflowStages.LOBBY:
+                    return (
+                        <LobbyScreen 
+                            coop_instance={this.props.coop_instance}
+                            finishedCallback={this.advanceCoopStage.bind(this, stage_num)}
+                        />
+                    );
 
-            case CoopWorkflowStages.PUZZLE:
-                return (
-                    <div>TODO</div>
-                );
+                case CoopWorkflowStages.PUZZLE:
+                    return (
+                        <div>TODO</div>
+                    );
+            }
         }
     }
 }

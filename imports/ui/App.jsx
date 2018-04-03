@@ -71,7 +71,6 @@ export default withTracker(() => {
     sub.map((sub_item, idx) => {
         if(!sub_item.ready())
         {
-            console.log("Not ready: " + idx);
             all_ready = false;
         }
     });
