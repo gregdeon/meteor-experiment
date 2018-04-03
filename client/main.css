@@ -59,6 +59,9 @@ button:disabled {
     font-family: sans-serif;
     text-align: center;
     overflow: auto;
+
+    position: sticky;
+    top: 0;
 }
 
 .workflow-user,

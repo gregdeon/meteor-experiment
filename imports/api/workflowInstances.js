@@ -10,7 +10,8 @@ import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 import {Random} from 'meteor/random';
 
-import {Workflows} from './workflows.js';
+import {Workflows, WorkflowStages} from './workflows.js';
+import {CoopWorkflows} from './coopWorkflows.js';
 
 export const WorkflowInstances = new Mongo.Collection('workflowinstances');
 
@@ -26,16 +27,42 @@ if (Meteor.isServer) {
     });
 }
 
-export function getWorkflowProgress(instance) {
-    // TODO
+export function getWorkflowProgress(instance, coop_instance) {
+    let workflow = Workflows.findOne({_id: instance.workflow_id});
+    let coop_workflow = (
+        coop_instance 
+        ? CoopWorkflows.findOne({_id: coop_instance.coop_id})
+        : null
+    );
+
+    let done = 0;
+    let total = 0;
+    workflow.stages.map((stage, idx) => {
+        switch(stage.type) {
+            case WorkflowStages.CONSENT:
+            case WorkflowStages.SURVEY:
+            case WorkflowStages.FEEDBACK:
+                total += 1;
+                if(instance.stage > idx)
+                    done += 1;
+                break;
+            
+            case WorkflowStages.COOP:
+                total += coop_workflow.stages.length;
+                done += coop_instance.stage;
+                break;
+        }
+    })
+
     return {
-        done: 3,
-        total: 5,
+        done: done,
+        // Don't count the very last step
+        total: total-1,
     };
 }
 
-export function getWorkflowEarnings(instance) {
-    // TODO
+export function getWorkflowEarnings(instance, coop_instance) {
+    // TODO: calculate based on work
     return {
         base: 250,
         bonus: 173,

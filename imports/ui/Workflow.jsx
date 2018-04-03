@@ -15,7 +15,12 @@ import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances
 
 class WorkflowHeader extends Component {
     renderProgress() {
-        let progress = getWorkflowProgress(this.props.workflow_instance);
+        console.log(this.props);
+        let progress = getWorkflowProgress(
+            this.props.workflow_instance,
+            this.props.coop_instance
+        );
+
         let percent_done = progress.done / progress.total * 100;
         return (
             <div className="workflow-progress">
@@ -36,14 +41,16 @@ class WorkflowHeader extends Component {
     }
 
     renderEarnings() {
-        let earnings = getWorkflowEarnings(this.props.workflow_instance);
+        let earnings = getWorkflowEarnings(
+            this.props.workflow_instance,
+            this.props.coop_instance
+        );
         return (
             <div className="workflow-earnings">
-                {"Earnings: "
+                {"Base: "
                     + this.formatPay(earnings.base) 
-                    + ' (Base) + '
+                    + ' / Bonus: '
                     + this.formatPay(earnings.bonus)
-                    + ' (Bonus)'
                 }
             </div>
         );
@@ -136,6 +143,7 @@ export class Workflow extends Component {
             <div>
                 <WorkflowHeader
                     workflow_instance={this.props.workflowInstance}
+                    coop_instance={this.props.coopInstance}
                  />
                 {stage_view}
             </div>

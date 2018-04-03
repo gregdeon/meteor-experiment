@@ -23,9 +23,9 @@ import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
         stages: [
-//            {type: WorkflowStages.CONSENT, id: consent_id},
-//            {type: WorkflowStages.SURVEY, id: survey_id},
-            {type: WorkflowStages.COOP, id: coop_id},
+            {type: WorkflowStages.CONSENT, id: consent_id},
+            {type: WorkflowStages.SURVEY, id: survey_id},
+//            {type: WorkflowStages.COOP, id: coop_id},
             {type: WorkflowStages.FEEDBACK, id: letter_id},
         ],
     });
