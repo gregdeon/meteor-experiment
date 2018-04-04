@@ -13,6 +13,15 @@ import {FeedbackLetters} from '../api/feedbackLetters.js';
 import {CoopWorkflows} from '../api/coopWorkflows.js';
 import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
 
+// Left-pad a number with 0s
+function pad(num, digits)
+{
+    var ret = "" + num;
+    while(ret.length < digits)
+        ret = "0" + ret;
+    return ret;
+}
+
 class WorkflowHeader extends Component {
     renderProgress() {
         console.log(this.props);
@@ -37,7 +46,7 @@ class WorkflowHeader extends Component {
     }
 
     formatPay(cents) {
-        return "$" + Math.floor(cents/100) + "." + (cents%100);
+        return "$" + Math.floor(cents/100) + "." + pad(cents%100, 2);
     }
 
     renderEarnings() {

@@ -15,16 +15,26 @@ export class WordSearchPuzzle extends Component {
 
     renderPlaying() {
         return (
-            <div className='word-search-puzzle-container'>
-                <WordSearchGrid
-                    puzzle={this.props.puzzle}
-                    puzzleinstance={this.props.puzzleinstance}
-                />
+            <div id="puzzle-hide-overflow">
+            <div id="puzzle-outer">
+            <div id="puzzle-inner">
+            {/* Hack to center the game*/}
 
+            <div className='word-search-puzzle-container'>
+                <div className="word-search-status">
                 <WordSearchStatus
                     puzzle={this.props.puzzle}
                     puzzleinstance={this.props.puzzleinstance}
                 />
+                </div>
+                <WordSearchGrid
+                    puzzle={this.props.puzzle}
+                    puzzleinstance={this.props.puzzleinstance}
+                />
+            </div>
+
+            </div>
+            </div>
             </div>
         )
     }

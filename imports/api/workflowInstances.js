@@ -11,7 +11,7 @@ import {Mongo} from 'meteor/mongo';
 import {Random} from 'meteor/random';
 
 import {Workflows, WorkflowStages} from './workflows.js';
-import {CoopWorkflows} from './coopWorkflows.js';
+import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
 
 export const WorkflowInstances = new Mongo.Collection('workflowinstances');
 
@@ -49,11 +49,14 @@ export function getWorkflowProgress(instance, coop_instance) {
             
             case WorkflowStages.COOP:
                 if(coop_instance) {
-                    total += coop_workflow.stages.length;
-                    done += coop_instance.stage;
+                    // Ignore lobby 
+                    // TODO: do this with a loop... 
+                    total += coop_workflow.stages.length - 1;
+                    done += coop_instance.stage - 1;
                 } 
                 else {
                     // TODO: how to handle this case?
+                    // Need to look at workflow stage ID to see coop workflow
                     // User doesn't have a coop workflow yet
                     // Let's just assume length is 5...
                     total += 5;
@@ -70,10 +73,28 @@ export function getWorkflowProgress(instance, coop_instance) {
 }
 
 export function getWorkflowEarnings(instance, coop_instance) {
+    let base = 0;
+    let bonus = 0;
+
+    // TODO: this function assumes that the regular workflow is worth nothing
+    if(coop_instance) {
+        let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
+
+        coop_workflow.stages.map((stage, idx) => {
+            switch(stage.type) {
+                case CoopWorkflowStages.PUZZLE:
+                    // TODO: read puzzle instance and find money
+                    base += 50;
+                    bonus += 0;
+                    break;
+            }
+        });
+    }
+
     // TODO: calculate based on work
     return {
-        base: 250,
-        bonus: 173,
+        base: base,
+        bonus: bonus,
     };
 }
 

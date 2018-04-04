@@ -18,6 +18,7 @@ import {SurveyInstances} from '../imports/api/surveyInstances.js';
 import {Puzzles} from '../imports/api/puzzles.js';
 import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js';
 
+import '../imports/api/routing.js';
 
 
 
@@ -95,11 +96,12 @@ function addExampleSurvey() {
     return survey_id;
 }
 
-function addCoopWorkflow() {
+function addCoopWorkflow(puzzle_id) {
     let coop_id = CoopWorkflows.insert({
         size: 3,
         stages: [
             {type: CoopWorkflowStages.LOBBY, id: null},
+            {type: CoopWorkflowStages.PUZZLE, id: puzzle_id},
         ],
     });
 
@@ -169,7 +171,7 @@ Meteor.startup(() => {
     addPuzzleInstance(puzzle._id);
     let consent_id = addExampleConsentForm();
     let survey_id = addExampleSurvey();
-    let coop_id = addCoopWorkflow();
+    let coop_id = addCoopWorkflow(puzzle._id);
     let letter_id = addExampleFeedbackLetter();
     addExampleWorkflow(consent_id, survey_id, coop_id, letter_id);
 });

@@ -23,17 +23,20 @@ export const PuzzleInstanceStates = {
     PUZZLE: 1,
     SCORE: 2,
     FINISHED: 3,
-}
+};
 
 export function addPuzzleInstance(puzzle_id) {
     let puzzle = Puzzles.findOne({_id: puzzle_id});
     let num_words = puzzle.words.length;
     let found_list = Array(num_words).fill(false);
-    PuzzleInstances.insert({
+    
+    let instance_id = PuzzleInstances.insert({
         puzzle: puzzle._id,
         found: found_list,
         state: PuzzleInstanceStates.PUZZLE,
     });
+
+    return instance_id;
 }
 
 // Return an object like

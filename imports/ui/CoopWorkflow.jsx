@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
 
 import {CoopWorkflows, CoopWorkflowStages} from '../api/coopWorkflows.js';
-import {isFull} from '../api/coopWorkflowInstances.js';
-import Notify from 'notifyjs';
+import {isFull, initializeOutput} from '../api/routing.js';
+
+import {Puzzles} from '../api/puzzles.js';
+import {PuzzleInstances} from '../api/puzzleInstances.js';
+
+import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 
 // Left-pad a number with 0s
 function pad(num, digits)
@@ -65,18 +69,6 @@ class LobbyScreen extends Component {
 
     // Note: only call this with an even number of toggles
     startAlert(num_toggles) {
-        var notification = new Notify('Team ready!', {
-            body: 'Your task is starting in a few seconds.',
-        });
-
-        if (Notify.isSupported()) {
-            if (Notify.needsPermission) {
-                Notify.requestPermission();
-            } else {
-                notification.show();
-            }
-        }
-
         this.setState({
             alert_num_toggles: num_toggles
         });
@@ -153,7 +145,6 @@ export class CoopWorkflow extends Component {
         if(!this.props.coop_instance) {
             Meteor.call(
                 'coopworkflowinstances.setUpWorkflow',
-                Meteor.userId(),
             )
 
             return (<div>Setting things up for you...</div>);
@@ -167,6 +158,7 @@ export class CoopWorkflow extends Component {
         let stage_num = this.props.coop_instance.stage;
         let stages = coop_workflow.stages;
         let stage = stages[stage_num];
+        let output_id = this.props.coop_instance.output[stage_num];
 
         // Move on if we're past the end
         if(stage_num >= stages.length) {
@@ -184,8 +176,13 @@ export class CoopWorkflow extends Component {
                     );
 
                 case CoopWorkflowStages.PUZZLE:
+                    let puzzle_instance = PuzzleInstances.findOne({_id: output_id})
+                    let puzzle = Puzzles.findOne({_id: puzzle_instance.puzzle})
                     return (
-                        <div>TODO</div>
+                        <WordSearchPuzzle
+                            puzzle={puzzle}
+                            puzzleinstance={puzzle_instance}
+                        />
                     );
             }
         }
