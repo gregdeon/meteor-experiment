@@ -57,7 +57,8 @@ export class WordSearchPuzzle extends Component {
     }
 
     render() {
-        let debug = true;
+        console.log(this.props.puzzleinstance);
+        let debug = false;
 
         if(debug) {
             return (

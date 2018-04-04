@@ -14,7 +14,9 @@ export const PuzzleInstances = new Mongo.Collection('puzzleinstances');
 
 if (Meteor.isServer) {
     Meteor.publish('puzzleinstances', function puzzleInstancePublication(){
-        return PuzzleInstances.find();
+        return PuzzleInstances.find({
+            // TODO: really need to make sure we don't publish lots of these
+        });
     });
 }
 
@@ -29,7 +31,7 @@ export function addPuzzleInstance(puzzle_id) {
     let puzzle = Puzzles.findOne({_id: puzzle_id});
     let num_words = puzzle.words.length;
     let found_list = Array(num_words).fill(false);
-    
+
     let instance_id = PuzzleInstances.insert({
         puzzle: puzzle._id,
         found: found_list,
@@ -110,8 +112,12 @@ Meteor.methods({
             let word = word_list[i]; 
             if(checkIsMatch(word, start_pos, end_pos)) {
                 found_list[i] = true;
+                let obj = {};
+                obj["found." + i] = true;
                 PuzzleInstances.update(instance_id, {
-                    $set: {found: found_list}
+                    $set: obj
+//                        found: found_list
+                    //}
                 });
                 return true;
             }

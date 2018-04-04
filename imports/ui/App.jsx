@@ -87,10 +87,12 @@ export default withTracker(() => {
         workflowInstance: WorkflowInstances.findOne(),
         coopInstance: CoopWorkflowInstances.findOne(),
 
-
+        // TODO: this is a total hack
+        // Force re-renders whenever a word gets found
+        puzzle_instances: PuzzleInstances.find().fetch(),
 
         // TODO: remove these when done debugging
-        puzzle: Puzzles.findOne(),
-        puzzleInstance: PuzzleInstances.findOne(),
+        //puzzle: Puzzles.findOne(),
+        //puzzleInstance: PuzzleInstances.findOne(),
     };
 })(App);

@@ -168,7 +168,7 @@ Meteor.startup(() => {
 
     Puzzles.insert(puzzle);
     puzzle = Puzzles.findOne();
-    addPuzzleInstance(puzzle._id);
+    //addPuzzleInstance(puzzle._id);
     let consent_id = addExampleConsentForm();
     let survey_id = addExampleSurvey();
     let coop_id = addCoopWorkflow(puzzle._id);
