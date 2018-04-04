@@ -3,6 +3,8 @@ import {getWordList} from '../api/puzzleInstances.js';
 import {getScores, ScoreModes} from '../api/scoreFunctions.js';
 
 export class WordSearchStatus extends Component {
+
+
     renderHeaderItem(title, text, idx) {
         return (
             <div key={idx}>
@@ -15,11 +17,10 @@ export class WordSearchStatus extends Component {
     }
 
     renderHeaderItems() {
-        // TODO: update header
         let header_items = [
-            {title: "Puzzle", text: '0/0'},
-            {title: "Player", text: '0'},
-            {title: "Time", text: '0'},
+            {title: "Puzzle", text: this.props.puzzle_num + 1},
+            {title: "Player", text: this.props.player_num + 1},
+            {title: "Time", text: this.props.time_left},
         ]
 
         let header_jsx = header_items.map((item, idx) => (
@@ -47,8 +48,11 @@ export class WordSearchStatus extends Component {
 
         // Calculate scores here
         // TODO: read score mode from puzzleInstance
-        let score_obj = getScores(this.props.puzzleinstance, ScoreModes.SUPERADDITIVE);
-
+        let score_obj = getScores(
+            this.props.puzzleinstance, 
+            this.props.puzzle.score_mode
+        );
+        
         let players = player_list.map((player_num) => (
             <th key={player_num}>Player {parseInt(player_num) + 1}</th>
         ));

@@ -17,10 +17,9 @@ import {SurveyInstances} from '../imports/api/surveyInstances.js';
 // Puzzles
 import {Puzzles} from '../imports/api/puzzles.js';
 import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js';
+import {ScoreModes, RewardModes} from '../imports/api/scoreFunctions.js';
 
 import '../imports/api/routing.js';
-
-
 
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
@@ -164,6 +163,10 @@ Meteor.startup(() => {
             {x: 4, y: 4, dx: 1, dy: 0, len: 4, player: 2},
             {x: 4, y: 5, dx: 1, dy: 0, len: 4, player: 2},
         ],
+        seconds_puzzle: 180,
+        seconds_score: 60,
+        score_mode: ScoreModes.SUPERADDITIVE,
+        reward_mode: RewardModes.SHAPLEY,
     };
 
     Puzzles.insert(puzzle);

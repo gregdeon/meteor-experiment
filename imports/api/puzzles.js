@@ -9,9 +9,15 @@
 //   - dy: word direction
 //   - len: word length
 //   - player: whose job it is to find this word
+// - seconds_puzzle: length of time to spend on the puzzle
+// - seconds_score: length of time to spend on the score screen
+// - score_mode: one of ScoreModes
+// - reward_mode: one of RewardModes
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
+
+import {ScoreModes, RewardModes} from './scoreFunctions.js';
 
 export const Puzzles = new Mongo.Collection('puzzles');
 

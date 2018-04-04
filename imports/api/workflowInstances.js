@@ -49,10 +49,9 @@ export function getWorkflowProgress(instance, coop_instance) {
             
             case WorkflowStages.COOP:
                 if(coop_instance) {
-                    // Ignore lobby 
                     // TODO: do this with a loop... 
-                    total += coop_workflow.stages.length - 1;
-                    done += coop_instance.stage - 1;
+                    total += coop_workflow.stages.length;
+                    done += coop_instance.stage;
                 } 
                 else {
                     // TODO: how to handle this case?
@@ -81,6 +80,9 @@ export function getWorkflowEarnings(instance, coop_instance) {
         let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
 
         coop_workflow.stages.map((stage, idx) => {
+            if(idx >= coop_instance.stage)
+                return;
+            
             switch(stage.type) {
                 case CoopWorkflowStages.PUZZLE:
                     // TODO: read puzzle instance and find money

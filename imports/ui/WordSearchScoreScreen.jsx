@@ -153,9 +153,8 @@ export class WordSearchScoreScreen extends Component {
     render() {
         let rewards = getRewards(
             this.props.puzzleinstance,
-            RewardModes.SHAPLEY,
-            // TODO: calculate this using instance score mode
-            ScoreModes.SUPERADDITIVE,
+            this.props.puzzle.reward_mode,
+            this.props.puzzle.score_mode,
         );
         return (
             <div className='score-screen-container'>
@@ -165,6 +164,9 @@ export class WordSearchScoreScreen extends Component {
                     <WordSearchStatus
                         puzzle={this.props.puzzle}
                         puzzleinstance={this.props.puzzleinstance}
+                        player_num={this.props.player_num}
+                        puzzle_num={this.props.puzzle_num}
+                        time_left={0}
                     />
                 </div>
                 <p>Individual Payments: </p>

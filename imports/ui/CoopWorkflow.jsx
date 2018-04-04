@@ -178,12 +178,17 @@ export class CoopWorkflow extends Component {
                 case CoopWorkflowStages.PUZZLE:
                     let puzzle_instance = PuzzleInstances.findOne({_id: output_id})
                     let puzzle = Puzzles.findOne({_id: puzzle_instance.puzzle})
+                    let player_num = this.props.coop_instance.user_ids.indexOf(Meteor.userId())
                     return (
                         <WordSearchPuzzle
                             puzzle={puzzle}
                             puzzleinstance={puzzle_instance}
+                            player_num={player_num}
+                            puzzle_num={stage_num - 1}
+                            finishedCallback={this.advanceCoopStage.bind(this, stage_num)}
                         />
                     );
+                    // TODO: puzzle_num assumes 1 lobby at start
             }
         }
     }

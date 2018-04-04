@@ -100,9 +100,6 @@ Meteor.methods({
                     $set: {stage: new_stage},
                 });
             }
-
-            // Add 
-
         }
         
         return (new_stage === num_stages);

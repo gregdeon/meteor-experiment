@@ -29,3 +29,6 @@ if (Meteor.isServer) {
     });
 }
 
+export function getPlayerNumber(user_id, coop_instance) {
+    return coop_instance.indexOf(user_id);
+}

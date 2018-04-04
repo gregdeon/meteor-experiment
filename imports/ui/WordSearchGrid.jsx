@@ -225,6 +225,7 @@ export class WordSearchGrid extends Component {
         Meteor.call(
             'puzzleinstances.findWord', 
             this.props.puzzleinstance._id,
+            this.props.player_num,
             this.state.selection_start,
             this.state.selection_end
         );

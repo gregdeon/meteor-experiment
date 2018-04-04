@@ -4,6 +4,10 @@
 // - puzzle: ID of a puzzle
 // - found: list of true/false for each word
 // - state: current state of the puzzle (waiting, in puzzle, in score screen, finished)
+// - time_length: number of seconds to be spent in the puzzle
+// - time_started: when the team began the puzzle
+// - time_ended: when the team began the score screen
+
 
 
 import {Meteor} from 'meteor/meteor'; 
@@ -36,6 +40,8 @@ export function addPuzzleInstance(puzzle_id) {
         puzzle: puzzle._id,
         found: found_list,
         state: PuzzleInstanceStates.PUZZLE,
+        time_started: null,
+        time_ended: null,
     });
 
     return instance_id;
@@ -101,7 +107,8 @@ function checkIsMatch(word, start_pos, end_pos) {
 }
 
 Meteor.methods({
-    'puzzleinstances.findWord'(instance_id, start_pos, end_pos) {
+    'puzzleinstances.findWord'(instance_id, player_id, start_pos, end_pos) {
+        // TODO: calculate player ID on server side, not client
         let instance = PuzzleInstances.findOne({_id: instance_id})
         let puzzle = Puzzles.findOne({_id: instance.puzzle});
 
@@ -110,14 +117,16 @@ Meteor.methods({
 
         for(let i = 0; i < word_list.length; i++) {
             let word = word_list[i]; 
+            
+            if(word.player !== player_id)
+                continue;
+
             if(checkIsMatch(word, start_pos, end_pos)) {
                 found_list[i] = true;
                 let obj = {};
                 obj["found." + i] = true;
                 PuzzleInstances.update(instance_id, {
                     $set: obj
-//                        found: found_list
-                    //}
                 });
                 return true;
             }
@@ -125,4 +134,48 @@ Meteor.methods({
 
         return false;
     },
+
+    'puzzleinstances.startPuzzle'(instance_id) {
+        // Update the start time only if it's null
+        PuzzleInstances.update(
+            {
+                _id: instance_id,
+                time_started: null,
+            },
+            {
+                $set: {
+                    time_started: new Date(),
+                }
+            }
+        );
+    },
+
+    'puzzleinstances.finishPuzzle'(instance_id) {
+        // Update the finish time only if it's null
+        PuzzleInstances.update(
+            {
+                _id: instance_id,
+                time_finished: null,
+            },
+            {
+                $set: {
+                    state: PuzzleInstanceStates.SCORE,
+                    time_finished: new Date(),
+                }
+            }
+        );
+    },
+
+    'puzzleinstances.finishAllSteps'(instance_id) {
+        PuzzleInstances.update(
+            {
+                _id: instance_id,
+            },
+            {
+                $set: {
+                    state: PuzzleInstanceStates.FINISHED,
+                }
+            }
+        );
+    }
 });
