@@ -4,9 +4,9 @@
 // - puzzle: ID of a puzzle
 // - found: list of true/false for each word
 // - state: current state of the puzzle (waiting, in puzzle, in score screen, finished)
-// - time_length: number of seconds to be spent in the puzzle
 // - time_started: when the team began the puzzle
 // - time_ended: when the team began the score screen
+// - ratings: list of objects like {self: 4, others: 3}
 
 
 
@@ -42,6 +42,8 @@ export function addPuzzleInstance(puzzle_id) {
         state: PuzzleInstanceStates.PUZZLE,
         time_started: null,
         time_ended: null,
+        // TODO: don't hard code 3 people
+        ratings: [null, null, null],
     });
 
     return instance_id;
@@ -162,6 +164,18 @@ Meteor.methods({
                     state: PuzzleInstanceStates.SCORE,
                     time_finished: new Date(),
                 }
+            }
+        );
+    },
+
+    'puzzleinstances.submitRating'(instance_id, player_num, ratings) {
+        let upd = {};
+        upd['ratings.' + player_num] = ratings;
+        console.log(upd);
+        PuzzleInstances.update(
+            instance_id,
+            {
+                $set: upd
             }
         );
     },

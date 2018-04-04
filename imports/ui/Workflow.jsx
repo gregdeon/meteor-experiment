@@ -52,7 +52,8 @@ class WorkflowHeader extends Component {
     renderEarnings() {
         let earnings = getWorkflowEarnings(
             this.props.workflow_instance,
-            this.props.coop_instance
+            this.props.coop_instance,
+            Meteor.userId(),
         );
         return (
             <div className="workflow-earnings">

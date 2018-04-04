@@ -30,5 +30,5 @@ if (Meteor.isServer) {
 }
 
 export function getPlayerNumber(user_id, coop_instance) {
-    return coop_instance.indexOf(user_id);
+    return coop_instance.user_ids.indexOf(user_id);
 }

@@ -163,7 +163,7 @@ Meteor.startup(() => {
             {x: 4, y: 4, dx: 1, dy: 0, len: 4, player: 2},
             {x: 4, y: 5, dx: 1, dy: 0, len: 4, player: 2},
         ],
-        seconds_puzzle: 180,
+        seconds_puzzle: 10,
         seconds_score: 60,
         score_mode: ScoreModes.SUPERADDITIVE,
         reward_mode: RewardModes.SHAPLEY,

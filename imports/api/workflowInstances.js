@@ -12,6 +12,10 @@ import {Random} from 'meteor/random';
 
 import {Workflows, WorkflowStages} from './workflows.js';
 import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
+import {getPlayerNumber} from '../api/coopWorkflowInstances.js';
+import {getRewards} from './scoreFunctions.js';
+import {Puzzles} from './puzzles.js';
+import {PuzzleInstances} from './puzzleInstances.js';
 
 export const WorkflowInstances = new Mongo.Collection('workflowinstances');
 
@@ -71,23 +75,38 @@ export function getWorkflowProgress(instance, coop_instance) {
     };
 }
 
-export function getWorkflowEarnings(instance, coop_instance) {
+export function getWorkflowEarnings(instance, coop_instance, user_id) {
     let base = 0;
     let bonus = 0;
+
+    let player_num = getPlayerNumber(user_id, coop_instance);
+    console.log(user_id);
 
     // TODO: this function assumes that the regular workflow is worth nothing
     if(coop_instance) {
         let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
 
         coop_workflow.stages.map((stage, idx) => {
+            // No money for stages we haven't done yet
             if(idx >= coop_instance.stage)
                 return;
-            
+
             switch(stage.type) {
                 case CoopWorkflowStages.PUZZLE:
-                    // TODO: read puzzle instance and find money
+                    let puzzle_instance_id = coop_instance.output[idx];
+                    let puzzle_instance = PuzzleInstances.findOne(puzzle_instance_id);
+                    let puzzle = Puzzles.findOne(puzzle_instance.puzzle);
+                    let rewards = getRewards(
+                        puzzle_instance,
+                        puzzle.reward_mode,
+                        puzzle.score_mode,
+                    )
+                    console.log(rewards);
+                    console.log(player_num);
+
+                    // TODO: don't assume 50 cents
                     base += 50;
-                    bonus += 0;
+                    bonus += rewards[player_num];
                     break;
             }
         });

@@ -63,8 +63,13 @@ export class WordSearchPuzzle extends Component {
             return true;
         }
 
-        // TODO: check that all submitted ratings
-        return false
+        // Also done if all submitted ratings
+        // TODO don't hardcode 3 players
+        for(let i = 0; i < 3; i++) {
+            if(this.props.puzzleinstance.ratings[i] === null)
+                return false;
+        }
+        return true;
     }
 
     renderWaiting() {
@@ -112,7 +117,7 @@ export class WordSearchPuzzle extends Component {
                 puzzleinstance={this.props.puzzleinstance}
                 player_num={this.props.player_num}
                 puzzle_num={this.props.puzzle_num}
-                time_left={this.props.time_left_score}
+                time_left={this.state.time_left_score}
             />
         );
     }

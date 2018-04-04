@@ -66,6 +66,7 @@ class RewardForm extends Component {
         this.state = {
             selected_self: null,
             selected_others: null,
+            submitted: false,
         };
     }
 
@@ -79,9 +80,18 @@ class RewardForm extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        // TODO: submit
-        console.log("Self: " + this.state.selected_self);
-        console.log("Others: " + this.state.selected_others);
+
+        Meteor.call(
+            'puzzleinstances.submitRating',
+            this.props.puzzleinstance._id,
+            this.props.player_num,
+            {
+                self: this.state.selected_self,
+                others: this.state.selected_others,
+            }
+        );
+
+        this.setState({submitted: true});
     }
 
     renderOptions(group, value, callback) {
@@ -116,6 +126,7 @@ class RewardForm extends Component {
 
     render() {
         let button_active = (
+            this.state.submitted === false &&
             this.state.selected_self !== null &&
             this.state.selected_others !== null
         );
@@ -173,7 +184,11 @@ export class WordSearchScoreScreen extends Component {
                 <RewardDisplay
                     rewards={rewards}
                 />
-                <RewardForm />
+                <RewardForm
+                    puzzleinstance={this.props.puzzleinstance}
+                    player_num={this.props.player_num}
+                />
+                <p>The next task will start in {this.props.time_left} seconds or as soon as all players submit their ratings.</p>
 
             </div>
         );
