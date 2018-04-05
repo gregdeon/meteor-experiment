@@ -79,11 +79,11 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
     let base = 0;
     let bonus = 0;
 
-    let player_num = getPlayerNumber(user_id, coop_instance);
     console.log(user_id);
 
     // TODO: this function assumes that the regular workflow is worth nothing
     if(coop_instance) {
+        let player_num = getPlayerNumber(user_id, coop_instance);
         let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
 
         coop_workflow.stages.map((stage, idx) => {

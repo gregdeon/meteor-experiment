@@ -41,6 +41,7 @@ export class Survey extends Component {
 
     handleSubmit() {
         console.log(this.state.responses);
+        window.scrollTo(0, 0);
         // Submit
         Meteor.call(
             'surveys.addResponse',

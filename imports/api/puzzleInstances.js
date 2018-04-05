@@ -6,7 +6,7 @@
 // - state: current state of the puzzle (waiting, in puzzle, in score screen, finished)
 // - time_started: when the team began the puzzle
 // - time_ended: when the team began the score screen
-// - ratings: list of objects like {self: 4, others: 3}
+// - ratings: list of objects like {self: 4, others: 3, time_submitted: Date.now()}
 
 
 
@@ -169,6 +169,10 @@ Meteor.methods({
     },
 
     'puzzleinstances.submitRating'(instance_id, player_num, ratings) {
+        // Save a timestamp in case we need it
+        ratings.time_submitted = new Date();
+
+        // Put it into the puzzle instance
         let upd = {};
         upd['ratings.' + player_num] = ratings;
         console.log(upd);

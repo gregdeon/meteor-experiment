@@ -121,6 +121,7 @@ export class WordSearchPuzzle extends Component {
             />
         );
     }
+    
 
     renderFinished() {
         return (

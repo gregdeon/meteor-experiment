@@ -189,7 +189,11 @@ export class WordSearchScoreScreen extends Component {
                     player_num={this.props.player_num}
                 />
                 <p>The next task will start in {this.props.time_left} seconds or as soon as all players submit their ratings.</p>
-
+                {this.props.puzzleinstance.ratings.map((rating, idx) => {
+                    return (
+                        <p key={idx}>Player {idx+1}: {rating !== null ? "✔" : "✖"}</p>
+                    );
+                })}
             </div>
         );
     }

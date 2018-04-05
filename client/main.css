@@ -350,6 +350,12 @@ button:disabled {
     display: block;
 }
 
+.score-input input[type="radio"] {
+    -ms-transform: scale(1.5); /* IE 9 */
+    -webkit-transform: scale(1.5); /* Chrome, Safari, Opera */
+    transform: scale(1.5);
+}
+
 /* Pre- and post-game */
 .word-search-text-container {
     text-align: center;

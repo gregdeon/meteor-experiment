@@ -19,6 +19,7 @@ export class ConsentForm extends Component {
     handleSubmit(event) {
         event.preventDefault();
         console.log("Consent: " + this.state.consent);
+        window.scrollTo(0, 0);
 
         if(!this.state.consent) {
             this.setState({rejected: true});
@@ -26,6 +27,7 @@ export class ConsentForm extends Component {
         else {
             this.props.finishedCallback();
         }
+
     }
 
     renderButton(text) {
