@@ -126,7 +126,7 @@ Meteor.methods({
             if(checkIsMatch(word, start_pos, end_pos)) {
                 found_list[i] = true;
                 let obj = {};
-                obj["found." + i] = true;
+                obj["found." + i] = new Date();
                 PuzzleInstances.update(instance_id, {
                     $set: obj
                 });

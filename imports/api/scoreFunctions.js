@@ -16,9 +16,9 @@ function getAllScores(found_list, per_line_scores)
     for(let i = 0; i < words_per_player; i++)
     {
         let found_line = 0;
-        found_line += found_list[i + 0*words_per_player];
-        found_line += found_list[i + 1*words_per_player];
-        found_line += found_list[i + 2*words_per_player];
+        found_line += (found_list[i + 0*words_per_player] ? 1 : 0);
+        found_line += (found_list[i + 1*words_per_player] ? 1 : 0);
+        found_line += (found_list[i + 2*words_per_player] ? 1 : 0);
         
         let score_line = per_line_scores[found_line];
         

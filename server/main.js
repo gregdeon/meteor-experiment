@@ -32,6 +32,7 @@ function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     });
 }
 
+
 function addExampleConsentForm() {
     let consent_id = ConsentForms.insert({
         text: [
@@ -163,7 +164,7 @@ Meteor.startup(() => {
             {x: 4, y: 4, dx: 1, dy: 0, len: 4, player: 2},
             {x: 4, y: 5, dx: 1, dy: 0, len: 4, player: 2},
         ],
-        seconds_puzzle: 10,
+        seconds_puzzle: 60,
         seconds_score: 60,
         score_mode: ScoreModes.SUPERADDITIVE,
         reward_mode: RewardModes.SHAPLEY,

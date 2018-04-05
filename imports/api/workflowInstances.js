@@ -33,11 +33,12 @@ if (Meteor.isServer) {
 
 export function getWorkflowProgress(instance, coop_instance) {
     let workflow = Workflows.findOne({_id: instance.workflow_id});
+    /*
     let coop_workflow = (
         coop_instance 
         ? CoopWorkflows.findOne({_id: coop_instance.coop_id})
         : null
-    );
+    );*/
 
     let done = 0;
     let total = 0;
@@ -52,18 +53,12 @@ export function getWorkflowProgress(instance, coop_instance) {
                 break;
             
             case WorkflowStages.COOP:
+                let coop_workflow = CoopWorkflows.findOne({_id: stage.id})
+                total += coop_workflow.stages.length;
+
                 if(coop_instance) {
-                    // TODO: do this with a loop... 
-                    total += coop_workflow.stages.length;
                     done += coop_instance.stage;
                 } 
-                else {
-                    // TODO: how to handle this case?
-                    // Need to look at workflow stage ID to see coop workflow
-                    // User doesn't have a coop workflow yet
-                    // Let's just assume length is 5...
-                    total += 5;
-                }
                 break;
         }
     })
