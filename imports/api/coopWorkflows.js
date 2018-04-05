@@ -9,7 +9,9 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
-export const CoopWorkflows = new Mongo.Collection('coopworkflows');
+export const CoopWorkflows = new Mongo.Collection('coopworkflows', {
+    idGeneration: 'MONGO',
+});
 
 export const CoopWorkflowStages = {
     LOBBY: 0,

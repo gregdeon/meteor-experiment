@@ -6,7 +6,9 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
-export const ConsentForms = new Mongo.Collection('consentforms');
+export const ConsentForms = new Mongo.Collection('consentforms', {
+    idGeneration: 'MONGO',
+});
 
 if (Meteor.isServer) {
     Meteor.publish('consentforms', function consentFormPublication(){

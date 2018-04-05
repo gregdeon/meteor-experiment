@@ -8,7 +8,9 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
-export const Workflows = new Mongo.Collection('workflows');
+export const Workflows = new Mongo.Collection('workflows', {
+    idGeneration: 'MONGO',
+});
 
 export const WorkflowStages = {
     CONSENT: 0, 

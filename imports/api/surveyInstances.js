@@ -9,7 +9,9 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
-export const SurveyInstances = new Mongo.Collection('surveyinstances');
+export const SurveyInstances = new Mongo.Collection('surveyinstances', {
+    idGeneration: 'MONGO',
+});
 
 if (Meteor.isServer) {
     Meteor.publish('surveyinstances', function surveyInstancePublication(){

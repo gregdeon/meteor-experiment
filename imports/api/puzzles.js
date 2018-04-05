@@ -19,7 +19,9 @@ import {Mongo} from 'meteor/mongo';
 
 import {ScoreModes, RewardModes} from './scoreFunctions.js';
 
-export const Puzzles = new Mongo.Collection('puzzles');
+export const Puzzles = new Mongo.Collection('puzzles', {
+    idGeneration: 'MONGO',
+});
 
 if (Meteor.isServer) {
     Meteor.publish('puzzles', function puzzlePublication(){

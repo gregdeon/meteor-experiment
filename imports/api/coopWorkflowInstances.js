@@ -11,7 +11,9 @@ import {Mongo} from 'meteor/mongo';
 
 import {CoopWorkflows} from './coopWorkflows.js';
 
-export const CoopWorkflowInstances = new Mongo.Collection('coopworkflowinstances');
+export const CoopWorkflowInstances = new Mongo.Collection('coopworkflowinstances', {
+    idGeneration: 'MONGO',
+});
 
 if (Meteor.isServer) {
     Meteor.publish('coopworkflowinstances', function(){

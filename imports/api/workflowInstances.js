@@ -17,7 +17,9 @@ import {getRewards} from './scoreFunctions.js';
 import {Puzzles} from './puzzles.js';
 import {PuzzleInstances} from './puzzleInstances.js';
 
-export const WorkflowInstances = new Mongo.Collection('workflowinstances');
+export const WorkflowInstances = new Mongo.Collection('workflowinstances', {
+    idGeneration: 'MONGO',
+});
 
 if (Meteor.isServer) {
     Meteor.publish('workflowinstances', function(){

@@ -14,7 +14,9 @@ import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 import {Puzzles, getWord} from './puzzles.js'
 
-export const PuzzleInstances = new Mongo.Collection('puzzleinstances');
+export const PuzzleInstances = new Mongo.Collection('puzzleinstances', {
+    idGeneration: 'MONGO',
+});
 
 if (Meteor.isServer) {
     Meteor.publish('puzzleinstances', function puzzleInstancePublication(){

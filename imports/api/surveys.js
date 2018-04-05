@@ -11,7 +11,9 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
-export const Surveys = new Mongo.Collection('surveys');
+export const Surveys = new Mongo.Collection('surveys', {
+    idGeneration: 'MONGO',
+});
 
 export const QuestionTypes = {
     MULTIPLE_CHOICE: 0,

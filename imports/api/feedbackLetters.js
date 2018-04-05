@@ -6,7 +6,9 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
-export const FeedbackLetters = new Mongo.Collection('feedbackletters');
+export const FeedbackLetters = new Mongo.Collection('feedbackletters', {
+    idGeneration: 'MONGO',
+});
 
 if (Meteor.isServer) {
     Meteor.publish('feedbackletters', function feedbackLetterPublication(){
