@@ -55,7 +55,8 @@ export function getWorkflowProgress(instance, coop_instance) {
                 break;
             
             case WorkflowStages.COOP:
-                let coop_workflow = CoopWorkflows.findOne({_id: stage.id})
+                // TODO: this assumes that all workflows have the same length
+                let coop_workflow = CoopWorkflows.findOne({_id: stage.id[0]})
                 total += coop_workflow.stages.length;
 
                 if(coop_instance) {
@@ -82,34 +83,34 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
     if(coop_instance) {
         let player_num = getPlayerNumber(user_id, coop_instance);
         let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
+        if(coop_instance.ready) {
+            coop_workflow.stages.map((stage, idx) => {
+                // No money for stages we haven't done yet
+                if(idx >= coop_instance.stage)
+                    return;
 
-        coop_workflow.stages.map((stage, idx) => {
-            // No money for stages we haven't done yet
-            if(idx >= coop_instance.stage)
-                return;
+                switch(stage.type) {
+                    case CoopWorkflowStages.PUZZLE:
+                        let puzzle_instance_id = coop_instance.output[idx];
+                        let puzzle_instance = PuzzleInstances.findOne(puzzle_instance_id);
+                        let puzzle = Puzzles.findOne(puzzle_instance.puzzle);
+                        let rewards = getRewards(
+                            puzzle_instance,
+                            puzzle.reward_mode,
+                            puzzle.score_mode,
+                        )
+                        console.log(rewards);
+                        console.log(player_num);
 
-            switch(stage.type) {
-                case CoopWorkflowStages.PUZZLE:
-                    let puzzle_instance_id = coop_instance.output[idx];
-                    let puzzle_instance = PuzzleInstances.findOne(puzzle_instance_id);
-                    let puzzle = Puzzles.findOne(puzzle_instance.puzzle);
-                    let rewards = getRewards(
-                        puzzle_instance,
-                        puzzle.reward_mode,
-                        puzzle.score_mode,
-                    )
-                    console.log(rewards);
-                    console.log(player_num);
-
-                    // TODO: don't assume 50 cents
-                    base += 50;
-                    bonus += rewards[player_num];
-                    break;
-            }
-        });
+                        // TODO: don't assume 50 cents
+                        base += 50;
+                        bonus += rewards[player_num];
+                        break;
+                }
+            });
+        }
     }
 
-    // TODO: calculate based on work
     return {
         base: base,
         bonus: bonus,
@@ -159,7 +160,13 @@ Meteor.methods({
 
             // Generate a confirmation code on the final stage
             if(new_stage === num_stages - 1) {
-                upd.confirm_code = Random.id();
+                // We can't actually generate one on the client-side
+                if(this.isSimulation) {
+                    upd.confirm_code = "Generating, please wait...";
+                } 
+                else {
+                    upd.confirm_code = Random.id();
+                }
             }
 
             WorkflowInstances.update(instance_id, {

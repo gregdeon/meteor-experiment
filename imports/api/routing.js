@@ -1,11 +1,42 @@
 // Utilities for creating object instances during experiments
 
 import {Meteor} from 'meteor/meteor';
+import {Mongo} from 'meteor/mongo';
+
+import {incrementCounter} from 'meteor/konecty:mongo-counter';
 
 import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
 import {CoopWorkflowInstances} from './coopWorkflowInstances.js';
 
 import {addPuzzleInstance} from './puzzleInstances.js';
+
+// Helper counter to track how many coop instances we've made
+/*
+export const RoutingCounter = new Mongo.Collection('routingcounter', {
+    idGeneration: 'MONGO',
+});
+
+const doAutoIncrement = function(collection, callback) {
+    let result = collection.rawCollection().findAndModify(
+        {_id: "autoincrement",}, 
+        [], 
+        {
+            $inc: {
+                value: 1
+            }
+        }, 
+        {'new': true},
+        callback
+    );
+}
+
+*/
+Counters = new Mongo.Collection('counters');
+const getRoutingCounter = function() {
+    return incrementCounter(Counters, 'coop_instances')
+}
+
+
 
 export function isFull(coop_instance) {
     let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
@@ -32,18 +63,14 @@ Meteor.methods({
     // Join a coop workflow
     'coopworkflowinstances.setUpWorkflow'() {
         let user_id = this.userId;
+
         // DEBUG
         console.log("Making coop workflow instance for " + user_id);
-
-        // TODO: find the coop workflow that they should use
-        // For now, just assume there's only one
-        let coop_workflow = CoopWorkflows.findOne();
 
         // Try to find an instance for them
         let coop_instance = CoopWorkflowInstances.findOne(
             {
                 user_ids: [user_id],
-                coop_id: coop_workflow._id,
             },
         );
 
@@ -58,30 +85,60 @@ Meteor.methods({
             {
                 // TODO: make this work for any number of players
                 'user_ids.2': {$exists: false},
-                coop_id: coop_workflow._id,
                 stage: 0,
             },
             // Update/insert
             {
+                $setOnInsert: {
+                    ready: false
+                },
                 $push: {
                     user_ids: user_id,
                 },
             },
         );
-        // If we made the group, also initialize our group's outputs
         console.log("Upsert output:");
         console.log(upsert_output);
 
+        // If we made the group...
         if(upsert_output.insertedId) {
+            coop_instance_id = upsert_output.insertedId
+
+            // Find the coop workflow that they should use
+            // NOTE: because this can take a while, don't depend on this output
+            // existing in the UI!
+            let coop_workflows = CoopWorkflows.find().fetch();
+            let coop_count = coop_workflows.length;
+            let coop_num = getRoutingCounter() % coop_count;
+            let coop_workflow = coop_workflows[coop_num]
+            let coop_id = coop_workflow._id
+
+            // Pick a coop workflow
+            CoopWorkflowInstances.update(
+                {_id: coop_instance_id},
+                {
+                    $set: {
+                        coop_id: coop_id,
+                    }
+                }
+            )
+
+            // Also initialize our group's outputs
             coop_workflow.stages.map((stage, idx) => {
                 let output_id = initializeOutput(stage);
                 console.log(CoopWorkflowInstances.update(
-                    {_id: upsert_output.insertedId},
+                    {_id: coop_instance_id},
                     {$push: {
                         output: output_id,
                     }},
                 ));
             });
+
+            // Finally, mark as ready
+            CoopWorkflowInstances.update(
+                {_id: coop_instance_id},
+                {$set: {ready: true}},
+            );
         }
     },
 

@@ -150,6 +150,9 @@ export class CoopWorkflow extends Component {
             return (<div>Setting things up for you...</div>);
         }
 
+        if(!this.props.coop_instance.ready) {
+            return (<div>Setting things up for you...</div>);
+        }
 
         let coop_workflow = CoopWorkflows.findOne(
             {_id: this.props.coop_instance.coop_id}

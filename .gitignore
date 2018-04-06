@@ -1,3 +1,4 @@
 node_modules/
 .meteor/
 up.bat
+settings.json
