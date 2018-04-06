@@ -126,6 +126,40 @@ function shapleySplit(instance, score_mode) {
     return ret;
 }
 
+function unfairSplit(instance, score_mode) {
+    let score_obj = getScores(instance, score_mode);
+
+     // Find each player's number of words
+    var words_per_player = instance.found.length / 3;
+    var found = [0, 0, 0];
+    var found_total = 0;
+    
+    for(var i = 0; i < words_per_player; i++) {
+        for(var j = 0; j < 3; j++) {
+            if(instance.found[i + j*words_per_player]) {
+                found[j] += 1;
+                found_total += 1;
+            }
+        }
+    }
+
+    // Find the worst player
+    var worst_player = 0;
+    for(var i = 1; i < 3; i++) {
+        if(found[i] < found[worst_player]) {
+            worst_player = i;
+        }
+    }
+
+    // Split 40/30/30 with 40 for the worst
+    var ret = [];
+    for(var i = 0; i < 3; i++) {
+        var proportion = (i === worst_player ? 0.5 : 0.25);
+        ret.push(score_obj.total * proportion);
+    }
+    return ret;
+}
+
 function roundDown(split) {
     return split.map((r) => Math.floor(r));
 }
@@ -134,6 +168,7 @@ export const RewardModes = {
     EQUAL: 0,
     PROPORTIONAL: 1,
     SHAPLEY: 2,
+    UNFAIR: 3,
 
     DEBUG: -1,
 };
@@ -149,6 +184,9 @@ export function getRewards(instance, reward_mode, score_mode) {
 
         case RewardModes.SHAPLEY:
             return roundDown(shapleySplit(instance, score_mode));
+
+        case RewardModes.UNFAIR:
+            return roundDown(unfairSplit(instance, score_mode));
 
         case RewardModes.DEBUG:
             return [10, 20, 30];

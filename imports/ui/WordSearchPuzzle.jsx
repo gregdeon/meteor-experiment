@@ -22,12 +22,26 @@ export class WordSearchPuzzle extends Component {
         clearInterval(this.state.update_interval);
     }
 
+    getTimeSinceStart() {
+        let time_started = this.props.puzzleinstance.time_started;
+        let time_now = new Date();
+        let diff_ms = Math.abs(time_now - time_started);
+        let diff_s = (diff_ms / 1000);
+        return diff_s;
+    }
+
+    getTimeSinceFinish() {
+        let time_finished = this.props.puzzleinstance.time_finished;
+        let time_now = new Date();
+        let diff_ms = Math.abs(time_now - time_finished);
+        let diff_s = (diff_ms / 1000);
+        return diff_s;
+    }
+
     updateTimeLeft() {
         let time_now = new Date();
         if(this.props.puzzleinstance.time_started) {
-            let time_started = this.props.puzzleinstance.time_started;
-            let diff_ms = Math.abs(time_now - time_started);
-            let diff_s = Math.floor(diff_ms / 1000);
+            let diff_s = Math.floor(this.getTimeSinceStart());
 
             let left_s = this.props.puzzle.seconds_puzzle - diff_s;
             this.setState({time_left_puzzle: left_s})
@@ -44,10 +58,12 @@ export class WordSearchPuzzle extends Component {
 
     checkPuzzleDone() {
         // Done if time is up
-        if(this.state.time_left_puzzle <= 0) {
-            return true;
-        }
+        if(!this.props.puzzleinstance.time_started)
+            return false;
 
+        if(this.getTimeSinceStart() > this.props.puzzle.seconds_puzzle)
+            return true;
+        
         // or if all words found
         let found = this.props.puzzleinstance.found;
         for(let i = 0; i < found.length; i++) {
@@ -59,9 +75,11 @@ export class WordSearchPuzzle extends Component {
 
     checkScoreDone() {
         // Done if time is up
-        if(this.state.time_left_score <= 0) {
+        if(!this.props.puzzleinstance.time_finished)
+            return false;
+
+        if(this.getTimeSinceFinish() > this.props.puzzle.seconds_score) 
             return true;
-        }
 
         // Also done if all submitted ratings
         // TODO don't hardcode 3 players
@@ -177,6 +195,8 @@ export class WordSearchPuzzle extends Component {
                 break;
 
             case PuzzleInstanceStates.FINISHED:
+                console.log("Calling finished callback")
+                console.log(this.props)
                 this.props.finishedCallback();
         }
 

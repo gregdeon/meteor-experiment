@@ -190,6 +190,7 @@ Meteor.methods({
         PuzzleInstances.update(
             {
                 _id: instance_id,
+                state: PuzzleInstanceStates.SCORE,
             },
             {
                 $set: {
