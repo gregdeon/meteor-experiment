@@ -33,8 +33,12 @@ export class WordSearchStatus extends Component {
         )
     }
 
-    renderOneWord(word_item) {
-        let cls = 'word-search-word ' + (word_item.found ? 'word-found' : '');
+    renderOneWord(word_item, is_own_word) {
+        let own_word_class = 'word-own-p' + (this.props.player_num + 1) + ' '
+        let cls = 'word-search-word ' 
+            + (word_item.found ? 'word-found ' : '')
+            + (is_own_word ? own_word_class : '');
+
         return (
             <div className={cls}>
                 {word_item.word}
@@ -65,7 +69,10 @@ export class WordSearchStatus extends Component {
             for(let j = 0; j < player_list.length; j++) {
                 words_line.push(
                     <td key={j}>
-                        {this.renderOneWord(word_list[player_list[j]][i])}
+                        {this.renderOneWord(
+                            word_list[player_list[j]][i],
+                            j === this.props.player_num,
+                        )}
                     </td>
                 );
             }

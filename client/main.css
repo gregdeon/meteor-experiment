@@ -104,9 +104,10 @@ button:disabled {
     width: 30%;
 }
 
-/* Consent form and feedback letter */
+/* Consent form, feedback letter, and experiment already completed screens */
 .consent-container,
-.letter-container {
+.letter-container,
+.sorry-container {
     max-width: 800px;
     text-align: justify;
     font-size: 20px;
@@ -115,7 +116,8 @@ button:disabled {
 }
 
 .consent-container h1,
-.letter-container h1 {
+.letter-container h1,
+.sorry-container h1 {
     text-align: center;
     font-size: 32px;
 }
@@ -292,6 +294,18 @@ button:disabled {
 
 .word-found {
     text-decoration: line-through;
+}
+
+.word-own-p1 {
+    background-color: var(--p1-color);
+}
+
+.word-own-p2 {
+    background-color: var(--p2-color);
+}
+
+.word-own-p3 {
+    background-color: var(--p3-color);
 }
 
 /* Score screen */

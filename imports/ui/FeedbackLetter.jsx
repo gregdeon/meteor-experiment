@@ -10,6 +10,10 @@ export class FeedbackLetter extends Component {
                     <p key={-1}><b>Confirmation Code:</b> 
                         {' ' + this.props.confirmCode}
                     </p>
+                    <p key={-2}>
+                        Thank you for participating! 
+                        Please return to Mechanical Turk and submit this confirmation code. 
+                    </p>
                 </div>
                 <hr/>
                 {

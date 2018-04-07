@@ -142,6 +142,7 @@ export class Workflow extends Component {
             Meteor.call(
                 'workflowinstances.setUpWorkflow',
                 Meteor.user()._id,
+                this.props.assign_id,
             )
 
             return (<div>Setting things up for you...</div>);

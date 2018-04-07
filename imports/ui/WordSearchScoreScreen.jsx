@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {WordSearchStatus} from './WordSearchStatus.jsx';
 import {getRewards, ScoreModes, RewardModes} from '../api/scoreFunctions.js';
+import {getInstanceRewards} from '../api/puzzleInstances.js';
 
 class OneRewardDisplay extends Component {
     getRewardString() {
@@ -162,10 +163,8 @@ class RewardForm extends Component {
 
 export class WordSearchScoreScreen extends Component {
     render() {
-        let rewards = getRewards(
+        let rewards = getInstanceRewards(
             this.props.puzzleinstance,
-            this.props.puzzle.reward_mode,
-            this.props.puzzle.score_mode,
         );
         return (
             <div className='score-screen-container'>

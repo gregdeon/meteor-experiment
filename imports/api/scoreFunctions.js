@@ -51,15 +51,15 @@ export function getScores(instance, score_mode) {
 
     switch(score_mode) {
         case ScoreModes.FLAT:
-            per_line_scores = [0, 2, 4, 6];
+            per_line_scores = [0, 4, 8, 12];
             break;
 
         case ScoreModes.SUPERADDITIVE:
-            per_line_scores = [0, 1, 3, 6];
+            per_line_scores = [0, 2, 6, 12];
             break;
 
         case ScoreModes.SUBADDITIVE:
-            per_line_scores = [0, 3, 5, 6];
+            per_line_scores = [0, 6, 10, 12];
             break;
     }
 

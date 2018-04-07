@@ -4,6 +4,7 @@
 // - user_id: reference to user
 // - workflow_id: reference to workflow
 // - stage: current stage of the user
+// - assign_id: MTurk assignment ID
 // - confirm_code: UUID for confirmation code
 
 import {Meteor} from 'meteor/meteor'; 
@@ -118,7 +119,7 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
 }
 
 Meteor.methods({
-    'workflowinstances.setUpWorkflow'(user_id) {
+    'workflowinstances.setUpWorkflow'(user_id, assign_id) {
         // DEBUG
         console.log("Making workflow instance for " + user_id);
 
@@ -144,6 +145,7 @@ Meteor.methods({
             workflow_id: workflow._id,
             stage: 0,
             confirm_code: null,
+            assign_id: assign_id,
         })
     },
 

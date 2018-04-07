@@ -6,13 +6,15 @@
 // - state: current state of the puzzle (waiting, in puzzle, in score screen, finished)
 // - time_started: when the team began the puzzle
 // - time_ended: when the team began the score screen
+// - bonuses: list of rewards paid (in cents)
 // - ratings: list of objects like {self: 4, others: 3, time_submitted: Date.now()}
 
 
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
-import {Puzzles, getWord} from './puzzles.js'
+import {Puzzles, getWord} from './puzzles.js';
+import {getRewards} from './scoreFunctions.js';
 
 export const PuzzleInstances = new Mongo.Collection('puzzleinstances', {
     idGeneration: 'MONGO',
@@ -110,6 +112,17 @@ function checkIsMatch(word, start_pos, end_pos) {
     return false;
 }
 
+export function getInstanceRewards(instance) {
+    let puzzle = Puzzles.findOne({_id: instance.puzzle});
+    let rewards = getRewards(
+        instance,
+        puzzle.reward_mode,
+        puzzle.score_mode,
+    );
+
+    return rewards;
+}
+
 Meteor.methods({
     'puzzleinstances.findWord'(instance_id, player_id, start_pos, end_pos) {
         // TODO: calculate player ID on server side, not client
@@ -187,6 +200,8 @@ Meteor.methods({
     },
 
     'puzzleinstances.finishAllSteps'(instance_id) {
+        let instance = PuzzleInstances.findOne({_id: instance_id});
+        bonuses = getInstanceRewards(instance);
         PuzzleInstances.update(
             {
                 _id: instance_id,
@@ -195,6 +210,7 @@ Meteor.methods({
             {
                 $set: {
                     state: PuzzleInstanceStates.FINISHED,
+                    bonuses: bonuses,
                 }
             }
         );
