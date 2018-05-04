@@ -11,6 +11,7 @@ import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
 import {CoopWorkflows} from '../api/coopWorkflows.js';
 
 import {PuzzleView} from './WordSearchPuzzle.jsx';
+import {WordSearchScoreScreen} from './WordSearchScoreScreen.jsx';
 
 class AdminUI extends Component {
     constructor(props) {
@@ -19,6 +20,7 @@ class AdminUI extends Component {
         this.state = {
             selected_puzzle: 0,
             selected_coop: 0,
+            selected_view: 'puzzle', // 'puzzle' or 'score'
         };
     }
 
@@ -32,6 +34,12 @@ class AdminUI extends Component {
     handleSelectedPuzzle(event) {
         this.setState({
             selected_puzzle: event.target.value,
+        });
+    }
+
+    handleSelectedView(view) {
+        this.setState({
+            selected_view: view,
         });
     }
 
@@ -85,11 +93,38 @@ class AdminUI extends Component {
         )
     }
 
+    renderViewSelector() {
+        return (
+            <div>
+                <div className="admin-radio-view" key="puzzle">
+                    <label htmlFor="puzzle">Puzzle</label>
+                    <br/>
+                    <input
+                        type="radio"
+                        id="puzzle"
+                        checked={this.state.selected_view === "puzzle"}
+                        onChange={this.handleSelectedView.bind(this, "puzzle")}
+                    />
+                </div>
+                <div className="admin-radio-view" key="score">                    
+                    <label htmlFor="score">Score</label>
+                    <br/>
+                    <input
+                        type="radio"
+                        id="score"
+                        checked={this.state.selected_view === "score"}
+                        onChange={this.handleSelectedView.bind(this, "score")}
+                    />
+                </div>
+            </div>
+        );
+    }
     renderSelectionBox() {
         return (
             <div className="admin-select-puzzle">
                 {this.renderGroupSelector()}
                 {this.renderPuzzleSelector()}
+                {this.renderViewSelector()}
             </div>
         );
     }
@@ -108,15 +143,29 @@ class AdminUI extends Component {
                 let puzzle_instance = PuzzleInstances.findOne({_id: puzzle_instance_id});
                 console.log(puzzle_instance);
                 let puzzle = Puzzles.findOne({_id: puzzle_instance.puzzle});
-                puzzle_view = (
-                    <PuzzleView
-                        puzzle={puzzle}
-                        puzzleinstance={puzzle_instance}
-                        player_num={0}
-                        puzzle_num={-1}
-                        time_left={180}
-                    />
-                );
+
+                if(this.state.selected_view === "puzzle") {
+                    puzzle_view = (
+                        <PuzzleView
+                            puzzle={puzzle}
+                            puzzleinstance={puzzle_instance}
+                            player_num={0}
+                            puzzle_num={-1}
+                            time_left={180}
+                        />
+                    );
+                } 
+                else if(this.state.selected_view === "score") {
+                    puzzle_view = (
+                        <WordSearchScoreScreen 
+                            puzzle={puzzle}
+                            puzzleinstance={puzzle_instance}
+                            player_num={0}
+                            puzzle_num={-1}
+                            time_left={60}
+                        />
+                    );
+                }
             }
         }
         
