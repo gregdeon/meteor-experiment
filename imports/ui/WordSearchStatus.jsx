@@ -2,9 +2,37 @@ import React, { Component } from 'react';
 import {getWordList} from '../api/puzzleInstances.js';
 import {getScores, ScoreModes} from '../api/scoreFunctions.js';
 
+export class WordSearchTime extends Component {
+    render() {
+        return (
+            <div className='word-search-sidebox'>
+                <b>Time Remaining: </b>
+                {this.props.time_left + " seconds"}
+            </div>
+        );
+    }
+}
+
+export class WordSearchScoreBox extends Component {
+    renderHeader() {
+        return (
+            <div className='word-search-header'>
+                <b>Score</b>
+            </div>
+        )
+    }
+
+    render() {
+        return (
+            <div className='word-search-sidebox'>
+                {this.renderHeader()}
+                <div>TODO</div>
+            </div>
+        );
+    }
+}
+
 export class WordSearchStatus extends Component {
-
-
     renderHeaderItem(title, text, idx) {
         return (
             <div key={idx}>
@@ -16,19 +44,10 @@ export class WordSearchStatus extends Component {
         );
     }
 
-    renderHeaderItems() {
-        let header_items = [
-            {title: "Puzzle", text: this.props.puzzle_num + 1},
-            {title: "Player", text: this.props.player_num + 1},
-            {title: "Time", text: this.props.time_left},
-        ]
-
-        let header_jsx = header_items.map((item, idx) => (
-            this.renderHeaderItem(item.title, item.text, idx)
-        ));
+    renderHeader() {
         return (
             <div className='word-search-header'>
-                {header_jsx}
+                <b>Word List</b>
             </div>
         )
     }
@@ -49,17 +68,14 @@ export class WordSearchStatus extends Component {
     renderWordList() {
         let word_list = getWordList(this.props.puzzle, this.props.puzzleinstance);
         let player_list = Object.keys(word_list).sort();
-
-        // Calculate scores here
-        // TODO: read score mode from puzzleInstance
-        let score_obj = getScores(
-            this.props.puzzleinstance, 
-            this.props.puzzle.score_mode
-        );
         
-        let players = player_list.map((player_num) => (
-            <th key={player_num}>Player {parseInt(player_num) + 1}</th>
-        ));
+        let players = player_list.map((player_num) => {
+            let player_int = parseInt(player_num);
+            let player_text = "Player " + (player_int + 1);
+            if(player_int === this.props.player_num)
+                player_text += " (you)";
+            return <th key={player_num}>{player_text}</th>;
+        });
 
         // Note: assuming equal length word lists
         let word_table = [];
@@ -80,33 +96,17 @@ export class WordSearchStatus extends Component {
             word_table.push(
                 <tr key={i}>
                     {words_line}
-                    <td key={-1}>
-                        {score_obj.scores[i]}
-                    </td>
                 </tr>
             );
         }
-
-        // Total scores
-        let score_line = player_list.map((_, idx) => (<td key={idx} />));
-        score_line.push((
-            <td key={-1}>
-                {score_obj.total}
-            </td>
-        ));
 
         return (
             <table><tbody>
                 <tr key={-1}>
                     {players}
-                    <th key={-1}>Score</th>
                 </tr>
 
                 {word_table}
-
-                <tr key={-2}>
-                    {score_line}
-                </tr>
             </tbody></table>
         )
     }
@@ -114,7 +114,7 @@ export class WordSearchStatus extends Component {
     render() {
         return (
             <div className='word-search-sidebox'>
-                {this.renderHeaderItems()}
+                {this.renderHeader()}
                 {this.renderWordList()}
             </div>
         );

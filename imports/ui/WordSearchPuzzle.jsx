@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {WordSearchGrid} from './WordSearchGrid.jsx';
-import {WordSearchStatus} from './WordSearchStatus.jsx';
+import {WordSearchStatus, WordSearchScoreBox, WordSearchTime} from './WordSearchStatus.jsx';
 import {WordSearchScoreScreen} from './WordSearchScoreScreen.jsx';
 import {PuzzleInstanceStates} from '../api/puzzleInstances.js';
 
@@ -13,16 +13,19 @@ export class PuzzleView extends Component {
             <div id="puzzle-inner">
             {/* Hack to center the game*/}
 
-            <div className='word-search-puzzle-container'>
-                <div className="word-search-status">
+            <div className="word-search-container-left">
+                <WordSearchTime
+                    time_left={this.props.time_left}
+                />
                 <WordSearchStatus
                     puzzle={this.props.puzzle}
                     puzzleinstance={this.props.puzzleinstance}
                     player_num={this.props.player_num}
-                    puzzle_num={this.props.puzzle_num}
-                    time_left={this.props.time_left}
                 />
-                </div>
+                <WordSearchScoreBox 
+                />
+            </div>
+            <div className='word-search-container-right'>
                 <WordSearchGrid
                     puzzle={this.props.puzzle}
                     puzzleinstance={this.props.puzzleinstance}

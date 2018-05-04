@@ -4,146 +4,147 @@
 // etc
 
 
-// Find per-line and total scores
-// Assume 3 players with equal number of words
-// Also assume word order is all P1 words, then P2, then P3
-function getAllScores(found_list, per_line_scores)
+// Convert number of points into tiered reward
+function getTieredReward(points) 
 {
-    let words_per_player = found_list.length / 3;
-    let score_per_line = [];
-    let found_per_line = [];
-    let score_total = 0;
-    for(let i = 0; i < words_per_player; i++)
-    {
-        let found_line = 0;
-        found_line += (found_list[i + 0*words_per_player] ? 1 : 0);
-        found_line += (found_list[i + 1*words_per_player] ? 1 : 0);
-        found_line += (found_list[i + 2*words_per_player] ? 1 : 0);
-        
-        let score_line = per_line_scores[found_line];
-        
-        found_per_line.push(found_line);
-        score_per_line.push(score_line);
-        score_total += score_line;
+    // List of (number of points required, team reward in cents)
+    // Must be in descending order
+    // TODO: define this somewhere
+    let tiers = [
+        {points: 30, reward: 120},
+        {points: 25, reward:  90},
+        {points: 20, reward:  60},
+        {points: 15, reward:  40},
+        {points: 10, reward:  20},
+        {points:  5, reward:  10},
+    ];
+
+    for(let i = 0; i < tiers.length; i++) {
+        if(points >= tiers[i].points) {
+            return tiers[i].reward;
+        }
     }
-    
-    let ret = {
-        scores: score_per_line,
-        found: found_per_line,
-        total: score_total
-    };
-    return ret;
+
+    // Default when not enough 
+    return 0;
 }
 
-export const ScoreModes = {
-    FLAT: 0,
-    SUPERADDITIVE: 1,
-    SUBADDITIVE: 2,
-};
-
-// Return the per-line and 
-// Returned object looks like
-// { scores: [1, 2, 0, 4, ...],
-//   found:  [1, 2, 0, 3, ...],
-//   total:  <sum of scores> }
-export function getScores(instance, score_mode) {
-    let per_line_scores = [0, 0, 0, 0];
-
-    switch(score_mode) {
-        case ScoreModes.FLAT:
-            per_line_scores = [0, 4, 8, 12];
-            break;
-
-        case ScoreModes.SUPERADDITIVE:
-            per_line_scores = [0, 2, 6, 12];
-            break;
-
-        case ScoreModes.SUBADDITIVE:
-            per_line_scores = [0, 6, 10, 12];
-            break;
+// Get number of points from found list
+// For now, 1 word = 1 point
+// Returns number of words found and number of points (these are equal for now)
+function getPoints(found_list, idxs) 
+{
+    let num_found = 0;
+    for(let i = 0; i < idxs.length; i++)
+    {
+        let idx = idxs[i];
+        if(found_list[idx])
+            num_found += 1;
     }
 
-    return getAllScores(instance.found, per_line_scores);
+    return {
+        found: num_found,
+        points: num_found
+    };
+}
+
+// Get number of points for some number of players
+// player_mask is a number in [0, 7]; the 3 bits mark whether to include
+// players 1 (LSB), 2, and 3 (MSB)
+function getPointsPlayers(instance, player_mask) 
+{
+    let found_list = instance.found;
+    let words_per_player = found_list.length / 3;
+    let idx_list = [];
+
+    for(let i = 0; i < 3; i++) {
+        let include_player = !!(player_mask >> i & 1);
+        if(include_player) {
+            for(let j = 0; j < words_per_player; j++) {
+                idx_list.push(i * words_per_player + j);
+            }
+        }
+    }
+
+    return getPoints(found_list, idx_list);
 }
 
 function equalSplit(instance, score_mode) {
-    let score_obj = getScores(instance, score_mode);
+    let points_obj = getPointsPlayers(instance, 0b111);
+    let total_reward = getTieredReward(points_obj.points);
 
     // Split: just divide equally
-    let per_player = score_obj.total / 3;
+    let per_player = total_reward / 3;
     let ret = [per_player, per_player, per_player];
     return ret;
 }
 
 function proportionalSplit(instance, score_mode) {
-    let score_obj = getScores(instance, score_mode);
-
-     // Find each player's number of words
-    var words_per_player = instance.found.length / 3;
-    var found = [0, 0, 0];
-    var found_total = 0;
-    
-    for(var i = 0; i < words_per_player; i++) {
-        for(var j = 0; j < 3; j++) {
-            if(instance.found[i + j*words_per_player]) {
-                found[j] += 1;
-                found_total += 1;
-            }
-        }
-    }
+    let total_points = getPointsPlayers(instance, 0b111);
+    let total_reward = getTieredReward(total_points.points);
+    let total_found = total_points.found;
 
     // If nobody found anything, split equally
-    if(found_total === 0) {
+    if(total_found === 0) {
         return equalSplit(instance, score_mode);
     }
 
-
-    // Otherwise, split proportionally
+    // Split proportionally
     var ret = [];
     for(var i = 0; i < 3; i++) {
-        ret.push(score_obj.total * found[i] / found_total);
+        let found = getPointsPlayers(instance, 1 << i).found;
+        ret.push(total_reward * found / total_found);
     }
+
     return ret;
 }
 
 // Shapley values
 function shapleySplit(instance, score_mode) {
-    // Calculate scores
-    let score_obj = getScores(instance, score_mode);
-    
-    // Find number of lines to consider
-    var words_per_player = instance.found.length / 3;
-    
-    // Build individual shares
-    var ret = [0, 0, 0];
-    for(var i = 0; i < words_per_player; i++) {
-        for(var j = 0; j < 3; j++) {
-            if(instance.found[i + j*words_per_player]) {
-                ret[j] += score_obj.scores[i] / score_obj.found[i];
-            }
-        }
+    // Get list of rewards for all coalitions
+    let rewards = []
+    for(let i = 0; i < 2**3; i++) {
+        let points = getPointsPlayers(instance, i);
+        let reward = getTieredReward(points.points);
+        rewards.push(reward);
     }
+
+    // Weights for Shapley values
+    // TODO: could calculate these automatically
+    let shapley_weights = [
+        // P1
+        [-2, 2, -1, 1, -1, 1, -2, 2],
+        // P2
+        [-2, -1, 2, 1, -1, -2, 1, 2],
+        // P3
+        [-2, -1, -1, -2, 2, 1, 1, 2],
+    ];
+
+    // Calculate final rewards
+    let ret = [];
+    for(let i = 0; i < 3; i++) {
+        let ret_i = 0;
+        for(let j = 0; j < rewards.length; j++) {
+            ret_i += rewards[j] * shapley_weights[i][j];
+        }
+        ret.push(ret_i / 6);
+    }
+
     return ret;
 }
 
 function unfairSplit(instance, score_mode) {
-    let score_obj = getScores(instance, score_mode);
+    let total_points = getPointsPlayers(instance, 0b111);
+    let total_reward = getTieredReward(total_points.points);
+    let total_found = total_points.found;
 
-     // Find each player's number of words
-    var words_per_player = instance.found.length / 3;
-    var found = [0, 0, 0];
-    var found_total = 0;
-    
-    for(var i = 0; i < words_per_player; i++) {
-        for(var j = 0; j < 3; j++) {
-            if(instance.found[i + j*words_per_player]) {
-                found[j] += 1;
-                found_total += 1;
-            }
-        }
+    // Find how many words each player got
+    let found = [];
+    for(let i = 0; i < 3; i++) {
+        found.push(getPointsPlayers(instance, 1 << i).found);
     }
 
-    // Find the worst player
+    // Find which player was the worst
     var worst_player = 0;
     for(var i = 1; i < 3; i++) {
         if(found[i] < found[worst_player]) {
@@ -151,11 +152,13 @@ function unfairSplit(instance, score_mode) {
         }
     }
 
-    // Split 40/30/30 with 40 for the worst
+
+
+    // Split 50/25/25 with 40 for the worst
     var ret = [];
     for(var i = 0; i < 3; i++) {
         var proportion = (i === worst_player ? 0.5 : 0.25);
-        ret.push(score_obj.total * proportion);
+        ret.push(total_reward * proportion);
     }
     return ret;
 }
@@ -173,6 +176,7 @@ export const RewardModes = {
     DEBUG: -1,
 };
 
+// TODO: remove score_mode, maybe?
 export function getRewards(instance, reward_mode, score_mode) {
     let found_list = instance.found;
     switch(reward_mode) {

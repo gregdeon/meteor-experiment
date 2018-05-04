@@ -214,6 +214,7 @@ button:disabled {
 
 #puzzle-inner {
     position: relative; left: -50%; float: left;
+    display: flex;
 }
 
 .word-search-puzzle-container {
@@ -270,25 +271,28 @@ button:disabled {
     /*float: left;*/
     width: 400px;
     /* Put an auto-sized margin on the bottom */
-    margin: 0 30px auto 30px;
+    /*margin: 0 30px auto 30px;*/
+    margin: 10px;
 
-    font-size: 16px;
+    font-size: 20px;
     font-family: sans-serif;
+    text-align: center;
 }
 
 .word-search-sidebox th,
 .word-search-sidebox td {
+    font-size: 16px;
     padding: 0px;
-    text-align: center;
-    width: 100px;
+    width: 150px;
 }
 
 .word-search-header {
     background-color: lightgrey;
     padding: 0px 10px 10px 10px;
     border-radius: 10px;
-    display: flex;
+    display: inline-block;
     justify-content: space-between;
+    text-align: center;
 }
 
 .word-search-word {
