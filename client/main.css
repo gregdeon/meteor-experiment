@@ -279,6 +279,10 @@ button:disabled {
     text-align: center;
 }
 
+.word-search-sidebox table {
+    margin: auto;
+}
+
 .word-search-sidebox th,
 .word-search-sidebox td {
     font-size: 16px;
@@ -388,7 +392,7 @@ button:disabled {
 .admin-select-puzzle 
 {
     text-align: center;
-    font-size: 24px;
+    font-size: 20px;
     font-family: sans-serif;
     margin: 20px auto;
     padding: 10px;
@@ -399,7 +403,7 @@ button:disabled {
 
 .admin-select-puzzle select
 {
-    font-size: 24px;
+    font-size: 20px;
     padding: 10px;
 }
 
@@ -418,4 +422,32 @@ button:disabled {
     -ms-transform: scale(1.5); /* IE 9 */
     -webkit-transform: scale(1.5); /* Chrome, Safari, Opera */
     transform: scale(1.5);
+}
+
+.tutorial-container {
+    text-align: center;
+}
+
+.tutorial-inner {
+    display: inline-block;
+    position: relative;
+}
+
+.tutorial-box {
+    position: absolute;
+    /*
+    border-style: solid;
+    */
+}
+/*
+.introjs-relativePosition > td { position: relative; }
+.introjs-showElement > td { z-index: 9999999 !important; }
+*/
+.introjs-helperLayer {
+    background: rgba(0, 0, 0, 0) !important;
+    border: 4px solid;
+}
+
+.introjs-overlay {
+    opacity: 0 !important;
 }

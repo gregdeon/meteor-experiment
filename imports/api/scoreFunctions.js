@@ -3,13 +3,9 @@
 // N, N+1, N+2, ..., 2N-1: player 2
 // etc
 
-
-// Convert number of points into tiered reward
-function getTieredReward(points) 
-{
+export function getRewardTiers() {
     // List of (number of points required, team reward in cents)
     // Must be in descending order
-    // TODO: define this somewhere
     let tiers = [
         {points: 30, reward: 120},
         {points: 25, reward:  90},
@@ -17,11 +13,22 @@ function getTieredReward(points)
         {points: 15, reward:  40},
         {points: 10, reward:  20},
         {points:  5, reward:  10},
+        {points:  0, reward:   0},
     ];
 
+    return tiers;
+}
+
+// Convert number of points into tiered reward
+export function getTieredReward(points) 
+{
+    let tiers = getRewardTiers();
     for(let i = 0; i < tiers.length; i++) {
         if(points >= tiers[i].points) {
-            return tiers[i].reward;
+            return {
+                tier: i,
+                reward: tiers[i].reward,
+            };
         }
     }
 
@@ -71,7 +78,7 @@ function getPointsPlayers(instance, player_mask)
 
 function equalSplit(instance, score_mode) {
     let points_obj = getPointsPlayers(instance, 0b111);
-    let total_reward = getTieredReward(points_obj.points);
+    let total_reward = getTieredReward(points_obj.points).reward;
 
     // Split: just divide equally
     let per_player = total_reward / 3;
@@ -81,7 +88,7 @@ function equalSplit(instance, score_mode) {
 
 function proportionalSplit(instance, score_mode) {
     let total_points = getPointsPlayers(instance, 0b111);
-    let total_reward = getTieredReward(total_points.points);
+    let total_reward = getTieredReward(total_points.points).reward;
     let total_found = total_points.found;
 
     // If nobody found anything, split equally
@@ -105,7 +112,7 @@ function shapleySplit(instance, score_mode) {
     let rewards = []
     for(let i = 0; i < 2**3; i++) {
         let points = getPointsPlayers(instance, i);
-        let reward = getTieredReward(points.points);
+        let reward = getTieredReward(points.points).reward;
         rewards.push(reward);
     }
 
@@ -135,7 +142,7 @@ function shapleySplit(instance, score_mode) {
 
 function unfairSplit(instance, score_mode) {
     let total_points = getPointsPlayers(instance, 0b111);
-    let total_reward = getTieredReward(total_points.points);
+    let total_reward = getTieredReward(total_points.points).reward;
     let total_found = total_points.found;
 
     // Find how many words each player got
@@ -195,4 +202,14 @@ export function getRewards(instance, reward_mode, score_mode) {
         case RewardModes.DEBUG:
             return [10, 20, 30];
     }
+}
+
+// Helper function for score box
+export function getCurrentStatus(instance, reward_mode) {
+    let total_points = getPointsPlayers(instance, 0b111);
+    let reward = getTieredReward(total_points.points);
+    return {
+        points: total_points.points,
+        tier: reward.tier,
+    };
 }

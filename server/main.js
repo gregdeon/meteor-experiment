@@ -8,6 +8,7 @@ import {CoopWorkflows, CoopWorkflowStages} from '../imports/api/coopWorkflows.js
 import {Surveys, QuestionTypes} from '../imports/api/surveys.js';
 import {ConsentForms} from '../imports/api/consentForms.js';
 import {FeedbackLetters} from '../imports/api/feedbackLetters.js';
+import {Tutorials} from '../imports/api/tutorials.js';
 
 // Instances 
 import {WorkflowInstances} from '../imports/api/workflowInstances.js';

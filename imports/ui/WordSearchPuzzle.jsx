@@ -23,6 +23,8 @@ export class PuzzleView extends Component {
                     player_num={this.props.player_num}
                 />
                 <WordSearchScoreBox 
+                    puzzle={this.props.puzzle}
+                    puzzle_instance={this.props.puzzleinstance}
                 />
             </div>
             <div className='word-search-container-right'>

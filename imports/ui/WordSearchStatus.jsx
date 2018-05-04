@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import {getWordList} from '../api/puzzleInstances.js';
-import {getScores, ScoreModes} from '../api/scoreFunctions.js';
+import {getRewardTiers, getCurrentStatus, getScores, ScoreModes} from '../api/scoreFunctions.js';
+
+// Left-pad a number with 0s
+function pad(num, digits)
+{
+    var ret = "" + num;
+    while(ret.length < digits)
+        ret = "0" + ret;
+    return ret;
+}
 
 export class WordSearchTime extends Component {
     render() {
@@ -14,19 +23,77 @@ export class WordSearchTime extends Component {
 }
 
 export class WordSearchScoreBox extends Component {
-    renderHeader() {
+    renderTiers(tier) {
+        let tier_table = [];
+        let tiers = getRewardTiers();
+
+        for(let i = 0; i < tiers.length; i++) {
+            let point_range = (i > 0 ?
+                tiers[i].points.toString() + " - " + (tiers[i-1].points - 1).toString() :
+                tiers[i].points.toString() + "+"
+            );
+            let reward_cents = tiers[i].reward;
+            let reward = "$" + Math.floor(reward_cents / 100) + "." + pad(reward_cents % 100, 2);
+
+            if(i === tier) {
+                point_range = <b>{point_range}</b>;
+                reward = <b>{reward}</b>;
+            }
+
+            tier_table.push(
+                <tr key={i}>
+                    <td>{point_range}</td>
+                    <td>{reward}</td>
+                </tr>
+            );
+        }
+
+/*
+        let words_per_player = word_list[player_list[0]].length;
+        for(let i = 0; i < words_per_player; i++) {
+            let words_line = [];
+            for(let j = 0; j < player_list.length; j++) {
+                words_line.push(
+                    <td key={j}>
+                        {this.renderOneWord(
+                            word_list[player_list[j]][i],
+                            j === this.props.player_num,
+                        )}
+                    </td>
+                );
+            }
+        }*/
+
+        return (
+            <table><tbody>
+                <tr key={-1}>
+                    <th>Points</th>
+                    <th>Bonus</th>
+                </tr>
+
+                {tier_table}
+            </tbody></table>
+        )
+    }
+
+    renderHeader(points) {
         return (
             <div className='word-search-header'>
-                <b>Score</b>
+                <b>Current Score: </b> {points} Points
             </div>
         )
     }
 
     render() {
+        let current_reward = getCurrentStatus(
+            this.props.puzzle_instance,
+            this.props.puzzle.score_mode
+        );
+
         return (
             <div className='word-search-sidebox'>
-                {this.renderHeader()}
-                <div>TODO</div>
+                {this.renderHeader(current_reward.points)}
+                {this.renderTiers(current_reward.tier)}
             </div>
         );
     }

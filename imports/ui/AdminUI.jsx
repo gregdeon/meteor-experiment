@@ -9,9 +9,12 @@ import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
 import {CoopWorkflows} from '../api/coopWorkflows.js';
+import {Tutorials} from '../api/tutorials.js';
 
 import {PuzzleView} from './WordSearchPuzzle.jsx';
 import {WordSearchScoreScreen} from './WordSearchScoreScreen.jsx';
+
+import {TutorialScreen} from './Tutorial.jsx';
 
 class AdminUI extends Component {
     constructor(props) {
@@ -200,7 +203,15 @@ class AdminUI extends Component {
             );
         }
 
-        return this.renderPuzzleView();
+        let tutorial = Tutorials.findOne();
+        return (
+            <div>
+                {this.renderPuzzleView()}
+                <TutorialScreen 
+                    tutorial={tutorial}
+                />
+            </div>
+        );
     }
 }
 
@@ -217,6 +228,7 @@ export default withTracker(() => {
         Meteor.subscribe('puzzleinstances'),
         Meteor.subscribe('coopworkflowinstances'),
         Meteor.subscribe('coopworkflows'),
+        Meteor.subscribe('tutorials'),
         Roles.subscription
     ];
 
