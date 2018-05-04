@@ -115,7 +115,7 @@ class App extends Component {
         if(debug) {   
             return (
                 <div>
-                    <WordSearchPuzzle 
+                    <WordSearchScoreScreen 
                         puzzle={this.props.puzzle}
                         puzzleinstance={this.props.puzzleInstance}
                     />

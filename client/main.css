@@ -67,7 +67,8 @@ button:disabled {
 
 .workflow-user,
 .workflow-progress,
-.workflow-earnings
+.workflow-earnings,
+.workflow-admin
 {
     margin: 20px 10px;
     display: inline-block;
@@ -79,7 +80,9 @@ button:disabled {
     width: 30%;
 }
 
-.workflow-progress {
+.workflow-progress, 
+.workflow-admin
+{
     float: center;
     text-align: center;
     display: inline-flex;
@@ -375,4 +378,28 @@ button:disabled {
     text-align: center;
     font-size: 20px;
     font-family: sans-serif;
+}
+
+/* Admin panel */
+.admin-select-puzzle 
+{
+    text-align: center;
+    font-size: 24px;
+    font-family: sans-serif;
+    margin: 20px auto;
+    padding: 10px;
+
+    max-width: 600px;
+    border-style: solid;
+}
+
+.admin-select-puzzle select
+{
+    font-size: 24px;
+    padding: 10px;
+}
+
+.admin-select-puzzle p
+{
+    margin: 10px;
 }

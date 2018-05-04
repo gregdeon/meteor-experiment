@@ -19,11 +19,17 @@ if (Meteor.isServer) {
     Meteor.publish('coopworkflowinstances', function(){
         // If they're logged in, show their instances
         if(this.userId) {
-            return CoopWorkflowInstances.find(
-                {
-                    user_ids: this.userId,
-                }
-            );
+            // If they're an admin, publish everything
+            if(Roles.userIsInRole(this.userId, "admin", Roles.GLOBAL_GROUP)) {
+                return CoopWorkflowInstances.find({});
+            }
+            else {
+                return CoopWorkflowInstances.find(
+                    {
+                        user_ids: this.userId,
+                    }
+                );
+            }
         }
         else {
             return this.ready();

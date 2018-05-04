@@ -4,6 +4,39 @@ import {WordSearchStatus} from './WordSearchStatus.jsx';
 import {WordSearchScoreScreen} from './WordSearchScoreScreen.jsx';
 import {PuzzleInstanceStates} from '../api/puzzleInstances.js';
 
+// Export helper classes for admin view
+export class PuzzleView extends Component {
+    render() {
+        return (
+            <div id="puzzle-hide-overflow">
+            <div id="puzzle-outer">
+            <div id="puzzle-inner">
+            {/* Hack to center the game*/}
+
+            <div className='word-search-puzzle-container'>
+                <div className="word-search-status">
+                <WordSearchStatus
+                    puzzle={this.props.puzzle}
+                    puzzleinstance={this.props.puzzleinstance}
+                    player_num={this.props.player_num}
+                    puzzle_num={this.props.puzzle_num}
+                    time_left={this.props.time_left}
+                />
+                </div>
+                <WordSearchGrid
+                    puzzle={this.props.puzzle}
+                    puzzleinstance={this.props.puzzleinstance}
+                    player_num={this.props.player_num}
+                />
+            </div>
+
+            </div>
+            </div>
+            </div>
+        )
+    }
+}
+
 export class WordSearchPuzzle extends Component {
     constructor(props) {
         super(props);
@@ -100,31 +133,13 @@ export class WordSearchPuzzle extends Component {
 
     renderPlaying() {
         return (
-            <div id="puzzle-hide-overflow">
-            <div id="puzzle-outer">
-            <div id="puzzle-inner">
-            {/* Hack to center the game*/}
-
-            <div className='word-search-puzzle-container'>
-                <div className="word-search-status">
-                <WordSearchStatus
-                    puzzle={this.props.puzzle}
-                    puzzleinstance={this.props.puzzleinstance}
-                    player_num={this.props.player_num}
-                    puzzle_num={this.props.puzzle_num}
-                    time_left={this.state.time_left_puzzle}
-                />
-                </div>
-                <WordSearchGrid
-                    puzzle={this.props.puzzle}
-                    puzzleinstance={this.props.puzzleinstance}
-                    player_num={this.props.player_num}
-                />
-            </div>
-
-            </div>
-            </div>
-            </div>
+            <PuzzleView 
+                puzzle={this.props.puzzle}
+                puzzleinstance={this.props.puzzleinstance}
+                player_num={this.props.player_num}
+                puzzle_num={this.props.puzzle_num}
+                time_left={this.state.time_left_puzzle}
+            />
         )
     }
 

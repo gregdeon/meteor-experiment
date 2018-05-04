@@ -24,6 +24,7 @@ if (Meteor.isServer) {
     Meteor.publish('puzzleinstances', function puzzleInstancePublication(){
         return PuzzleInstances.find({
             // TODO: really need to make sure we don't publish lots of these
+            // If we do this, make sure admin can still see all of them
         });
     });
 }
