@@ -327,7 +327,7 @@ button:disabled {
 }
 
 .score-screen-status {
-    display: inline-block;   
+    display: inline-flex;   
 }
 
 .score-screen-reward {
@@ -363,12 +363,14 @@ button:disabled {
 
 .score-inputs {
     display: inline-flex;
+    margin: 0 0 20px;
 }
 
 .score-input {
     display: block;
-    margin: auto 30px 0px;
-    width: 50px;
+    margin: auto 5px 0px;
+    width: 80px;
+    white-space: pre-wrap;
 }
 
 .score-input input label {

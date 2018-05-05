@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
 import {getWordList} from '../api/puzzleInstances.js';
 import {getRewardTiers, getCurrentStatus, getScores, ScoreModes} from '../api/scoreFunctions.js';
-
-// Left-pad a number with 0s
-function pad(num, digits)
-{
-    var ret = "" + num;
-    while(ret.length < digits)
-        ret = "0" + ret;
-    return ret;
-}
+import {centsToString} from '../api/utils.js';
 
 export class WordSearchTime extends Component {
     render() {
@@ -33,7 +25,7 @@ export class WordSearchScoreBox extends Component {
                 tiers[i].points.toString() + "+"
             );
             let reward_cents = tiers[i].reward;
-            let reward = "$" + Math.floor(reward_cents / 100) + "." + pad(reward_cents % 100, 2);
+            let reward = centsToString(reward_cents);
 
             if(i === tier) {
                 point_range = <b>{point_range}</b>;
@@ -47,22 +39,6 @@ export class WordSearchScoreBox extends Component {
                 </tr>
             );
         }
-
-/*
-        let words_per_player = word_list[player_list[0]].length;
-        for(let i = 0; i < words_per_player; i++) {
-            let words_line = [];
-            for(let j = 0; j < player_list.length; j++) {
-                words_line.push(
-                    <td key={j}>
-                        {this.renderOneWord(
-                            word_list[player_list[j]][i],
-                            j === this.props.player_num,
-                        )}
-                    </td>
-                );
-            }
-        }*/
 
         return (
             <table><tbody>

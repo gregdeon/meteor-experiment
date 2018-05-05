@@ -9,6 +9,7 @@
     "bcrypt": "^1.0.3",
     "create-react-class": "^15.6.3",
     "history": "^4.7.2",
+    "intro.js": "^2.9.3",
     "meteor-node-stubs": "^0.3.2",
     "notifyjs": "^3.0.0",
     "query-string": "^6.0.0",

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import {WordSearchStatus} from './WordSearchStatus.jsx';
+import {WordSearchStatus, WordSearchScoreBox} from './WordSearchStatus.jsx';
 import {getRewards, ScoreModes, RewardModes} from '../api/scoreFunctions.js';
 import {getInstanceRewards} from '../api/puzzleInstances.js';
+import {centsToString} from '../api/utils.js';
 
 class OneRewardDisplay extends Component {
     getRewardString() {
@@ -95,24 +96,29 @@ class RewardForm extends Component {
         this.setState({submitted: true});
     }
 
-    renderOptions(group, value, callback) {
-        let option_nums = [1, 2, 3, 4, 5];
+    renderOptions(group, value, extreme_labels, callback) {
+        let option_nums = [1, 2, 3, 4, 5, 6, 7];
         return (
             <div className="score-inputs" key={group}>
                 {
                     option_nums.map((num) => {
                         let label = "" + num;
-                        if (num === 1) 
-                            label = "Very\nUnfair\n" + label;
-                        if (num === 5) 
-                            label = "Very\nFair\n" + label;
+                        if (num === 1) {
+                            label = extreme_labels[0] + "\n" + label;
+                        }
+                        if (num === 4) {
+                            label = "Neutral\n" + label;
+                        }
+                        if (num === 7) {
+                            label = extreme_labels[1] + "\n" + label;
+                        }
                         return (
                             <div className="score-input" key={num}>
-                                <label htmlFor={num}>{label}</label>
+                                <label htmlFor={group + "-" + num}>{label}</label>
                                 <br/>
                                 <input 
                                     type="radio"
-                                    id={num}
+                                    id={group + "-" + num}
                                     name={group}
                                     checked={value === num}
                                     onChange={callback.bind(this, num)}
@@ -135,16 +141,18 @@ class RewardForm extends Component {
             <form
                 onSubmit={this.handleSubmit.bind(this)}
             >
-                <p> How fair is this payment to you?</p>
+                <p> How happy are you with your own payment?</p>
                 {this.renderOptions(
                     0, 
                     this.state.selected_self, 
+                    ["Unhappy", "Happy"],
                     this.handleChangeSelf
                 )}
                 <p> How fair is this payment to your teammates? </p>
                 {this.renderOptions(
                     1, 
                     this.state.selected_others,
+                    ["Unfair", "Fair"],
                     this.handleChangeOthers
                 )}
                 <br/>
@@ -166,10 +174,14 @@ export class WordSearchScoreScreen extends Component {
         let rewards = getInstanceRewards(
             this.props.puzzleinstance,
         );
+        let total = 0;
+        for(let i = 0; i < rewards.length; i++)
+            total += rewards[i];
+
         return (
             <div className='score-screen-container'>
                 <h1>Game Over!</h1>
-                <p>Final Score: </p>
+                <p>Team Bonus: {centsToString(total)} </p>
                 <div className='score-screen-status'>
                     <WordSearchStatus
                         puzzle={this.props.puzzle}
@@ -177,6 +189,10 @@ export class WordSearchScoreScreen extends Component {
                         player_num={this.props.player_num}
                         puzzle_num={this.props.puzzle_num}
                         time_left={0}
+                    />
+                    <WordSearchScoreBox
+                        puzzle={this.props.puzzle}
+                        puzzle_instance={this.props.puzzleinstance}
                     />
                 </div>
                 <p>Individual Payments: </p>
