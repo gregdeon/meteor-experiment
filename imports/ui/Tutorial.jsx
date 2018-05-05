@@ -33,36 +33,11 @@ export class TutorialScreen extends Component {
         introJs().setOptions({
             exitOnOverlayClick: false,
             exitOnEsc: false,
+            scrollTo: "tooltip",
         }).start();
     }
 
     render() {
-        /*
-        let tutorial_items = [
-            {
-                x: 5,
-                y: 20,
-                w: 1000,
-                h: 720,
-                text: "In this experiment, you will solve 5 word search puzzles in a team with 2 other crowd workers. The first puzzle will serve as a practice round.",
-            },   
-            {
-                x: 5,
-                y: 77,
-                w: 414,
-                h: 375,
-                text: "During each puzzle, your team will be given a list of words to find. The words assigned to you are highlighted.",
-            },            
-            {
-                x: 420,
-                y: 60,
-                w: 720,
-                h: 720,
-                text: "When you find a word in the puzzle, click the first letter to start selecting it, then click the last letter to mark it as found.",
-            },
-        ];
-        */
-
         let tutorial_items = this.props.tutorial.steps;
         return (
             <div className="tutorial-container">
