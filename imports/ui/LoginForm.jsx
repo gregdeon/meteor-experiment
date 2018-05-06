@@ -11,25 +11,7 @@ export class LoginForm extends Component {
         };
     }
 
-    handleUsernameChange(e) {
-        this.setState({username: e.target.value});
-    }
-
-    handlePasswordChange(e) {
-        this.setState({password: e.target.value});
-    }
-
-    handleSubmit(e) {
-        e.preventDefault();
-
-        let username = this.state.username.trim();
-        let password = this.state.password;
-
-        if(username === '' || password === '') {
-            this.setState({error_message: 'Username or password is empty'});
-            return;
-        }
-
+    loginOrRegister(username, password) {
         // Try to log in
         Meteor.loginWithPassword(username, password, (err) => {
             console.log(err);
@@ -50,27 +32,38 @@ export class LoginForm extends Component {
                 }
             }
         });
+    }
 
+    handleUsernameChange(e) {
+        this.setState({username: e.target.value});
+    }
+
+    handlePasswordChange(e) {
+        this.setState({password: e.target.value});
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
+
+        let username = this.state.username.trim();
+        let password = this.state.password;
+
+        if(!this.props.use_password) {
+            password = username;
+        }
+
+        if(username === '' || password === '') {
+            this.setState({error_message: 'Username or password is empty'});
+            return;
+        }
+
+        this.loginOrRegister(username, password)
     }
 
     render() {
-        return (
-            <div className="login-container">
-            <form 
-                name="login-form"
-                onSubmit={this.handleSubmit.bind(this)}                
-            >
-                <h1>Login or Register</h1>
-                <div className='login-field'>
-                    <label htmlFor="username">Username: </label>
-                    <input 
-                        type="text" 
-                        name="username"
-                        placeholder="MTurk ID (ex: A12345678)"
-                        value={this.state.username}
-                        onChange={this.handleUsernameChange.bind(this)}
-                    />
-                </div>
+        let password_div = null;
+        if(this.props.use_password) {
+            password_div = (
                 <div className='login-field'>
                     <label htmlFor="password">Password: </label>
                     <input
@@ -80,15 +73,40 @@ export class LoginForm extends Component {
                         onChange={this.handlePasswordChange.bind(this)}
                     />
                 </div>
+            );
+        }
+
+        let submit_ready = 
+            this.state.username && 
+            (this.state.password || (!this.props.use_password));
+
+        return (
+            <div className="login-container">
+            <form 
+                name="login-form"
+                onSubmit={this.handleSubmit.bind(this)}                
+            >
+                <h1>Landing Page</h1>
+                <div className='login-field'>
+                    <label htmlFor="username">Worker ID: </label>
+                    <input 
+                        type="text" 
+                        name="username"
+                        placeholder="MTurk ID (ex: A12345678)"
+                        value={this.state.username}
+                        onChange={this.handleUsernameChange.bind(this)}
+                    />
+                </div>
+                {password_div}
                 <div className='login-error'>
                     {this.state.error_message}
                 </div>
                 <button 
                     className='login-button'
                     type="submit"
-                    disabled={!(this.state.username && this.state.password)}
+                    disabled={!submit_ready}
                 > 
-                    Login/Register 
+                    Enter 
                 </button>
             </form>
             </div>

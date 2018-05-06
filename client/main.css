@@ -46,6 +46,11 @@ button:disabled {
     margin: 5px;
 }
 
+.login-field input 
+{
+    margin: 5px;
+}
+
 .login-error {
     color: #ff0000;
 }

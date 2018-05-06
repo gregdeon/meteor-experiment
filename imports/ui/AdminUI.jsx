@@ -16,6 +16,8 @@ import {WordSearchScoreScreen} from './WordSearchScoreScreen.jsx';
 
 import {TutorialScreen} from './Tutorial.jsx';
 
+import {LoginForm} from './LoginForm.jsx';
+
 class AdminUI extends Component {
     constructor(props) {
         super(props);
@@ -194,7 +196,13 @@ class AdminUI extends Component {
             return (<p>Loading...</p>);
 
         let user_id = Meteor.userId();
-        console.log(user_id);
+
+        if(user_id === null) {
+            return <LoginForm
+                use_password={true}
+            />
+        }
+
         let is_admin = Roles.userIsInRole(user_id, 'admin', Roles.GLOBAL_GROUP);
         console.log(is_admin);
         if(!is_admin) {

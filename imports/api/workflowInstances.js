@@ -119,7 +119,7 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
 }
 
 Meteor.methods({
-    'workflowinstances.setUpWorkflow'(user_id, assign_id) {
+    'workflowinstances.setUpWorkflow'(user_id) {
         // DEBUG
         console.log("Making workflow instance for " + user_id);
 
@@ -145,7 +145,6 @@ Meteor.methods({
             workflow_id: workflow._id,
             stage: 0,
             confirm_code: null,
-            assign_id: assign_id,
         })
     },
 
