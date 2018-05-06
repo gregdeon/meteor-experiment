@@ -47,6 +47,7 @@ export class WordSearchPuzzle extends Component {
         super(props);
 
         this.state = {
+            time_left_countdown: this.props.puzzle.seconds_countdown,
             time_left_puzzle: this.props.puzzle.seconds_puzzle,
             time_left_score: this.props.puzzle.seconds_score,
             update_interval: setInterval(
@@ -60,16 +61,24 @@ export class WordSearchPuzzle extends Component {
         clearInterval(this.state.update_interval);
     }
 
-    getTimeSinceStart() {
-        let time_started = this.props.puzzleinstance.time_started;
+    getTimeInCountdown() {
+        let time_started = this.props.puzzleinstance.time_started_countdown;
         let time_now = new Date();
         let diff_ms = Math.abs(time_now - time_started);
         let diff_s = (diff_ms / 1000);
         return diff_s;
     }
 
-    getTimeSinceFinish() {
-        let time_finished = this.props.puzzleinstance.time_finished;
+    getTimeInPuzzle() {
+        let time_started = this.props.puzzleinstance.time_started_puzzle;
+        let time_now = new Date();
+        let diff_ms = Math.abs(time_now - time_started);
+        let diff_s = (diff_ms / 1000);
+        return diff_s;
+    }
+
+    getTimeInScore() {
+        let time_finished = this.props.puzzleinstance.time_started_score;
         let time_now = new Date();
         let diff_ms = Math.abs(time_now - time_finished);
         let diff_s = (diff_ms / 1000);
@@ -77,29 +86,44 @@ export class WordSearchPuzzle extends Component {
     }
 
     updateTimeLeft() {
-        let time_now = new Date();
-        if(this.props.puzzleinstance.time_started) {
-            let diff_s = Math.floor(this.getTimeSinceStart());
+        let time_now = new Date();        
+        if(this.props.puzzleinstance.time_started_countdown) {
+            let diff_s = Math.floor(this.getTimeInCountdown());
+
+            let left_s = this.props.puzzle.seconds_countdown - diff_s;
+            this.setState({time_left_countdown: left_s})
+        }
+        if(this.props.puzzleinstance.time_started_puzzle) {
+            let diff_s = Math.floor(this.getTimeInPuzzle());
 
             let left_s = this.props.puzzle.seconds_puzzle - diff_s;
             this.setState({time_left_puzzle: left_s})
         }
-        if(this.props.puzzleinstance.time_finished) {
-            let time_finished = this.props.puzzleinstance.time_finished;
-            let diff_ms = Math.abs(time_now - time_finished);
-            let diff_s = Math.floor(diff_ms / 1000);
+        if(this.props.puzzleinstance.time_started_score) {
+            let diff_s = Math.floor(this.getTimeInScore());
 
             let left_s = this.props.puzzle.seconds_score - diff_s;
             this.setState({time_left_score: left_s})
         }
     }
 
-    checkPuzzleDone() {
+    checkCountdownDone() {
         // Done if time is up
-        if(!this.props.puzzleinstance.time_started)
+        if(!this.props.puzzleinstance.time_started_countdown)
             return false;
 
-        if(this.getTimeSinceStart() > this.props.puzzle.seconds_puzzle)
+        if(this.getTimeInCountdown() > this.props.puzzle.seconds_countdown)
+            return true;
+
+        return false;
+    }
+
+    checkPuzzleDone() {
+        // Done if time is up
+        if(!this.props.puzzleinstance.time_started_puzzle)
+            return false;
+
+        if(this.getTimeInPuzzle() > this.props.puzzle.seconds_puzzle)
             return true;
         
         // or if all words found
@@ -113,10 +137,10 @@ export class WordSearchPuzzle extends Component {
 
     checkScoreDone() {
         // Done if time is up
-        if(!this.props.puzzleinstance.time_finished)
+        if(!this.props.puzzleinstance.time_started_score)
             return false;
 
-        if(this.getTimeSinceFinish() > this.props.puzzle.seconds_score) 
+        if(this.getTimeInScore() > this.props.puzzle.seconds_score) 
             return true;
 
         // Also done if all submitted ratings
@@ -131,7 +155,7 @@ export class WordSearchPuzzle extends Component {
     renderWaiting() {
         return (
             <div className="word-search-text-container">
-                Waiting for game to begin...
+                Game starting in {Math.ceil(this.state.time_left_countdown)}...
             </div>
         );
     }
@@ -184,22 +208,32 @@ export class WordSearchPuzzle extends Component {
                 </div>
             );
         }
-
-        // We're doing the puzzle now, so save start time
-        if(!this.props.puzzleinstance.time_started) {
+ 
+        if(!this.props.puzzleinstance.time_left_countdown) {
             Meteor.call(
-                'puzzleinstances.startPuzzle', 
+                'puzzleinstances.startCountdown', 
                 this.props.puzzleinstance._id,
             );
         }
 
+
         let state = this.props.puzzleinstance.state;
         // Check puzzle finished
         switch(state) {
+            case PuzzleInstanceStates.WAITING:
+                if(this.checkCountdownDone()) {            
+                    // TODO: check that this works right
+                    Meteor.call(
+                        'puzzleinstances.startPuzzle', 
+                        this.props.puzzleinstance._id,
+                    );
+                }
+                break;
+
             case PuzzleInstanceStates.PUZZLE:
                 if(this.checkPuzzleDone()) {
                     Meteor.call(
-                        'puzzleinstances.finishPuzzle',
+                        'puzzleinstances.startScore',
                         this.props.puzzleinstance._id,
                     );
                 }

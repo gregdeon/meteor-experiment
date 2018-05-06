@@ -9,6 +9,7 @@
 //   - dy: word direction
 //   - len: word length
 //   - player: whose job it is to find this word
+// - seconds_countdown: length of time to spend before puzzle starts
 // - seconds_puzzle: length of time to spend on the puzzle
 // - seconds_score: length of time to spend on the score screen
 // - score_mode: one of ScoreModes

@@ -45,6 +45,7 @@ export class TutorialScreen extends Component {
         let tutorial_items = this.props.tutorial.steps;
         return (
             <div className="tutorial-container">
+            <h1>Tutorial</h1>
             <div className="tutorial-buttons">
             <button
                 className="tutorial-button"
@@ -56,7 +57,7 @@ export class TutorialScreen extends Component {
                 className="tutorial-button"
                 onClick={this.props.finishedCallback}
             >
-                Next Step
+                Ready
             </button>
             </div>
             <br />

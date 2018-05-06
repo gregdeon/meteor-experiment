@@ -4,8 +4,9 @@
 // - puzzle: ID of a puzzle
 // - found: list of true/false for each word
 // - state: current state of the puzzle (waiting, in puzzle, in score screen, finished)
-// - time_started: when the team began the puzzle
-// - time_ended: when the team began the score screen
+// - time_started_countdown: when the team began the countdown screen
+// - time_started_puzzle: when the team began the puzzle
+// - time_started_score: when the team began the score screen
 // - bonuses: list of rewards paid (in cents)
 // - ratings: list of objects like {self: 4, others: 3, time_submitted: Date.now()}
 
@@ -44,9 +45,10 @@ export function addPuzzleInstance(puzzle_id) {
     let instance_id = PuzzleInstances.insert({
         puzzle: puzzle._id,
         found: found_list,
-        state: PuzzleInstanceStates.PUZZLE,
-        time_started: null,
-        time_ended: null,
+        state: PuzzleInstanceStates.WAITING,
+        time_started_countdown: null,
+        time_started_puzzle: null,
+        time_started_score: null,
         // TODO: don't hard code 3 people
         ratings: [null, null, null],
     });
@@ -153,32 +155,50 @@ Meteor.methods({
         return false;
     },
 
+
+
+    'puzzleinstances.startCountdown'(instance_id) {
+        // Update the start time only if it's null
+        PuzzleInstances.update(
+            {
+                _id: instance_id,
+                time_started_countdown: null,
+            },
+            {
+                $set: {
+                    time_started_countdown: new Date(),
+                }
+            }
+        );
+    },
+    
     'puzzleinstances.startPuzzle'(instance_id) {
         // Update the start time only if it's null
         PuzzleInstances.update(
             {
                 _id: instance_id,
-                time_started: null,
+                time_started_puzzle: null,
             },
             {
                 $set: {
-                    time_started: new Date(),
+                    state: PuzzleInstanceStates.PUZZLE,
+                    time_started_puzzle: new Date(),
                 }
             }
         );
     },
 
-    'puzzleinstances.finishPuzzle'(instance_id) {
+    'puzzleinstances.startScore'(instance_id) {
         // Update the finish time only if it's null
         PuzzleInstances.update(
             {
                 _id: instance_id,
-                time_finished: null,
+                time_started_score: null,
             },
             {
                 $set: {
                     state: PuzzleInstanceStates.SCORE,
-                    time_finished: new Date(),
+                    time_started_score: new Date(),
                 }
             }
         );

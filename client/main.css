@@ -95,7 +95,7 @@ button:disabled {
 
 .workflow-progress-bar {
     background: white;
-    margin: 0 10px;
+    margin: auto 10px;
     border: 2px solid #7f7f7f;
     width: 200px;
     height: 20px;

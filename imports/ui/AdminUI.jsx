@@ -251,9 +251,9 @@ export default withTracker(() => {
 
     return {
         ready: all_ready,
+        user: Meteor.user(),
         coop_instances: CoopWorkflowInstances.find().fetch(),
 //        puzzle_instances: PuzzleInstances.find().fetch(),
-        //user: Meteor.user(),
 
         // TODO: handle cases where user has joined more than one workflow
         // For now, assume there's only one
