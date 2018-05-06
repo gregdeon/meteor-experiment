@@ -50,6 +50,7 @@ export function getWorkflowProgress(instance, coop_instance) {
             case WorkflowStages.CONSENT:
             case WorkflowStages.SURVEY:
             case WorkflowStages.FEEDBACK:
+            case WorkflowStages.TUTORIAL:
                 total += 1;
                 if(instance.stage > idx)
                     done += 1;

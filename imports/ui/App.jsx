@@ -63,6 +63,7 @@ export default withTracker(() => {
         Meteor.subscribe('surveys'),
         Meteor.subscribe('surveyinstances'),
         Meteor.subscribe('feedbackletters'),
+        Meteor.subscribe('tutorials'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),
     ];

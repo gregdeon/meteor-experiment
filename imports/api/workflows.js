@@ -17,6 +17,7 @@ export const WorkflowStages = {
     SURVEY: 1,
     FEEDBACK: 2,
     COOP: 3,
+    TUTORIAL: 4,
 };
 
 if (Meteor.isServer) {

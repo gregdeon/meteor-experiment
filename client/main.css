@@ -435,6 +435,10 @@ button:disabled {
     text-align: center;
 }
 
+.tutorial-button {
+    margin: 5px;
+}
+
 .tutorial-inner {
     display: inline-block;
     position: relative;

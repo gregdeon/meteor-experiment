@@ -5,11 +5,13 @@ import {ConsentForm} from './ConsentForm.jsx';
 import {Survey} from './Survey.jsx';
 import {FeedbackLetter} from './FeedbackLetter.jsx';
 import {CoopWorkflow} from './CoopWorkflow.jsx';
+import {TutorialScreen} from './Tutorial.jsx';
 
 import {Workflows, WorkflowStages} from '../api/workflows.js';
 import {ConsentForms} from '../api/consentForms.js';
 import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
+import {Tutorials} from '../api/tutorials.js';
 import {CoopWorkflows} from '../api/coopWorkflows.js';
 import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
 
@@ -130,6 +132,17 @@ export class Workflow extends Component {
                 return (
                     <CoopWorkflow 
                         coop_instance={this.props.coopInstance}
+                        finishedCallback={this.advanceWorkflowStage.bind(this)}
+                    />
+                );
+
+            case WorkflowStages.TUTORIAL:
+                let tutorial = Tutorials.findOne({_id: stage.id});
+                console.log(stage.id);
+                console.log(tutorial);
+                return (
+                    <TutorialScreen 
+                        tutorial={tutorial}
                         finishedCallback={this.advanceWorkflowStage.bind(this)}
                     />
                 );

@@ -37,15 +37,28 @@ export class TutorialScreen extends Component {
         }).start();
     }
 
+    componentDidMount() {
+        this.startTutorial();
+    }
+
     render() {
         let tutorial_items = this.props.tutorial.steps;
         return (
             <div className="tutorial-container">
+            <div className="tutorial-buttons">
             <button
+                className="tutorial-button"
                 onClick={this.startTutorial.bind(this)}
             >
-                Start Tutorial
+                Replay Tutorial
             </button>
+            <button
+                className="tutorial-button"
+                onClick={this.props.finishedCallback}
+            >
+                Next Step
+            </button>
+            </div>
             <br />
             <div className="tutorial-inner">
                 <img src={this.props.tutorial.image} />
