@@ -140,16 +140,18 @@ export class Workflow extends Component {
         // Get a workflow if we don't have one
         if(!this.props.workflowInstance) {
             this.props.history.push('/start/');
+            return <div>Setting things up for you...</div>
         }
-
-        return (
-            <div>
-                <WorkflowHeader
-                    workflow_instance={this.props.workflowInstance}
-                    coop_instance={this.props.coopInstance}
-                 />
-                {this.renderStage()}
-            </div>
-        );
+        else {
+            return (
+                <div>
+                    <WorkflowHeader
+                        workflow_instance={this.props.workflowInstance}
+                        coop_instance={this.props.coopInstance}
+                     />
+                    {this.renderStage()}
+                </div>
+            );
+        }
     }
 }

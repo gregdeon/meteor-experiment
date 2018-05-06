@@ -47,7 +47,7 @@ class App extends Component {
             <Workflow
                 workflowInstance={this.props.workflowInstance}
                 coopInstance={this.props.coopInstance}
-                //assign_id={assign_id}
+                history={this.props.history}
             />
         );
     }
