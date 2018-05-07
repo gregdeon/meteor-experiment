@@ -7,12 +7,14 @@ export class LoginForm extends Component {
         this.state = {
             username: '',
             password: '',
+            status_message: '',
             error_message: '',
         };
     }
 
     loginOrRegister(username, password) {
         // Try to log in
+        this.setState({status_message: 'Logging in...'})
         Meteor.loginWithPassword(username, password, (err) => {
             console.log(err);
             if(err) {
@@ -31,6 +33,7 @@ export class LoginForm extends Component {
                     this.setState({error_message: 'Login failed: ' + err.reason});
                 }
             }
+            this.setState({status_message: ''})
         });
     }
 
@@ -98,6 +101,9 @@ export class LoginForm extends Component {
                     />
                 </div>
                 {password_div}
+                <div className='login-status'>
+                    {this.state.status_message}
+                </div>
                 <div className='login-error'>
                     {this.state.error_message}
                 </div>
