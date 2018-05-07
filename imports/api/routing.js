@@ -161,4 +161,7 @@ Meteor.methods({
         
         return (new_stage === num_stages);
     }
+
+    // TODO: add skip to end
+    // Set stage to final stage so that nobody else can join it
 });

@@ -5,6 +5,7 @@
 // - coop_id: reference to coop workflow
 // - stage: current stage of the group
 // - output: list of instances describing work done at each stage (like PuzzleInstances)
+// TODO: add time created and use in lobby
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';

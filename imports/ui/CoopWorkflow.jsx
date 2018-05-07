@@ -18,6 +18,20 @@ function pad(num, digits)
     return ret;
 }
 
+function flashTitle(new_title, num_toggles, length_s) {
+    let old_title = document.title;
+    document.title = new_title;
+
+    if(num_toggles - 1 > 0) {
+        setTimeout(
+            function(){
+                flashTitle(old_title, num_toggles - 1, length_s)
+            },
+            length_s
+        );
+    }
+}
+
 class LobbyScreen extends Component {
     constructor(props) {
         super(props);
@@ -29,10 +43,6 @@ class LobbyScreen extends Component {
                 this.updateQueueTime.bind(this),
                 500,
             ),
-
-            tab_title: document.title,
-            alert_num_toggles: 0,
-            alert_interval: null,
         };
     }
 
@@ -51,49 +61,46 @@ class LobbyScreen extends Component {
         return queue_string;
     }
 
-    toggleTitle() {
-        console.log(this.state);
-        let toggles_left = this.state.alert_num_toggles - 1;
-
-        if(toggles_left % 2 === 1) {
-            document.title = "Ready to start!";
-        } else {
-            document.title = this.state.tab_title;
-        }
-
-        if(toggles_left <= 0) {
-            this.endAlert();
-        }
-        this.setState({alert_num_toggles: toggles_left});
+    playAlert() {
+        flashTitle("Ready to start!", 6, 500);
+        // TODO: audio?
+//        let audio = new Audio('https://localhost:3000/rooster.wav');
+//        audio.play();
+        console.log("Playing audio");
+        $('#audio').html('<audio autoplay><source src="/rooster.wav"></audio>');
     }
 
-    // Note: only call this with an even number of toggles
-    startAlert(num_toggles) {
-        this.setState({
-            alert_num_toggles: num_toggles
-        });
+    renderStatus() {
+        let status_items = [];
+        let user_ids = this.props.coop_instance.user_ids;
+        for(let i = 0; i < 3; i++) {
+            let ready_string = "";
+            if(user_ids.length > i) {
+                ready_string = "Ready";
+                if(user_ids[i] === Meteor.userId()) {
+                    ready_string += " (you)";
+                }
+            } else {
+                ready_string = "Not Ready";
+            }
 
-        if(this.state.alert_interval) {
-           this.endAlert();
+            status_items.push(
+                <p key={i}><b>Player {i+1}</b>: {ready_string}</p>
+            );
         }
+        //this.props.coop_instance.user_ids;
 
-        let id = setInterval(
-            this.toggleTitle.bind(this),
-            500,
+        return (
+            <div className="lobby-status">
+                {status_items}
+            </div>
         );
-
-        this.setState({
-            alert_interval: id,
-        });
-    }
-
-    endAlert() {
-        clearInterval(this.state.alert_interval);
     }
 
     render() {   
         // If our group is full, move on
         if(isFull(this.props.coop_instance)) {
+            this.playAlert();
             this.props.finishedCallback();
         }
 
@@ -101,9 +108,17 @@ class LobbyScreen extends Component {
             <div className="lobby-container">
                 <h1>Pre-Task Lobby</h1>
                 <p>Before you begin the task, we need to find a team for you.</p>
-                <div id="lobby-loader" />
                 <p>Waiting for teammates...</p>
+                {this.renderStatus()}
+                <div id="lobby-loader" />
                 <p>Time in queue: {this.getQueueTimeString()}</p>
+                {/*
+                */}
+                <span id="audio"></span>
+                <button onClick={this.playAlert.bind(this)}>
+                    Test
+                </button>
+
             {/* 
                 <p>We'll send you an alert when your team is ready.</p>
                 <p>You can click `Test Alert' to confirm that this works.</p>
@@ -120,10 +135,6 @@ class LobbyScreen extends Component {
     }
 
     componentWillUnmount() {
-        if(this.state.alert_interval) {
-            clearInterval(this.state.alert_interval);
-        }
-
         clearInterval(this.state.queue_update);
     }
 }
