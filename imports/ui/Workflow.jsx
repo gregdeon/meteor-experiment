@@ -59,10 +59,13 @@ class WorkflowHeader extends Component {
         );
         return (
             <div className="workflow-earnings">
-                {"Base: "
+                {/*"Base: "
                     + this.formatPay(earnings.base) 
                     + ' / Bonus: '
                     + this.formatPay(earnings.bonus)
+                */}
+                {
+                    "Bonus: " + this.formatPay(earnings.bonus)
                 }
             </div>
         );
