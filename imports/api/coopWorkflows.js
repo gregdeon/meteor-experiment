@@ -5,6 +5,7 @@
 // - stages: list of objects with
 //   - type: one of WorkflowStages
 //   - id: ID of a lobby, game, etc
+// - lobby_time: number of minutes to wait in the lobby before skipping the workflow
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';

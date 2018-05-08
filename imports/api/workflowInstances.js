@@ -62,7 +62,12 @@ export function getWorkflowProgress(instance, coop_instance) {
                 total += coop_workflow.stages.length;
 
                 if(coop_instance) {
-                    done += coop_instance.stage;
+                    if(coop_instance.stage < 0) {
+                        done += coop_workflow.stages.length;
+                    }
+                    else {
+                        done += coop_instance.stage;
+                    }
                 } 
                 break;
         }
@@ -175,5 +180,27 @@ Meteor.methods({
                 $set: upd
             });
         }
+    },
+
+    // TODO: refactor this to avoid duplicating confirm code generation
+    'workflowinstances.skipToEnd'(instance_id) {
+        let instance = WorkflowInstances.findOne({_id: instance_id});
+        let workflow = Workflows.findOne({_id: instance.workflow_id});
+
+        let num_stages = workflow.stages.length;
+        let new_stage = num_stages - 1;
+
+        let upd = {stage: new_stage};
+
+        if(this.isSimulation) {
+            upd.confirm_code = "Generating, please wait...";
+        } 
+        else {
+            upd.confirm_code = Random.id();
+        }
+
+        WorkflowInstances.update(instance_id, {
+            $set: upd
+        });
     },
 });

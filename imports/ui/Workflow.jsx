@@ -92,6 +92,13 @@ export class Workflow extends Component {
         );
     }
 
+    skipToWorkflowEnd() {
+        Meteor.call(
+            'workflowinstances.skipToEnd',
+            this.props.workflowInstance._id,
+        );
+    }
+
     renderStage() {
         console.log(this.props);        
         let workflow = Workflows.findOne({_id: this.props.workflowInstance.workflow_id});
@@ -136,13 +143,12 @@ export class Workflow extends Component {
                     <CoopWorkflow 
                         coop_instance={this.props.coopInstance}
                         finishedCallback={this.advanceWorkflowStage.bind(this)}
+                        lobbyFailedCallback={this.skipToWorkflowEnd.bind(this)}
                     />
                 );
 
             case WorkflowStages.TUTORIAL:
                 let tutorial = Tutorials.findOne({_id: stage.id});
-                console.log(stage.id);
-                console.log(tutorial);
                 return (
                     <TutorialScreen 
                         tutorial={tutorial}
@@ -166,6 +172,9 @@ export class Workflow extends Component {
                         coop_instance={this.props.coopInstance}
                      />
                     {this.renderStage()}
+
+                    <span id="audio"></span>
+                    {/* Hack: keep this around at the parent level so the audio doesn't stop */}
                 </div>
             );
         }

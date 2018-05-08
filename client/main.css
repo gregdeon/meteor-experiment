@@ -172,11 +172,17 @@ button:disabled {
     margin: auto 5px;
 }
 
+.survey-question {
+    margin: 10px;
+}
+
 .survey-question-text {
     display: flex;
 }
 
-.survey-choices div {
+.survey-choices div,
+.survey-choices input 
+{
     margin: 5px;
 }
 

@@ -3,9 +3,9 @@
 // Contents:
 // - user_ids: list of references to users
 // - coop_id: reference to coop workflow
-// - stage: current stage of the group
+// - stage: current stage of the group (-1: couldn't find team)
 // - output: list of instances describing work done at each stage (like PuzzleInstances)
-// TODO: add time created and use in lobby
+// - time_started: timestamp of workflow start. used for lobby timeout
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';

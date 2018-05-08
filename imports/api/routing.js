@@ -90,7 +90,8 @@ Meteor.methods({
             // Update/insert
             {
                 $setOnInsert: {
-                    ready: false
+                    ready: false,
+                    time_started: new Date(),
                 },
                 $push: {
                     user_ids: user_id,
@@ -160,8 +161,14 @@ Meteor.methods({
         }
         
         return (new_stage === num_stages);
-    }
+    },
 
     // TODO: add skip to end
     // Set stage to final stage so that nobody else can join it
+    'coopworkflowinstances.skipToEnd'(instance_id)
+    {      
+        CoopWorkflowInstances.update(instance_id, {
+            $set: {stage: -1},
+        });
+    }
 });

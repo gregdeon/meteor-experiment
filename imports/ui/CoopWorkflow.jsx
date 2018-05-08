@@ -38,7 +38,7 @@ class LobbyScreen extends Component {
 
         this.state = {
             queue_start: new Date().getTime(),
-            queue_ms: 0,
+            queue_left_s: this.props.coop_workflow.lobby_time * 60,
             queue_update: setInterval(
                 this.updateQueueTime.bind(this),
                 500,
@@ -48,12 +48,19 @@ class LobbyScreen extends Component {
 
     updateQueueTime() {
         let time_now = new Date().getTime();
-        let queue_ms = time_now - this.state.queue_start;
-        this.setState({queue_ms: queue_ms});
+        let time_start = this.props.coop_instance.time_started;
+
+        let elapsed_s = Math.floor((time_now - time_start) / 1000)
+        let new_left_s = this.props.coop_workflow.lobby_time * 60 - elapsed_s;
+
+        if(new_left_s < 0)
+            new_left_s = 0;
+
+        this.setState({queue_left_s: new_left_s});
     }
 
     getQueueTimeString() {
-        var time_s = Math.floor(this.state.queue_ms / 1000);
+        var time_s = this.state.queue_left_s;
         var mins = Math.floor(time_s / 60);
         var secs = time_s % 60;
 
@@ -62,10 +69,8 @@ class LobbyScreen extends Component {
     }
 
     playAlert() {
-        flashTitle("Ready to start!", 6, 500);
-        // TODO: audio?
-//        let audio = new Audio('https://localhost:3000/rooster.wav');
-//        audio.play();
+        flashTitle("Ready to start!", 10, 500);
+
         console.log("Playing audio");
         $('#audio').html('<audio autoplay><source src="/rooster.wav"></audio>');
     }
@@ -98,25 +103,44 @@ class LobbyScreen extends Component {
     }
 
     render() {   
+        let coop_workflow = CoopWorkflows.findOne({_id: this.props.coop_instance.coop_id});
+        let wait_mins = coop_workflow.lobby_time;
+
+        // Get time left (seconds)
+        // TODO
+
         // If our group is full, move on
         if(isFull(this.props.coop_instance)) {
             this.playAlert();
             this.props.finishedCallback();
         }
+        // Otherwise, if time is up, skip to the end
+        else if(this.state.queue_left_s <= 0) {
+            this.props.skipToEnd();
+            return <div>No team found. Skipping to confirmation code...</div>
+        }
 
         return (
             <div className="lobby-container">
                 <h1>Pre-Task Lobby</h1>
-                <p>Before you begin the task, we need to find a team for you.</p>
+                <p> 
+                    Before you begin, we need to find you a team.
+                </p>
+                <p>
+                    When your team is ready, we will notify you with a <b>rooster sound</b> and by flashing the <b>tab title.</b> Please keep this tab open, but feel free to switch to other tabs while you are waiting.
+                </p>
+                <p>
+                    If the task doesn't start within {wait_mins} minutes, you will still be paid for your time - we will skip straight to the confirmation code.
+                </p>
+
+                <div id="lobby-loader" />
                 <p>Waiting for teammates...</p>
                 {this.renderStatus()}
-                <div id="lobby-loader" />
-                <p>Time in queue: {this.getQueueTimeString()}</p>
+                <p>Time left in queue: {this.getQueueTimeString()}</p>
                 {/*
                 */}
-                <span id="audio"></span>
                 <button onClick={this.playAlert.bind(this)}>
-                    Test
+                    Test Alert
                 </button>
 
             {/* 
@@ -147,6 +171,15 @@ export class CoopWorkflow extends Component {
             this.props.coop_instance._id,
             current_stage,
         );
+    }
+
+    skipToEnd() {
+        // Skip to end if we didn't find a team
+        Meteor.call(
+            'coopworkflowinstances.skipToEnd',
+            this.props.coop_instance._id,
+        );
+        this.props.lobbyFailedCallback();
     }
 
     render() {
@@ -184,8 +217,10 @@ export class CoopWorkflow extends Component {
                 case CoopWorkflowStages.LOBBY:
                     return (
                         <LobbyScreen 
+                            coop_workflow={coop_workflow}
                             coop_instance={this.props.coop_instance}
                             finishedCallback={this.advanceCoopStage.bind(this, stage_num)}
+                            skipToEnd={this.skipToEnd.bind(this)}
                         />
                     );
 
