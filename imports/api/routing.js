@@ -3,6 +3,7 @@
 import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 
+import {getServerTime} from './utils.js';
 import {incrementCounter} from 'meteor/konecty:mongo-counter';
 
 import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
@@ -91,7 +92,7 @@ Meteor.methods({
             {
                 $setOnInsert: {
                     ready: false,
-                    time_started: new Date(),
+                    time_started: new Date(getServerTime()),
                 },
                 $push: {
                     user_ids: user_id,

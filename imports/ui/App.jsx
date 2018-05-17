@@ -66,6 +66,7 @@ export default withTracker(() => {
         Meteor.subscribe('tutorials'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),
+        Meteor.subscribe('servertime'),
     ];
 
     // Check if ready by putting together subscriptions
@@ -95,6 +96,6 @@ export default withTracker(() => {
 
         // TODO: remove these when done debugging
         //puzzle: Puzzles.findOne(),
-        //puzzleInstance: PuzzleInstances.findOne(),
+        //puzzleInstance: PuzzleInstances.findOne();
     };
 })(App);

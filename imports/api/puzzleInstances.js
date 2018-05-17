@@ -10,12 +10,11 @@
 // - bonuses: list of rewards paid (in cents)
 // - ratings: list of objects like {self: 4, others: 3, time_submitted: Date.now()}
 
-
-
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 import {Puzzles, getWord} from './puzzles.js';
 import {getRewards} from './scoreFunctions.js';
+import {getServerTime} from './utils.js';
 
 export const PuzzleInstances = new Mongo.Collection('puzzleinstances', {
     idGeneration: 'MONGO',
@@ -144,7 +143,7 @@ Meteor.methods({
             if(checkIsMatch(word, start_pos, end_pos)) {
                 found_list[i] = true;
                 let obj = {};
-                obj["found." + i] = new Date();
+                obj["found." + i] = new Date(getServerTime());
                 PuzzleInstances.update(instance_id, {
                     $set: obj
                 });
@@ -166,7 +165,7 @@ Meteor.methods({
             },
             {
                 $set: {
-                    time_started_countdown: new Date(),
+                    time_started_countdown: new Date(getServerTime()),
                 }
             }
         );
@@ -182,7 +181,7 @@ Meteor.methods({
             {
                 $set: {
                     state: PuzzleInstanceStates.PUZZLE,
-                    time_started_puzzle: new Date(),
+                    time_started_puzzle: new Date(getServerTime()),
                 }
             }
         );
@@ -198,7 +197,7 @@ Meteor.methods({
             {
                 $set: {
                     state: PuzzleInstanceStates.SCORE,
-                    time_started_score: new Date(),
+                    time_started_score: new Date(getServerTime()),
                 }
             }
         );
@@ -206,7 +205,7 @@ Meteor.methods({
 
     'puzzleinstances.submitRating'(instance_id, player_num, ratings) {
         // Save a timestamp in case we need it
-        ratings.time_submitted = new Date();
+        ratings.time_submitted = new Date(getServerTime());
 
         // Put it into the puzzle instance
         let upd = {};

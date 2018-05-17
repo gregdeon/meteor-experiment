@@ -3,6 +3,7 @@ import {WordSearchGrid} from './WordSearchGrid.jsx';
 import {WordSearchStatus, WordSearchScoreBox, WordSearchTime} from './WordSearchStatus.jsx';
 import {WordSearchScoreScreen} from './WordSearchScoreScreen.jsx';
 import {PuzzleInstanceStates} from '../api/puzzleInstances.js';
+import {getServerTime} from '../api/utils.js';
 
 // Export helper classes for admin view
 export class PuzzleView extends Component {
@@ -63,7 +64,7 @@ export class WordSearchPuzzle extends Component {
 
     getTimeInCountdown() {
         let time_started = this.props.puzzleinstance.time_started_countdown;
-        let time_now = new Date();
+        let time_now = new Date(getServerTime());
         let diff_ms = Math.abs(time_now - time_started);
         let diff_s = (diff_ms / 1000);
         return diff_s;
@@ -71,7 +72,7 @@ export class WordSearchPuzzle extends Component {
 
     getTimeInPuzzle() {
         let time_started = this.props.puzzleinstance.time_started_puzzle;
-        let time_now = new Date();
+        let time_now = new Date(getServerTime());
         let diff_ms = Math.abs(time_now - time_started);
         let diff_s = (diff_ms / 1000);
         return diff_s;
@@ -79,14 +80,14 @@ export class WordSearchPuzzle extends Component {
 
     getTimeInScore() {
         let time_finished = this.props.puzzleinstance.time_started_score;
-        let time_now = new Date();
+        let time_now = new Date(getServerTime());
         let diff_ms = Math.abs(time_now - time_finished);
         let diff_s = (diff_ms / 1000);
         return diff_s;
     }
 
     updateTimeLeft() {
-        let time_now = new Date();        
+        let time_now = new Date(getServerTime());        
         if(this.props.puzzleinstance.time_started_countdown) {
             let diff_s = Math.floor(this.getTimeInCountdown());
 

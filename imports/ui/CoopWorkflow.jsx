@@ -9,6 +9,8 @@ import {PuzzleInstances} from '../api/puzzleInstances.js';
 
 import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 
+import {getServerTime} from '../api/utils.js';
+
 // Left-pad a number with 0s
 function pad(num, digits)
 {
@@ -37,7 +39,7 @@ class LobbyScreen extends Component {
         super(props);
 
         this.state = {
-            queue_start: new Date().getTime(),
+            queue_start: new Date(getServerTime()).getTime(),
             queue_left_s: this.props.coop_workflow.lobby_time * 60,
             queue_update: setInterval(
                 this.updateQueueTime.bind(this),
@@ -47,7 +49,7 @@ class LobbyScreen extends Component {
     }
 
     updateQueueTime() {
-        let time_now = new Date().getTime();
+        let time_now = new Date(getServerTime()).getTime();
         let time_start = this.props.coop_instance.time_started;
 
         let elapsed_s = Math.floor((time_now - time_start) / 1000)
