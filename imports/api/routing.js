@@ -10,6 +10,7 @@ import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
 import {CoopWorkflowInstances} from './coopWorkflowInstances.js';
 
 import {addPuzzleInstance} from './puzzleInstances.js';
+import {addAudioInstance} from './audioInstances.js';
 
 // Helper counter to track how many coop instances we've made
 /*
@@ -47,18 +48,101 @@ export function isFull(coop_instance) {
 
 export function initializeOutput(stage) {
     console.log(stage);
+    let output_id = null;
     switch(stage.type) {
         case CoopWorkflowStages.LOBBY:
-            return null;
+            // Nothing to do here
+            break;
 
         case CoopWorkflowStages.PUZZLE:
             let puzzle_id = stage.id;
-            let output_id = addPuzzleInstance(puzzle_id);
-            return output_id;
+            output_id = addPuzzleInstance(puzzle_id);
+            break;
+
+        case CoopWorkflowStages.AUDIO:
+            let audio_id = stage.id;
+            output_id = addAudioInstance(audio_id);
+            break;
     }
 
-    return null;
+    return output_id;
 }
+
+// Iterate through all coop instances
+// Check for lobby status, stage times, etc
+export function updateCoopInstances() {
+    // Safety check
+    if(!Meteor.isServer) {
+        console.log("Warning: updateCoopInstances() called from client (no effect)")
+        return;
+    }
+
+    // Naive approach: fetch all coop instances
+    let coop_instances = CoopWorkflowInstances.find().fetch();
+
+    for(let i = 0; i < coop_instances.length; i++){
+        updateCoopInstance(coop_instances[i]);
+    }
+}
+
+// Update a single coop instance
+function updateCoopInstance(coop_instance) {
+    // Get the coop workflow
+    console.log(coop_instance)
+    let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
+
+    // Find which stage we're on
+    // TODO: fix "Cannot read 'stages' of undefined"
+    let stage = coop_workflow.stages[coop_instance.stage];
+
+    // Handle it
+    switch(stage.type) {
+        case CoopWorkflowStages.LOBBY:
+            updateCoopLobby(coop_instance);
+            break;
+
+        case CoopWorkflowStages.PUZZLE:
+            // TODO
+            break;
+
+        case CoopWorkflowStages.AUDIO:
+            // TODO
+            break;
+
+        default:
+            console.log("Warning: unrecognized stage type in updateCoopInstance: " + stage.type)
+    }
+}
+
+function updateCoopLobby(coop_instance) {
+    // Move to next stage if lobby is done
+    if(isFull(coop_instance)) {
+        let new_stage = coop_instance.stage + 1;
+        CoopWorkflowInstances.update(
+            {_id: coop_instance._id},
+            {$set: {stage: new_stage}}
+        );
+        return;
+    }
+
+    // Find how long is left on the lobby
+    let time_now = new Date();
+    let elapsed_ms = Math.abs(time_now - time_started);
+    let elapsed_s = (diff_ms / 1000);
+    let lobby_s = coop_instance.lobby_time * 60;
+    let seconds_left = lobby_s - elapsed_s;
+
+    // If countdown is done, skip to the end
+    if(seconds_left <= 0) {        
+        CoopWorkflowInstances.update(
+            {_id: coop_instance._id},
+            {$set: {stage: -1}}
+        );
+        return;
+    }
+}
+
+
 
 Meteor.methods({
     // Join a coop workflow

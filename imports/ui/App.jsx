@@ -9,6 +9,8 @@ import {WorkflowInstances} from '../api/workflowInstances.js';
 import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
+import {AudioTasks} from '../api/audioTasks.js';
+import {AudioInstances} from '../api/audioInstances.js';
 
 // UI
 import {Workflow} from './Workflow.jsx';
@@ -66,6 +68,8 @@ export default withTracker(() => {
         Meteor.subscribe('tutorials'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),
+        Meteor.subscribe('audiotasks'),
+        Meteor.subscribe('audioinstances'),
         Meteor.subscribe('servertime'),
     ];
 
@@ -91,8 +95,9 @@ export default withTracker(() => {
         coopInstance: CoopWorkflowInstances.findOne(),
 
         // TODO: this is a total hack
-        // Force re-renders whenever a word gets found
+        // Force re-renders whenever anything gets changed in these
         puzzle_instances: PuzzleInstances.find().fetch(),
+        audio_instances: AudioInstances.find().fetch(),
 
         // TODO: remove these when done debugging
         //puzzle: Puzzles.findOne(),

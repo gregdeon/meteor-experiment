@@ -15,12 +15,14 @@ import {WorkflowInstances} from '../imports/api/workflowInstances.js';
 import {CoopWorkflowInstances} from '../imports/api/coopWorkflowInstances.js';
 import {SurveyInstances} from '../imports/api/surveyInstances.js';
 
-// Puzzles
+// Puzzles and audio tasks
 import {Puzzles} from '../imports/api/puzzles.js';
-import {PuzzleInstances, addPuzzleInstance} from '../imports/api/puzzleInstances.js';
+import {PuzzleInstances} from '../imports/api/puzzleInstances.js';
+import {AudioTasks} from '../imports/api/audioTasks.js';
+import {AudioInstances} from '../imports/api/audioInstances.js';
 import {ScoreModes, RewardModes} from '../imports/api/scoreFunctions.js';
 
-import {RoutingCounter} from '../imports/api/routing.js';
+import {RoutingCounter, updateCoopInstances} from '../imports/api/routing.js';
 
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
@@ -126,4 +128,5 @@ function addExampleFeedbackLetter() {
 }
 
 Meteor.startup(() => {
+    Meteor.setInterval(updateCoopInstances, 200);
 });

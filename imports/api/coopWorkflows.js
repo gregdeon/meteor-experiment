@@ -17,6 +17,7 @@ export const CoopWorkflows = new Mongo.Collection('coopworkflows', {
 export const CoopWorkflowStages = {
     LOBBY: 0,
     PUZZLE: 1,
+    AUDIO: 2,
 };
 
 if (Meteor.isServer) {

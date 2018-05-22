@@ -6,8 +6,11 @@ import {isFull, initializeOutput} from '../api/routing.js';
 
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
+import {AudioTasks} from '../api/audioTasks.js';
+import {AudioInstances} from '../api/audioInstances.js';
 
 import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
+import {AudioTask} from './AudioTask.jsx';
 
 import {getServerTime} from '../api/utils.js';
 
@@ -77,6 +80,11 @@ class LobbyScreen extends Component {
         $('#audio').html('<audio autoplay><source src="/rooster.wav"></audio>');
     }
 
+    componentWillUnmount() {
+        // We're tearing down, so play the alert now
+        playAlert();
+    }
+
     renderStatus() {
         let status_items = [];
         let user_ids = this.props.coop_instance.user_ids;
@@ -112,6 +120,7 @@ class LobbyScreen extends Component {
         // TODO
 
         // If our group is full, move on
+        /*
         if(isFull(this.props.coop_instance)) {
             this.playAlert();
             this.props.finishedCallback();
@@ -120,7 +129,7 @@ class LobbyScreen extends Component {
         else if(this.state.queue_left_s <= 0) {
             this.props.skipToEnd();
             return <div>No team found. Skipping to confirmation code...</div>
-        }
+        }*/
 
         return (
             <div className="lobby-container">
@@ -215,6 +224,7 @@ export class CoopWorkflow extends Component {
             return null;
         }
         else {
+            let player_num = this.props.coop_instance.user_ids.indexOf(Meteor.userId())
             switch(stage.type) {
                 case CoopWorkflowStages.LOBBY:
                     return (
@@ -229,7 +239,8 @@ export class CoopWorkflow extends Component {
                 case CoopWorkflowStages.PUZZLE:
                     let puzzle_instance = PuzzleInstances.findOne({_id: output_id})
                     let puzzle = Puzzles.findOne({_id: puzzle_instance.puzzle})
-                    let player_num = this.props.coop_instance.user_ids.indexOf(Meteor.userId())
+
+                    // TODO: puzzle_num assumes 1 lobby at start
                     return (
                         <WordSearchPuzzle
                             puzzle={puzzle}
@@ -239,7 +250,19 @@ export class CoopWorkflow extends Component {
                             finishedCallback={this.advanceCoopStage.bind(this, stage_num)}
                         />
                     );
-                    // TODO: puzzle_num assumes 1 lobby at start
+
+                case CoopWorkflowStages.AUDIO:
+//                    let audio_instance = AudioInstances.findOne({})
+                    let audio_instance = AudioInstances.findOne({_id: output_id});
+                    let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
+
+                    return (                        
+                        <AudioTask
+                            audio_task={audio_task}
+                            audio_instance={audio_instance}
+                            player_num={player_num}
+                        />
+                    );
             }
         }
     }
