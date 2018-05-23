@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {AudioInstanceStates} from '../api/audioInstances.js';
+import {AudioInstanceStates, getFoundArrays} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString} from '../api/utils.js';
 
 // TODO: this is a test for now
@@ -22,19 +22,24 @@ class AudioTaskScore extends Component {
             );
         });
 
-        let word_to_render = "?";
+        let found_any = false;
         for(let i = 0; i < found_list.length; i++) {
             if(found_list[i]) {
-                word_to_render = word;
+                found_any = true;
                 break;
             }
         }
 
         return (
             <div className="audio-transcript-word">
-                <div className="audio-transcript-text">
-                    {word_to_render}
-                </div>
+                {found_any 
+                    ? <div className="audio-transcript-text">
+                        {word}
+                    </div>
+                    : <div className="audio-transcript-missing">
+                        ?
+                    </div>
+                }
                 {found_divs}
             </div>
         );
@@ -42,9 +47,14 @@ class AudioTaskScore extends Component {
 
 
     render() {
-        let word_list = this.getWordList();
-        let found_list = new Array(word_list.length).fill([false, false, false])
+//        let word_list = this.getWordList();
+        let word_list = this.props.audio_task.words;
+        let found_lists = getFoundArrays(this.props.audio_instance._id);
 
+
+       // let found_list = new Array(word_list.length).fill([false, false, false])
+
+        /*
         found_list[0] = [true, true, true];
         found_list[1] = [true, true, false];
         found_list[2] = [true, false, false];
@@ -53,9 +63,11 @@ class AudioTaskScore extends Component {
         found_list[5] = [false, true, true];
         found_list[6] = [true, true, true];
         found_list[7] = [true, true, true];
+        */
 
         let word_divs = word_list.map((word, idx) => {
-            return this.renderWord(word, found_list[idx]);
+            let found_this_word = found_lists.map(found_list => found_list[idx]);
+            return this.renderWord(word, found_this_word);
         });
 
         return (
@@ -202,8 +214,13 @@ export class AudioTask extends Component {
                 {this.renderAudioPlaybackBar()}
                 {this.renderTextEntry()}
                 <br />
+                {/* Debug */}
                 <hr />
-                <AudioTaskScore />
+                <AudioTaskScore
+                    audio_task={this.props.audio_task} 
+                    audio_instance={this.props.audio_instance}
+                    player_num={this.props.player_num}
+                />
             </div>
         );
     }

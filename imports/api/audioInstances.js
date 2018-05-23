@@ -14,6 +14,9 @@ import {AudioTasks} from './audioTasks.js'
 //import {getRewards} from './scoreFunctions.js';
 //import {getServerTime} from './utils.js';
 
+import * as diff from 'diff';
+
+
 export const AudioInstances = new Mongo.Collection('audioinstances', {
     idGeneration: 'MONGO',
 });
@@ -56,12 +59,51 @@ export function addAudioInstance(audio_id, num_players) {
     return instance_id;
 }
 
+// Compute which words the players typed:
+// - run diffArrays(truth, typed)
+// - added: extra words that they typed
+// - removed: words that they missed
+// - neither: words that they got
+// collapse into a typed/missed array by looking at "removed" and good entries
+export function getFoundArrays(instance_id) {
+    let audio_instance = AudioInstances.findOne({_id: instance_id});
+    let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
+
+    let true_words = audio_task.words;
+    let all_typed_words = audio_instance.words;
+
+    let ret = []
+    for(let i = 0; i < all_typed_words.length; i++) {
+        let typed_words = all_typed_words[i];
+        let words_diff = diff.diffArrays(true_words, typed_words);
+
+
+        let words_found = [];
+        words_diff.map(part => {
+            // Words they missed
+            if(part.removed) {
+                for(let j = 0; j < part.count; j++) {
+                    words_found.push(false);
+                }
+            }
+            else if(!part.added) {
+                for(let j = 0; j < part.count; j++) {
+                    words_found.push(true);
+                }
+            }
+        });
+        ret.push(words_found);
+    }
+
+    return ret;
+}
+
 Meteor.methods({
     'audioInstances.submitWord'(instance_id, player_num, word) {
         // TODO: normalize word?
         let push_data = {}
         push_data['words.' + player_num] = word
-        
+
         AudioInstances.update(
             {_id: instance_id},
             {$push: push_data}

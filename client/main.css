@@ -323,10 +323,15 @@ button:disabled {
     margin: 2px;
 }
 
-.audio-transcript-text {
+.audio-transcript-text,
+.audio-transcript-missing {
     display: inline-block;
     height: 36px;
     margin: 2px;
+}
+
+.audio-transcript-missing {
+    color: #777777;
 }
 
 .audio-transcript-p1,
