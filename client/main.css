@@ -279,7 +279,7 @@ button:disabled {
 }
 
 .audio-text {
-    display: block;
+    display: inline-block;
 }
 
 .audio-typed {
@@ -305,6 +305,48 @@ button:disabled {
     width: 300px;
     margin: 5px;
     font-size: 24px;
+}
+
+.audio-transcript {
+    width: 700px;
+    border: 2px solid #7f7f7f;
+    /*
+    height: 100px;
+    overflow-y: scroll;
+    */
+    font-size: 24px;
+    text-align: left;
+}
+
+.audio-transcript-word {
+    display: inline-block;
+    margin: 2px;
+}
+
+.audio-transcript-text {
+    display: inline-block;
+    height: 36px;
+    margin: 2px;
+}
+
+.audio-transcript-p1,
+.audio-transcript-p2,
+.audio-transcript-p3 {
+    height: 5px;
+    margin: 2px;
+    visibility: 
+}
+
+.audio-transcript-p1 {
+    background: var(--p1-highlight);
+}
+
+.audio-transcript-p2 {
+    background: var(--p2-highlight);
+}
+
+.audio-transcript-p3 {
+    background: var(--p3-highlight);
 }
 
 .word-search-line {

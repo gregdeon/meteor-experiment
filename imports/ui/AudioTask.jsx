@@ -2,6 +2,70 @@ import React, { Component } from 'react';
 import {AudioInstanceStates} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString} from '../api/utils.js';
 
+// TODO: this is a test for now
+class AudioTaskScore extends Component {
+    getWordList() {
+        return [ 
+            "As", "we", "think", "about", "comprehension", "and", "response", "today", "I’d", //"like", "you", "to", "first", "think", "about", "the", "essential", "comprehension", "strategies.", "And", "for", "me", "this", "is", "an", "important", "starting", "place,", "because", "one", "of", "the", "things,", "I", "think,", "that", "happens", "to", "us", "as", "teachers", "is", "that", "we", "end", "up", "with", "this", "very", "large", "collection", "of", "comprehension", "strategies.", 
+        ];
+    }
+
+    renderWord(word, found_list) {
+        let found_divs = found_list.map((word, idx) => {
+            let style = {visibility: found_list[idx] ? "visible" : "hidden"}
+
+            return (
+                <div 
+                    className={"audio-transcript-p" + (idx+1)} 
+                    style={style}
+                />
+            );
+        });
+
+        let word_to_render = "?";
+        for(let i = 0; i < found_list.length; i++) {
+            if(found_list[i]) {
+                word_to_render = word;
+                break;
+            }
+        }
+
+        return (
+            <div className="audio-transcript-word">
+                <div className="audio-transcript-text">
+                    {word_to_render}
+                </div>
+                {found_divs}
+            </div>
+        );
+    }
+
+
+    render() {
+        let word_list = this.getWordList();
+        let found_list = new Array(word_list.length).fill([false, false, false])
+
+        found_list[0] = [true, true, true];
+        found_list[1] = [true, true, false];
+        found_list[2] = [true, false, false];
+        found_list[3] = [false, true, true];
+        found_list[4] = [false, false, false];
+        found_list[5] = [false, true, true];
+        found_list[6] = [true, true, true];
+        found_list[7] = [true, true, true];
+
+        let word_divs = word_list.map((word, idx) => {
+            return this.renderWord(word, found_list[idx]);
+        });
+
+        return (
+            <div className="audio-transcript">
+                {word_divs}
+            </div>
+        );
+    }
+}
+
 export class AudioTask extends Component {
     constructor(props) {
         super(props);
@@ -130,7 +194,9 @@ export class AudioTask extends Component {
                 <div className="task-header">{header_text}</div>
                 {this.renderAudioPlaybackBar()}
                 {this.renderTextEntry()}
-                <div>Test</div>
+                <br />
+                <hr />
+                <AudioTaskScore />
             </div>
         );
     }
