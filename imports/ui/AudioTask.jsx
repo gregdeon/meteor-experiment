@@ -123,12 +123,15 @@ export class AudioTask extends Component {
             // TODO: submit word
             // Also make sure to update our match-finding data structure at the same time
             let typed_word = new_text.slice(0, -1);
-            console.log(typed_word);
 
-            let new_word_list = this.state.test_words.slice();
-            new_word_list.push(typed_word);
-            this.setState({test_words: new_word_list});
+            Meteor.call(
+                'audioInstances.submitWord', 
+                this.props.audio_instance._id,
+                this.props.player_num,
+                typed_word
+            );
 
+            // Empty the text box again
             new_text = "";
         }
 
@@ -158,7 +161,11 @@ export class AudioTask extends Component {
     }
 
     renderTextWords() {
-        return this.state.test_words.map(word => <div className="audio-typed-word">{word}</div>);
+        let word_lists = this.props.audio_instance.words;
+        let word_list = word_lists[this.props.player_num];
+        return word_list.map(
+            (word, idx) => 
+            <div className="audio-typed-word" key={idx}>{word}</div>);
     }
 
     renderTextEntry() {
@@ -222,30 +229,6 @@ export class AudioTask extends Component {
             {/* Hack to center the game*/}
 
             {render_output}
-
-{/*
-            <div className="word-search-container-left">
-                <WordSearchTime
-                    time_left={this.props.time_left}
-                />
-                <WordSearchStatus
-                    task={this.props.task}
-                    taskinstance={this.props.taskinstance}
-                    player_num={this.props.player_num}
-                />
-                <WordSearchScoreBox 
-                    task={this.props.task}
-                    task_instance={this.props.taskinstance}
-                />
-            </div>
-            <div className='word-search-container-right'>
-                <WordSearchGrid
-                    task={this.props.task}
-                    taskinstance={this.props.taskinstance}
-                    player_num={this.props.player_num}
-                />
-            </div>
-*/}
 
             </div>
             </div>

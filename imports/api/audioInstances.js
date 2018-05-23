@@ -56,4 +56,17 @@ export function addAudioInstance(audio_id, num_players) {
     return instance_id;
 }
 
-// TODO: add meteor methods for submitting words
+Meteor.methods({
+    'audioInstances.submitWord'(instance_id, player_num, word) {
+        // TODO: normalize word?
+        let push_data = {}
+        push_data['words.' + player_num] = word
+        
+        AudioInstances.update(
+            {_id: instance_id},
+            {$push: push_data}
+        );
+
+        // TODO: update match data structure
+    },
+});
