@@ -3,14 +3,16 @@
 import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 
-import {getServerTime} from './utils.js';
+import {getServerTime, getSecondsSince} from './utils.js';
 import {incrementCounter} from 'meteor/konecty:mongo-counter';
 
+import {WorkflowInstances} from './workflowInstances.js';
 import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
 import {CoopWorkflowInstances} from './coopWorkflowInstances.js';
 
 import {addPuzzleInstance} from './puzzleInstances.js';
-import {addAudioInstance} from './audioInstances.js';
+import {AudioInstances, addAudioInstance, AudioInstanceStates} from './audioInstances.js';
+import {AudioTasks} from './audioTasks.js';
 
 // Helper counter to track how many coop instances we've made
 /*
@@ -70,35 +72,42 @@ export function initializeOutput(stage) {
 
 // Iterate through all coop instances
 // Check for lobby status, stage times, etc
-export function updateCoopInstances() {
+export function updateInstances() {
     // Safety check
     if(!Meteor.isServer) {
-        console.log("Warning: updateCoopInstances() called from client (no effect)")
+        console.log("Warning: updateInstances() called from client (no effect)")
         return;
     }
 
     // Naive approach: fetch all coop instances
+    // TODO: only update the ones that are active
     let coop_instances = CoopWorkflowInstances.find().fetch();
-
     for(let i = 0; i < coop_instances.length; i++){
         updateCoopInstance(coop_instances[i]);
     }
 }
 
+
 // Update a single coop instance
 function updateCoopInstance(coop_instance) {
     // Get the coop workflow
-    console.log(coop_instance)
     let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
 
-    // Find which stage we're on
-    // TODO: fix "Cannot read 'stages' of undefined"
-    let stage = coop_workflow.stages[coop_instance.stage];
+    // If we're done, don't bother
+    let stage_num = coop_instance.stage;
+    if(stage_num >= coop_workflow.stages.length) 
+        return;
 
-    // Handle it
+    // Find which stage we're on
+    let stage = coop_workflow.stages[stage_num];
+
+    // Check if we need to update the individual workflows too
+    let new_stage = stage_num;
+
+    // Find which stage we should go to
     switch(stage.type) {
         case CoopWorkflowStages.LOBBY:
-            updateCoopLobby(coop_instance);
+            new_stage = updateCoopLobby(coop_instance);
             break;
 
         case CoopWorkflowStages.PUZZLE:
@@ -106,23 +115,31 @@ function updateCoopInstance(coop_instance) {
             break;
 
         case CoopWorkflowStages.AUDIO:
-            // TODO
+            new_stage = updateCoopAudio(coop_instance);
             break;
 
         default:
             console.log("Warning: unrecognized stage type in updateCoopInstance: " + stage.type)
+    }
+
+    // Actually update the stage
+    if(new_stage !== stage) {
+        CoopWorkflowInstances.update(
+            {_id: coop_instance._id},
+            {$set: {stage: new_stage}}
+        );
+    }
+
+    // Update the individual workflows if we need to
+    if(new_stage === -1 || new_stage >= coop_workflow.stages.length) {
+        updateIndividualWorkflows(coop_instance, new_stage);
     }
 }
 
 function updateCoopLobby(coop_instance) {
     // Move to next stage if lobby is done
     if(isFull(coop_instance)) {
-        let new_stage = coop_instance.stage + 1;
-        CoopWorkflowInstances.update(
-            {_id: coop_instance._id},
-            {$set: {stage: new_stage}}
-        );
-        return;
+        return coop_instance.stage + 1;
     }
 
     // Find how long is left on the lobby
@@ -133,15 +150,73 @@ function updateCoopLobby(coop_instance) {
     let seconds_left = lobby_s - elapsed_s;
 
     // If countdown is done, skip to the end
-    if(seconds_left <= 0) {        
-        CoopWorkflowInstances.update(
-            {_id: coop_instance._id},
-            {$set: {stage: -1}}
+    if(seconds_left <= 0) {    
+        return -1;
+    }
+
+    return coop_instance.stage;
+}
+
+function updateCoopAudio(coop_instance) {
+    // Find our audio instance
+    let coop_stage = coop_instance.stage;
+    let audio_id = coop_instance.output[coop_stage];
+    let audio_instance = AudioInstances.findOne({_id: audio_id});
+    let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
+
+    let audio_stage = audio_instance.state;
+    let new_stage = audio_stage;
+
+    let time_started = audio_instance.time_started[audio_stage];
+
+    // If we need to start a timer, start it
+    if(!time_started) {
+        time_started = new Date();
+        let upd = {};
+        upd["time_started." + String(audio_stage)] = time_started;
+        AudioInstances.update(
+            {_id: audio_instance._id},
+            {$set: upd}
+        )
+    }
+
+    // If time is up, move on
+    let time_s = getSecondsSince(time_started);
+    let time_left = audio_task.time_s[audio_stage] - time_s;
+    console.log(time_left);
+    if(time_left < 0) {
+        new_stage = audio_stage + 1;
+        AudioInstances.update(
+            {_id: audio_instance._id},
+            {$set: {state: new_stage}}
         );
-        return;
+    }
+
+    // If we're at the end, move on
+    if(new_stage >= AudioInstanceStates.FINISHED) {
+        return coop_stage + 1;
+    }
+    else {
+        return coop_stage;
     }
 }
 
+function updateIndividualWorkflows(coop_instance, update_type) {
+    user_ids = coop_instance.user_ids;
+
+    for(let i = 0; i < user_ids.length; i++) {
+        // TODO: this assumes that every user only has one instance
+        // TODO: find workflow instance for this user
+        // Update its stage according to the update type
+        if(update_type == WorkflowUpdates.CHECK_NEXT) {
+            // TODO: if we're at the end, move to next stage
+            // Probably re-fetch here
+        }
+        else if(update_type == WorkflowUpdates.FINAL) {
+            // TODO: skip to the end
+        }
+    }
+}
 
 
 Meteor.methods({
@@ -227,33 +302,4 @@ Meteor.methods({
             );
         }
     },
-
-    // Move on to the next stage in a coop workflow
-    'coopworkflowinstances.advanceStage'(instance_id, current_stage) {
-        let instance = CoopWorkflowInstances.findOne({_id: instance_id});
-        let coop_workflow = CoopWorkflows.findOne({_id: instance.coop_id});
-
-        let stage = instance.stage;
-        let new_stage = current_stage + 1;
-        let num_stages = coop_workflow.stages.length;
-
-        if(stage === current_stage) {
-            if(new_stage <= num_stages) {
-                CoopWorkflowInstances.update(instance_id, {
-                    $set: {stage: new_stage},
-                });
-            }
-        }
-        
-        return (new_stage === num_stages);
-    },
-
-    // TODO: add skip to end
-    // Set stage to final stage so that nobody else can join it
-    'coopworkflowinstances.skipToEnd'(instance_id)
-    {      
-        CoopWorkflowInstances.update(instance_id, {
-            $set: {stage: -1},
-        });
-    }
 });

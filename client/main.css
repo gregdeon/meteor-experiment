@@ -219,22 +219,92 @@ button:disabled {
 }
 
 /* Puzzle attributes */
-#puzzle-hide-overflow {
+#task-hide-overflow {
     overflow: hidden;
 }
 
-#puzzle-outer {
+#task-outer {
     position: relative; left: 50%; float: left;
 }
 
-#puzzle-inner {
+#task-inner {
     position: relative; left: -50%; float: left;
     display: flex;
 }
 
+.task-container, 
 .word-search-puzzle-container {
-    display: inline-flex;
+    display: block;
     margin: 0 auto;
+    text-align: center;
+}
+
+.task-header {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.audio-view {
+    width: 400px;
+    margin: 10px auto;
+}
+
+.audio-playback {
+    width: 400px;
+    height: 50px;
+    border: 2px solid #7f7f7f;
+    background: #dddddd;
+}
+
+.audio-playback-filled {
+    background: #26a69a;
+    height: 100%;
+}
+
+.audio-view-bottom {
+    display: inline-flex;
+    width: 100%;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.audio-view-time {
+    width: 50%;
+    text-align: left;
+}
+
+.audio-view-end {
+    width: 50%;
+    text-align: right;
+}
+
+.audio-text {
+    display: block;
+}
+
+.audio-typed {
+    width: 500px;
+    height: 100px;
+    border: 2px solid #7f7f7f;
+    font-size: 24px;
+    text-align: left;
+    overflow-y: scroll;
+}
+
+.audio-typed-dummy {
+    position: sticky;
+    bottom: 0;
+}
+
+.audio-typed-word {
+    display: inline-block;
+    margin: 5px;
+}
+
+.audio-input {
+    width: 300px;
+    margin: 5px;
+    font-size: 24px;
 }
 
 .word-search-line {

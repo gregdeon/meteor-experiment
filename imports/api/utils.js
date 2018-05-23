@@ -29,6 +29,14 @@ export function getServerTime() {
     return date;
 }
 
+// Helper function: get seconds since a date
+export function getSecondsSince(date) {
+    let time_now = new Date();
+    let elapsed_ms = Math.abs(time_now - date);
+    let elapsed_s = (elapsed_ms / 1000);
+    return elapsed_s;
+}
+
 // Left-pad a number with 0s
 function pad(num, digits)
 {
@@ -38,7 +46,16 @@ function pad(num, digits)
     return ret;
 }
 
+// 123 -> $12.34
 export function centsToString(cents) {
     return ("$" + Math.floor(cents/100) + "." + pad(cents%100, 2));
 }
 
+// 123 -> 2:03
+export function secondsToString(seconds) {
+    var mins = Math.floor(seconds / 60);
+    var secs = seconds % 60;
+
+    var ret = "" + mins + ":" + pad(secs, 2);
+    return ret;
+}

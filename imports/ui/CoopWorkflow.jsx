@@ -12,7 +12,7 @@ import {AudioInstances} from '../api/audioInstances.js';
 import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 import {AudioTask} from './AudioTask.jsx';
 
-import {getServerTime} from '../api/utils.js';
+import {getServerTime, secondsToString} from '../api/utils.js';
 
 // Left-pad a number with 0s
 function pad(num, digits)
@@ -42,7 +42,6 @@ class LobbyScreen extends Component {
         super(props);
 
         this.state = {
-            queue_start: new Date(getServerTime()).getTime(),
             queue_left_s: this.props.coop_workflow.lobby_time * 60,
             queue_update: setInterval(
                 this.updateQueueTime.bind(this),
@@ -65,12 +64,7 @@ class LobbyScreen extends Component {
     }
 
     getQueueTimeString() {
-        var time_s = this.state.queue_left_s;
-        var mins = Math.floor(time_s / 60);
-        var secs = time_s % 60;
-
-        var queue_string = "" + mins + ":" + pad(secs, 2);
-        return queue_string;
+        return secondsToString(this.state.queue_left_s);
     }
 
     playAlert() {
@@ -103,7 +97,6 @@ class LobbyScreen extends Component {
                 <p key={i}><b>Player {i+1}</b>: {ready_string}</p>
             );
         }
-        //this.props.coop_instance.user_ids;
 
         return (
             <div className="lobby-status">
@@ -115,21 +108,6 @@ class LobbyScreen extends Component {
     render() {   
         let coop_workflow = CoopWorkflows.findOne({_id: this.props.coop_instance.coop_id});
         let wait_mins = coop_workflow.lobby_time;
-
-        // Get time left (seconds)
-        // TODO
-
-        // If our group is full, move on
-        /*
-        if(isFull(this.props.coop_instance)) {
-            this.playAlert();
-            this.props.finishedCallback();
-        }
-        // Otherwise, if time is up, skip to the end
-        else if(this.state.queue_left_s <= 0) {
-            this.props.skipToEnd();
-            return <div>No team found. Skipping to confirmation code...</div>
-        }*/
 
         return (
             <div className="lobby-container">
@@ -175,24 +153,6 @@ class LobbyScreen extends Component {
 }
 
 export class CoopWorkflow extends Component {
-    advanceCoopStage(current_stage) {
-        console.log(this.props.coop_instance);
-        Meteor.call(
-            'coopworkflowinstances.advanceStage',
-            this.props.coop_instance._id,
-            current_stage,
-        );
-    }
-
-    skipToEnd() {
-        // Skip to end if we didn't find a team
-        Meteor.call(
-            'coopworkflowinstances.skipToEnd',
-            this.props.coop_instance._id,
-        );
-        this.props.lobbyFailedCallback();
-    }
-
     render() {
         console.log(this.props);
 
@@ -231,8 +191,6 @@ export class CoopWorkflow extends Component {
                         <LobbyScreen 
                             coop_workflow={coop_workflow}
                             coop_instance={this.props.coop_instance}
-                            finishedCallback={this.advanceCoopStage.bind(this, stage_num)}
-                            skipToEnd={this.skipToEnd.bind(this)}
                         />
                     );
 
@@ -246,8 +204,6 @@ export class CoopWorkflow extends Component {
                             puzzle={puzzle}
                             puzzleinstance={puzzle_instance}
                             player_num={player_num}
-                            puzzle_num={stage_num - 1}
-                            finishedCallback={this.advanceCoopStage.bind(this, stage_num)}
                         />
                     );
 

@@ -104,6 +104,7 @@ export class Workflow extends Component {
         let workflow = Workflows.findOne({_id: this.props.workflowInstance.workflow_id});
         let stage_num = this.props.workflowInstance.stage;
         let stages = workflow.stages;
+        
         let stage = stages[stage_num];
 
         switch(stage.type) {

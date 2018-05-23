@@ -113,6 +113,10 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
                         base += 50;
                         bonus += rewards[player_num];
                         break;
+
+                    case CoopWorkflowStages.AUDIO:
+                        // TODO
+                        break;
                 }
             });
         }

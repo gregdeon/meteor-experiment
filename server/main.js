@@ -22,7 +22,7 @@ import {AudioTasks} from '../imports/api/audioTasks.js';
 import {AudioInstances} from '../imports/api/audioInstances.js';
 import {ScoreModes, RewardModes} from '../imports/api/scoreFunctions.js';
 
-import {RoutingCounter, updateCoopInstances} from '../imports/api/routing.js';
+import {RoutingCounter, updateInstances} from '../imports/api/routing.js';
 
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
@@ -128,5 +128,5 @@ function addExampleFeedbackLetter() {
 }
 
 Meteor.startup(() => {
-    Meteor.setInterval(updateCoopInstances, 200);
+    Meteor.setInterval(updateInstances, 200);
 });
