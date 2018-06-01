@@ -66,7 +66,8 @@ export function addAudioInstance(audio_id, num_players) {
 // - typed: list. typed[i] is how many words player i+1 typed.
 // - correct: list. correct[i] is how many words player i+1 typed correctly.
 // Note that number of errors is typed[i] - correct[i].
-export function getInstanceResults(instance) {
+export function getInstanceResults(audio_instance) {
+    console.log(audio_instance);
     let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
 
     let true_words = audio_task.words;
@@ -75,9 +76,12 @@ export function getInstanceResults(instance) {
     let num_words = true_words.length;
     let num_players = all_typed_words.length;
 
-    let found = Array(num_words).fill([]);
     let correct = Array(num_players).fill(0);
     let typed = Array(num_players).fill(0);
+    let found = Array(num_words);
+    for(let i = 0; i < num_words; i++) {
+        found[i] = new Array(0);
+    }
 
     for(let i = 0; i < num_players; i++) {
         let typed_words = all_typed_words[i];
@@ -94,6 +98,7 @@ export function getInstanceResults(instance) {
                 for(let j = 0; j < part.count; j++) {
                     found[current_word+j].push(false);
                 }
+                current_word += part.count;
             } 
             // Words they typed correctly
             else {
@@ -102,6 +107,7 @@ export function getInstanceResults(instance) {
                 for(let j = 0; j < part.count; j++) {
                     found[current_word+j].push(true);
                 }
+                current_word += part.count;
             }
         });
     }

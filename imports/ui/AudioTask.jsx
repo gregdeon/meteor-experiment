@@ -60,7 +60,9 @@ export class AudioTaskScore extends Component {
 
     renderTranscript(found_lists) {
         let word_list = this.props.audio_task.words;
-        let results = getInstanceResults(this.props.audio_instance._id);
+        let results = getInstanceResults(this.props.audio_instance);
+        console.log(this.props.audio_instance);
+        console.log(results);
 
         let anybody_found_word = results.found.map(found_list => {
             for(let i = 0; i < found_list.length; i++){
@@ -79,7 +81,7 @@ export class AudioTaskScore extends Component {
 
         return (
             <div className="audio-transcript">
-                {this.renderPlayerMarkers(found_lists.length)}
+                {this.renderPlayerMarkers(results.typed.length)}
                 {word_divs}
             </div>
         );
@@ -90,7 +92,6 @@ export class AudioTaskScore extends Component {
     }
 
     render() {
-        let found_lists = getFoundArrays(this.props.audio_instance._id);
         return (
             <div className="task-container">
                 <div className="task-header">Audio clip finished!</div>

@@ -29,6 +29,7 @@ class AdminUI extends Component {
         this.state = {
             selected_stage: 0,
             selected_coop: 0,
+            selected_player: 0,
             selected_view: 'task', // 'task' or 'score'
         };
     }
@@ -37,12 +38,19 @@ class AdminUI extends Component {
         this.setState({
             selected_coop: event.target.value,
             selected_stage: 0,
+            selected_player: 0,
         });
     }
 
     handleSelectedPuzzle(event) {
         this.setState({
             selected_stage: event.target.value,
+        });
+    }
+
+    handleSelectedPlayer(event) {
+        this.setState({
+            selected_player: event.target.value,
         });
     }
 
@@ -102,6 +110,28 @@ class AdminUI extends Component {
         )
     }
 
+    renderPlayerSelector() {
+        let coop_instance = this.props.coop_instances[this.state.selected_coop];
+        let num_players = coop_instance.user_ids.length;
+
+        let player_options = []
+        for(let i = 0; i < num_players; i++) {
+            player_options.push(this.renderOneOption(i+1, i));
+        }
+
+        return (
+            <div>
+                <p>Player:</p>
+                <select
+                    onChange={this.handleSelectedPlayer.bind(this)}
+                    value={this.state.selected_player}
+                >
+                    {player_options}
+                </select>
+            </div>
+        )
+    }
+
     renderViewSelector() {
         return (
             <div>
@@ -128,12 +158,15 @@ class AdminUI extends Component {
             </div>
         );
     }
+
+
     renderSelectionBox() {
         return (
             <div className="admin-select-puzzle">
                 {this.renderGroupSelector()}
                 {this.renderPuzzleSelector()}
                 {this.renderViewSelector()}
+                {this.renderPlayerSelector()}
             </div>
         );
     }
@@ -152,7 +185,7 @@ class AdminUI extends Component {
                 <PuzzleView
                     puzzle={puzzle}
                     puzzleinstance={puzzle_instance}
-                    player_num={0}
+                    player_num={this.state.selected_player}
                     puzzle_num={-1}
                     time_left={180}
                 />
@@ -163,7 +196,7 @@ class AdminUI extends Component {
                 <WordSearchScoreScreen 
                     puzzle={puzzle}
                     puzzleinstance={puzzle_instance}
-                    player_num={0}
+                    player_num={this.state.selected_player}
                     puzzle_num={-1}
                     time_left={60}
                 />
@@ -185,7 +218,7 @@ class AdminUI extends Component {
                 <AudioTaskView
                     audio_task={audio_task}
                     audio_instance={audio_instance}
-                    player_num={0}
+                    player_num={this.state.selected_player}
                     time_left={60}
                     show_countdown={false}
                 />
@@ -196,7 +229,7 @@ class AdminUI extends Component {
                 <AudioTaskScore 
                     audio_task={audio_task}
                     audio_instance={audio_instance}
-                    player_num={0}
+                    player_num={this.state.selected_player}
                     time_left={60}
                 />
             );

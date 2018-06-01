@@ -316,6 +316,7 @@ button:disabled {
     */
     font-size: 0;
     text-align: left;
+    margin: auto;
 }
 
 .audio-transcript-word,
