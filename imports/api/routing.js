@@ -45,7 +45,7 @@ const getRoutingCounter = function() {
 export function isFull(coop_instance) {
     let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
     let full_size = coop_workflow.size;
-    return (coop_instance.user_ids.length === full_size);
+    return (coop_instance.user_ids.length >= full_size);
 }
 
 export function initializeOutput(stage) {
@@ -132,7 +132,7 @@ function updateCoopInstance(coop_instance) {
 
     // Update the individual workflows if we need to
     if(new_stage === -1 || new_stage >= coop_workflow.stages.length) {
-        updateIndividualWorkflows(coop_instance, new_stage);
+        //updateIndividualWorkflows(coop_instance, new_stage);
     }
 }
 

@@ -8,7 +8,7 @@ import {withTracker} from 'meteor/react-meteor-data';
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
-import {CoopWorkflows} from '../api/coopWorkflows.js';
+import {CoopWorkflows, CoopWorkflowStages} from '../api/coopWorkflows.js';
 import {Tutorials} from '../api/tutorials.js';
 
 import {PuzzleView} from './WordSearchPuzzle.jsx';
@@ -18,27 +18,31 @@ import {TutorialScreen} from './Tutorial.jsx';
 
 import {LoginForm} from './LoginForm.jsx';
 
+import {AudioTaskView, AudioTaskScore} from './AudioTask.jsx';
+import {AudioInstances} from '../api/audioInstances.js';
+import {AudioTasks} from '../api/audioTasks.js';
+
 class AdminUI extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            selected_puzzle: 0,
+            selected_stage: 0,
             selected_coop: 0,
-            selected_view: 'puzzle', // 'puzzle' or 'score'
+            selected_view: 'task', // 'task' or 'score'
         };
     }
 
     handleSelectedGroup(event) {
         this.setState({
             selected_coop: event.target.value,
-            selected_puzzle: 0,
+            selected_stage: 0,
         });
     }
 
     handleSelectedPuzzle(event) {
         this.setState({
-            selected_puzzle: event.target.value,
+            selected_stage: event.target.value,
         });
     }
 
@@ -80,10 +84,10 @@ class AdminUI extends Component {
         let stage_ids = coop_instance.output;
         return (
             <div>
-                <p>Puzzle Instance:</p>
+                <p>Stage:</p>
                 <select
                     onChange={this.handleSelectedPuzzle.bind(this)}
-                    value={this.state.selected_puzzle}
+                    value={this.state.selected_stage}
                 >
                     {stage_ids.map((stage_id, idx) => {
                         if(stage_id !== null) {
@@ -101,14 +105,14 @@ class AdminUI extends Component {
     renderViewSelector() {
         return (
             <div>
-                <div className="admin-radio-view" key="puzzle">
-                    <label htmlFor="puzzle">Puzzle</label>
+                <div className="admin-radio-view" key="task">
+                    <label htmlFor="task">Task</label>
                     <br/>
                     <input
                         type="radio"
-                        id="puzzle"
-                        checked={this.state.selected_view === "puzzle"}
-                        onChange={this.handleSelectedView.bind(this, "puzzle")}
+                        id="task"
+                        checked={this.state.selected_view === "task"}
+                        onChange={this.handleSelectedView.bind(this, "task")}
                     />
                 </div>
                 <div className="admin-radio-view" key="score">                    
@@ -134,43 +138,88 @@ class AdminUI extends Component {
         );
     }
 
-    renderPuzzleView() {
-        //let puzzle_instance = this.props.puzzle_instances[this.state.selected_puzzle];
+    renderPuzzleView(instance_id) {
+        if(instance_id == null) {
+            return null;
+        }
+
+        let puzzle_instance = PuzzleInstances.findOne({_id: instance_id});
+        console.log(puzzle_instance);
+        let puzzle = Puzzles.findOne({_id: puzzle_instance.puzzle});
+
+        if(this.state.selected_view === "task") {
+            return (
+                <PuzzleView
+                    puzzle={puzzle}
+                    puzzleinstance={puzzle_instance}
+                    player_num={0}
+                    puzzle_num={-1}
+                    time_left={180}
+                />
+            );
+        } 
+        else if(this.state.selected_view === "score") {
+            (
+                <WordSearchScoreScreen 
+                    puzzle={puzzle}
+                    puzzleinstance={puzzle_instance}
+                    player_num={0}
+                    puzzle_num={-1}
+                    time_left={60}
+                />
+            );
+        }
+    }
+
+    renderAudioView(instance_id) {
+        if(instance_id == null) {
+            return null;
+        }
+        console.log(instance_id);
+        let audio_instance = AudioInstances.findOne({_id: instance_id});
+        console.log(audio_instance);
+        let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
+
+        if(this.state.selected_view === "task") {
+            return (
+                <AudioTaskView
+                    audio_task={audio_task}
+                    audio_instance={audio_instance}
+                    player_num={0}
+                    time_left={60}
+                    show_countdown={false}
+                />
+            );
+        } 
+        else if(this.state.selected_view === "score") {
+            return(
+                <AudioTaskScore 
+                    audio_task={audio_task}
+                    audio_instance={audio_instance}
+                    player_num={0}
+                    time_left={60}
+                />
+            );
+        }
+    }
+
+    renderTaskView() {
+        //let puzzle_instance = this.props.puzzle_instances[this.state.selected_stage];
         //console.log(puzzle_instance);
         let coop_instance = this.props.coop_instances[this.state.selected_coop];
-        let puzzle_view = null;
+        let task_view = null;
         console.log(coop_instance);
         if(coop_instance) {
-            let stage_num = this.state.selected_puzzle;
-            let puzzle_instance_id = coop_instance.output[stage_num];
-            console.log(puzzle_instance_id);
-            if(puzzle_instance_id !== null) {
-                let puzzle_instance = PuzzleInstances.findOne({_id: puzzle_instance_id});
-                console.log(puzzle_instance);
-                let puzzle = Puzzles.findOne({_id: puzzle_instance.puzzle});
+            let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id})
+            let stage_num = this.state.selected_stage;
+            let instance_id = coop_instance.output[stage_num];
+            let instance_type = coop_workflow.stages[stage_num].type;
 
-                if(this.state.selected_view === "puzzle") {
-                    puzzle_view = (
-                        <PuzzleView
-                            puzzle={puzzle}
-                            puzzleinstance={puzzle_instance}
-                            player_num={0}
-                            puzzle_num={-1}
-                            time_left={180}
-                        />
-                    );
-                } 
-                else if(this.state.selected_view === "score") {
-                    puzzle_view = (
-                        <WordSearchScoreScreen 
-                            puzzle={puzzle}
-                            puzzleinstance={puzzle_instance}
-                            player_num={0}
-                            puzzle_num={-1}
-                            time_left={60}
-                        />
-                    );
-                }
+            if(instance_type == CoopWorkflowStages.PUZZLE) {
+                task_view = this.renderPuzzleView(instance_id);
+            }
+            else if(instance_type == CoopWorkflowStages.AUDIO) {
+                task_view = this.renderAudioView(instance_id);
             }
         }
         
@@ -186,7 +235,7 @@ class AdminUI extends Component {
                     <div className="workflow-earnings"/>
                 </div>
                 {this.renderSelectionBox()}
-                {puzzle_view}
+                {task_view}
             </div>
         );
     }
@@ -205,19 +254,24 @@ class AdminUI extends Component {
 
         let is_admin = Roles.userIsInRole(user_id, 'admin', Roles.GLOBAL_GROUP);
         console.log(is_admin);
+        
+        /* TODO: add this when not debugging 
         if(!is_admin) {
             return (
                 <p>Error: only admins can see this page!</p>
             );
         }
+        */  
 
         let tutorial = Tutorials.findOne();
         return (
             <div>
-                {this.renderPuzzleView()}
+                {this.renderTaskView()}
+                {/*
                 <TutorialScreen 
                     tutorial={tutorial}
                 />
+                */}
             </div>
         );
     }
@@ -234,6 +288,8 @@ export default withTracker(() => {
 //        Meteor.subscribe('feedbackletters'),
         Meteor.subscribe('puzzles'),
         Meteor.subscribe('puzzleinstances'),
+        Meteor.subscribe('audiotasks'),
+        Meteor.subscribe('audioinstances'),
         Meteor.subscribe('coopworkflowinstances'),
         Meteor.subscribe('coopworkflows'),
         Meteor.subscribe('tutorials'),
@@ -258,13 +314,9 @@ export default withTracker(() => {
         // TODO: handle cases where user has joined more than one workflow
         // For now, assume there's only one
 
-        // Note that these may be undefined - it's up to the app to
-        // deal with these cases
-        //workflowInstance: WorkflowInstances.findOne(),
-        //coopInstance: CoopWorkflowInstances.findOne(),
-
         // TODO: this is a total hack
-        // Force re-renders whenever a word gets found
+        // Force re-renders whenever state updates
+        audio_instances: AudioInstances.find().fetch(),
 
         // TODO: remove these when done debugging
         //puzzle: Puzzles.findOne(),

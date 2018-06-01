@@ -59,43 +59,58 @@ export function addAudioInstance(audio_id, num_players) {
     return instance_id;
 }
 
-// Compute which words the players typed:
-// - run diffArrays(truth, typed)
-// - added: extra words that they typed
-// - removed: words that they missed
-// - neither: words that they got
-// collapse into a typed/missed array by looking at "removed" and good entries
-export function getFoundArrays(instance_id) {
-    let audio_instance = AudioInstances.findOne({_id: instance_id});
+// Get some statistics on how well the group performed
+// This includes:
+// - found: list of lists. found[i] is a list describing which players 
+//          found word i (ex: [true, false, false] means only P1 found it)
+// - typed: list. typed[i] is how many words player i+1 typed.
+// - correct: list. correct[i] is how many words player i+1 typed correctly.
+// Note that number of errors is typed[i] - correct[i].
+export function getInstanceResults(instance) {
     let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
 
     let true_words = audio_task.words;
     let all_typed_words = audio_instance.words;
 
-    let ret = []
-    for(let i = 0; i < all_typed_words.length; i++) {
+    let num_words = true_words.length;
+    let num_players = all_typed_words.length;
+
+    let found = Array(num_words).fill([]);
+    let correct = Array(num_players).fill(0);
+    let typed = Array(num_players).fill(0);
+
+    for(let i = 0; i < num_players; i++) {
         let typed_words = all_typed_words[i];
         let words_diff = diff.diffArrays(true_words, typed_words);
 
-
-        let words_found = [];
+        let current_word = 0;
         words_diff.map(part => {
-            // Words they missed
-            if(part.removed) {
-                for(let j = 0; j < part.count; j++) {
-                    words_found.push(false);
-                }
+            // Words they typed that weren't in the string
+            if(part.added) {
+                typed[i] += part.count;
             }
-            else if(!part.added) {
+            // Words they missed
+            else if(part.removed) {
                 for(let j = 0; j < part.count; j++) {
-                    words_found.push(true);
+                    found[current_word+j].push(false);
+                }
+            } 
+            // Words they typed correctly
+            else {
+                typed[i] += part.count;
+                correct[i] += part.count;
+                for(let j = 0; j < part.count; j++) {
+                    found[current_word+j].push(true);
                 }
             }
         });
-        ret.push(words_found);
     }
 
-    return ret;
+    return {
+        found: found,
+        typed: typed,
+        correct: correct,
+    };
 }
 
 Meteor.methods({
@@ -108,7 +123,5 @@ Meteor.methods({
             {_id: instance_id},
             {$push: push_data}
         );
-
-        // TODO: update match data structure
     },
 });

@@ -1,13 +1,26 @@
 import React, { Component } from 'react';
-import {AudioInstanceStates, getFoundArrays} from '../api/audioInstances.js';
+import Sound from 'react-sound';
+
+import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString} from '../api/utils.js';
 
 // TODO: this is a test for now
-class AudioTaskScore extends Component {
-    getWordList() {
-        return [ 
-            "As", "we", "think", "about", "comprehension", "and", "response", "today", "I’d", //"like", "you", "to", "first", "think", "about", "the", "essential", "comprehension", "strategies.", "And", "for", "me", "this", "is", "an", "important", "starting", "place,", "because", "one", "of", "the", "things,", "I", "think,", "that", "happens", "to", "us", "as", "teachers", "is", "that", "we", "end", "up", "with", "this", "very", "large", "collection", "of", "comprehension", "strategies.", 
-        ];
+export class AudioTaskScore extends Component {
+    renderPlayerMarkers(num_players) {
+        let player_divs = []
+        for(let i = 0; i < num_players; i++) {
+            player_divs.push(
+                <div className="audio-transcript-player">Player {i+1}</div>
+            );
+        }
+
+        return (
+            <div className="audio-transcript-players">
+                <div className="audio-transcript-blank" />
+                {player_divs}
+            </div>
+
+        );
     }
 
     renderWord(word, found_list) {
@@ -45,52 +58,206 @@ class AudioTaskScore extends Component {
         );
     }
 
-
-    render() {
-//        let word_list = this.getWordList();
+    renderTranscript(found_lists) {
         let word_list = this.props.audio_task.words;
-        let found_lists = getFoundArrays(this.props.audio_instance._id);
+        let results = getInstanceResults(this.props.audio_instance._id);
 
-
-       // let found_list = new Array(word_list.length).fill([false, false, false])
-
-        /*
-        found_list[0] = [true, true, true];
-        found_list[1] = [true, true, false];
-        found_list[2] = [true, false, false];
-        found_list[3] = [false, true, true];
-        found_list[4] = [false, false, false];
-        found_list[5] = [false, true, true];
-        found_list[6] = [true, true, true];
-        found_list[7] = [true, true, true];
-        */
+        let anybody_found_word = results.found.map(found_list => {
+            for(let i = 0; i < found_list.length; i++){
+                if(found_list[i])
+                    return true;
+            }
+            return false;
+        });
 
         let word_divs = word_list.map((word, idx) => {
-            let found_this_word = found_lists.map(found_list => found_list[idx]);
-            return this.renderWord(word, found_this_word);
+            if(idx > 0 && !anybody_found_word[idx] && !anybody_found_word[idx-1])
+                return null;
+            else 
+                return this.renderWord(word, results.found[idx]);
         });
 
         return (
             <div className="audio-transcript">
+                {this.renderPlayerMarkers(found_lists.length)}
                 {word_divs}
+            </div>
+        );
+    }
+
+    renderStatistics() {
+
+    }
+
+    render() {
+        let found_lists = getFoundArrays(this.props.audio_instance._id);
+        return (
+            <div className="task-container">
+                <div className="task-header">Audio clip finished!</div>
+                <div className="task-header">Final transcript:</div>
+                {this.renderTranscript()}
             </div>
         );
     }
 }
 
+class ScrollingTranscript extends Component {
+    scrollToBottom() {
+        this.bottom_placeholder.scrollIntoView({behavior: "smooth" });
+    }
+
+    componentDidMount() {
+        this.scrollToBottom();
+    }
+
+    componentDidUpdate() {
+        this.scrollToBottom();
+    }
+
+    renderTextWords() {
+        return this.props.words.map(
+            (word, idx) => 
+            <div className="audio-typed-word" key={idx}>{word}</div>);
+    }
+
+    render() {
+        return (
+            <div className="audio-typed">
+                {this.renderTextWords()}
+                <div 
+                    className="audio-typed-dummy" 
+                    ref={(el) => {this.bottom_placeholder = el;}}
+                />
+            </div>
+        );
+    }
+}
+
+// Component for the audio task
+export class AudioTaskView extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            text: "",
+        };
+    }
+
+    handleTextInput(event) {
+        let new_text = event.target.value;
+
+        if(new_text.endsWith(" ")) {
+            let typed_word = new_text.slice(0, -1);
+
+            Meteor.call(
+                'audioInstances.submitWord', 
+                this.props.audio_instance._id,
+                this.props.player_num,
+                typed_word
+            );
+
+            // Empty the text box again
+            new_text = "";
+        }
+
+        this.setState({text: new_text});
+    }
+
+    renderAudioPlaybackBar() {
+        let end_s = this.props.audio_task.time_s[AudioInstanceStates.TASK];
+        let time_s = end_s - this.props.time_left;
+        let time_percent = time_s / end_s * 100 + "%";
+
+        return (
+            <div className="audio-view">
+                <div className="audio-playback"> 
+                    <div className="audio-playback-filled" style={{width: time_percent}}/>
+                </div>
+                <div className="audio-view-bottom">
+                    <div className="audio-view-time">
+                        {secondsToString(time_s)}   
+                    </div>
+                    <div className="audio-view-end">
+                        {secondsToString(end_s)}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    renderTextEntry() {
+        let word_lists = this.props.audio_instance.words;
+        let word_list = word_lists[this.props.player_num];
+
+        return (
+            <div className="audio-text">
+                <ScrollingTranscript words={word_list} />
+                <input 
+                    autoFocus
+                    type="text" 
+                    className="audio-input" 
+                    value={this.state.text}
+                    placeholder="Type here"
+                    onInput={this.handleTextInput.bind(this)} 
+                />
+            </div>
+        );
+    }
+
+    renderTeamStatus() {
+        let player_divs = this.props.audio_instance.words.map((word_list, idx) => {
+            return (
+                <div className="audio-status-line" key={idx}>
+                    {"Player " + (idx+1) + ": " + word_list.length}
+                </div>
+            );
+        });
+        return (
+            <div className="audio-status">
+                <div className="task-header">Words typed:</div>
+                {player_divs}
+            </div>
+        );
+    }
+
+    render() {
+        let header_text = "";
+        let sound_status = null;
+        if(this.props.show_countdown) {
+            header_text = "Audio starting in " + (this.props.seconds_left) + "...";
+            sound_status = Sound.status.STOPPED;
+        }
+        else {
+            header_text = "Audio playing...";
+            sound_status = Sound.status.PLAYING;
+        }
+
+        return (
+            <div className="task-container">
+                <Sound 
+                    url={'/' + this.props.audio_task.audio_path}
+                    playStatus={sound_status}
+                />
+                <div className="task-header">{header_text}</div>
+                {this.renderAudioPlaybackBar()}
+                {this.renderTextEntry()}
+                {this.renderTeamStatus()}
+            </div>
+        );
+    }
+}
+
+
+// Wrapper to handle stages and timers
 export class AudioTask extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            time_left: this.props.audio_task.time_s.slice(),
             update_interval: setInterval(
                 this.updateTimer.bind(this),
                 250,
             ),
-            text: "",
-            // TODO: this is temporary
-            test_words: [],
         };
     }
 
@@ -128,100 +295,30 @@ export class AudioTask extends Component {
             return stage_len_s - diff_s
     }
 
-    handleTextInput(event) {
-        let new_text = event.target.value;
-
-        if(new_text.endsWith(" ")) {
-            // TODO: submit word
-            // Also make sure to update our match-finding data structure at the same time
-            let typed_word = new_text.slice(0, -1);
-
-            Meteor.call(
-                'audioInstances.submitWord', 
-                this.props.audio_instance._id,
-                this.props.player_num,
-                typed_word
-            );
-
-            // Empty the text box again
-            new_text = "";
-        }
-
-        this.setState({text: new_text});
-    }
-
-    renderAudioPlaybackBar() {
-        let end_s = this.props.audio_task.time_s[AudioInstanceStates.TASK];
-        let time_s = end_s - this.state.time_left[AudioInstanceStates.TASK];
-        let time_percent = time_s / end_s * 100 + "%";
-
-        return (
-            <div className="audio-view">
-                <div className="audio-playback"> 
-                    <div className="audio-playback-filled" style={{width: time_percent}}/>
-                </div>
-                <div className="audio-view-bottom">
-                    <div className="audio-view-time">
-                        {secondsToString(time_s)}   
-                    </div>
-                    <div className="audio-view-end">
-                        {secondsToString(end_s)}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    renderTextWords() {
-        let word_lists = this.props.audio_instance.words;
-        let word_list = word_lists[this.props.player_num];
-        return word_list.map(
-            (word, idx) => 
-            <div className="audio-typed-word" key={idx}>{word}</div>);
-    }
-
-    renderTextEntry() {
-        return (
-            <div className="audio-text">
-                <div className="audio-typed">
-                    {this.renderTextWords()}
-                    <div className="audio-typed-dummy" />
-                </div>
-                <input 
-                    type="text" 
-                    className="audio-input" 
-                    value={this.state.text}
-                    onInput={this.handleTextInput.bind(this)} 
-                />
-            </div>
-        );
-    }
-
     renderAudioScreen() {
         let stage_num = this.props.audio_instance.state;
-        let header_text = "";
-        if(stage_num === AudioInstanceStates.WAITING) {
-            let seconds_left = this.getTimeLeftStage();
-            header_text = "Audio starting in " + seconds_left + "...";
-        }
-        else if(stage_num === AudioInstanceStates.TASK) {
-            header_text = "Audio playing...";
-        }
+        let seconds_left = Math.floor(this.getTimeLeftStage());
+        let counting_down = (stage_num === AudioInstanceStates.WAITING)
 
         return (
-            <div className="task-container">
-                <div className="task-header">{header_text}</div>
-                {this.renderAudioPlaybackBar()}
-                {this.renderTextEntry()}
-                <br />
-                {/* Debug */}
-                <hr />
-                <AudioTaskScore
-                    audio_task={this.props.audio_task} 
-                    audio_instance={this.props.audio_instance}
-                    player_num={this.props.player_num}
-                />
-            </div>
+            <AudioTaskView
+                audio_task={this.props.audio_task}
+                audio_instance={this.props.audio_instance}
+                player_num={this.props.player_num}
+                time_left={seconds_left}
+                show_countdown={counting_down}
+            />
+        )
+    }
+
+    renderScoreScreen() {
+        return (
+            <AudioTaskScore
+                audio_task={this.props.audio_task} 
+                audio_instance={this.props.audio_instance}
+                player_num={this.props.player_num}
+                time_left={seconds_left}
+            />
         );
     }
 
@@ -236,7 +333,8 @@ export class AudioTask extends Component {
                 break;
 
             case AudioInstanceStates.SCORE:
-                render_output = <div className="task-container">TODO: score screen</div>
+                render_output = this.renderScoreScreen(); 
+                break;
         }
 
         return (

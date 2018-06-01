@@ -314,18 +314,22 @@ button:disabled {
     height: 100px;
     overflow-y: scroll;
     */
-    font-size: 24px;
+    font-size: 0;
     text-align: left;
 }
 
-.audio-transcript-word {
+.audio-transcript-word,
+.audio-transcript-players {
     display: inline-block;
     margin: 2px;
+    vertical-align: top;
 }
 
 .audio-transcript-text,
-.audio-transcript-missing {
+.audio-transcript-missing,
+.audio-transcript-blank {
     display: inline-block;
+    font-size: 24px;
     height: 36px;
     margin: 2px;
 }
@@ -334,12 +338,22 @@ button:disabled {
     color: #777777;
 }
 
+.audio-transcript-blank {
+    width: 1px;
+}
+
 .audio-transcript-p1,
 .audio-transcript-p2,
 .audio-transcript-p3 {
-    height: 5px;
+    height: 7px;
     margin: 2px;
-    visibility: 
+}
+
+.audio-transcript-player {
+    height: 11px;
+    font-size: 11px;
+    font-weight: bold;
+    margin: -2px 0 2px 0;
 }
 
 .audio-transcript-p1 {
