@@ -10,7 +10,11 @@ export class AudioTaskScore extends Component {
         let player_divs = []
         for(let i = 0; i < num_players; i++) {
             player_divs.push(
-                <div className="audio-transcript-player">Player {i+1}</div>
+                <div className="audio-transcript-player"
+                    key={i}
+                >
+                    Player {i+1}
+                </div>
             );
         }
 
@@ -23,7 +27,7 @@ export class AudioTaskScore extends Component {
         );
     }
 
-    renderWord(word, found_list) {
+    renderWord(word, found_list, key) {
         let found_divs = found_list.map((word, idx) => {
             let style = {visibility: found_list[idx] ? "visible" : "hidden"}
 
@@ -31,6 +35,7 @@ export class AudioTaskScore extends Component {
                 <div 
                     className={"audio-transcript-p" + (idx+1)} 
                     style={style}
+                    key={idx}
                 />
             );
         });
@@ -44,7 +49,7 @@ export class AudioTaskScore extends Component {
         }
 
         return (
-            <div className="audio-transcript-word">
+            <div className="audio-transcript-word" key={key}>
                 {found_any 
                     ? <div className="audio-transcript-text">
                         {word}
@@ -58,9 +63,8 @@ export class AudioTaskScore extends Component {
         );
     }
 
-    renderTranscript(found_lists) {
+    renderTranscript(results) {
         let word_list = this.props.audio_task.words;
-        let results = getInstanceResults(this.props.audio_instance);
         console.log(this.props.audio_instance);
         console.log(results);
 
@@ -76,7 +80,7 @@ export class AudioTaskScore extends Component {
             if(idx > 0 && !anybody_found_word[idx] && !anybody_found_word[idx-1])
                 return null;
             else 
-                return this.renderWord(word, results.found[idx]);
+                return this.renderWord(word, results.found[idx], idx);
         });
 
         return (
@@ -87,16 +91,77 @@ export class AudioTaskScore extends Component {
         );
     }
 
-    renderStatistics() {
+    renderWordsPlot(player_num, percent_correct, percent_errors) {
+        return (
+            <div className="audio-statistics-plot">
+                <div 
+                    className={"audio-statistics-p" + (player_num + 1)} 
+                    style={{width: 100*percent_correct + "%"}}
+                />
+                <div 
+                    className={"audio-statistics-errors"} 
+                    style={{
+                        width: 100*percent_errors + "%",
+                        left: 100*percent_correct + "%"
+                    }}
+                />
+            </div>
+        );
+    }
 
+    renderStatistics(results) {
+        let results_rows = [];
+        let max_typed = results.typed.reduce(function(a, b) {
+            return Math.max(a, b);
+        });
+
+        if(max_typed == 0) {
+            max_typed = 1;
+        }
+
+        for(let i = 0; i < results.typed.length; i++) {
+            let num_typed = results.typed[i];
+            let num_correct = results.correct[i];
+            let num_errors = num_typed - num_correct;
+
+            let percent_correct = num_correct / max_typed;
+            let percent_errors = num_errors / max_typed;
+            let plot_div = this.renderWordsPlot(i, percent_correct, percent_errors);
+
+            results_rows.push(
+                <tr key={i}>
+                    <td>Player {i+1}</td>
+                    <td>{num_typed}</td>
+                    <td>{num_correct}</td>
+                    <td>{num_errors}</td>
+                    <td>{plot_div}</td>
+                </tr>
+            );
+        }
+
+        return (
+            <table className="audio-statistics"><tbody>
+                <tr key={-1}>
+                    <th>Player</th>
+                    <th>Typed</th>
+                    <th>Correct</th>
+                    <th>Errors</th>
+                    <th>Plot</th>
+                </tr>
+                {results_rows}
+            </tbody></table>
+        );
     }
 
     render() {
+        let results = getInstanceResults(this.props.audio_instance);
         return (
             <div className="task-container">
                 <div className="task-header">Audio clip finished!</div>
                 <div className="task-header">Final transcript:</div>
-                {this.renderTranscript()}
+                {this.renderTranscript(results)}
+                <div className="task-header">Team Stats:</div>
+                {this.renderStatistics(results)}
             </div>
         );
     }

@@ -316,7 +316,7 @@ button:disabled {
     */
     font-size: 0;
     text-align: left;
-    margin: auto;
+    margin: 5px auto 10px;
 }
 
 .audio-transcript-word,
@@ -357,16 +357,45 @@ button:disabled {
     margin: -2px 0 2px 0;
 }
 
-.audio-transcript-p1 {
+.audio-transcript-p1,
+.audio-statistics-p1 {
     background: var(--p1-highlight);
 }
 
-.audio-transcript-p2 {
+.audio-transcript-p2,
+.audio-statistics-p2 {
     background: var(--p2-highlight);
 }
 
-.audio-transcript-p3 {
+.audio-transcript-p3,
+.audio-statistics-p3 {
     background: var(--p3-highlight);
+}
+
+.audio-statistics-errors {
+    background: #777777;
+}
+
+.audio-statistics {
+    display: inline-block;
+}
+
+.audio-statistics td, 
+.audio-statistics th 
+{
+    padding: 3px;
+}
+
+.audio-statistics-plot {
+    width: 200px;
+    height: 20px;
+    border: solid 1px;
+    padding: 1px;
+    display: flex;
+}
+
+.audio-statistics-plot div {
+    height: 100%;
 }
 
 .word-search-line {
