@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Sound from 'react-sound';
 
+import {RewardForm} from './RewardForm.jsx';
 import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString} from '../api/utils.js';
 
@@ -162,6 +163,9 @@ export class AudioTaskScore extends Component {
                 {this.renderTranscript(results)}
                 <div className="task-header">Team Stats:</div>
                 {this.renderStatistics(results)}
+                <RewardForm 
+                    rewards={[10, 20, 30]}
+                />
             </div>
         );
     }
