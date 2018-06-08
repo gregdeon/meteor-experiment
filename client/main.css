@@ -237,6 +237,7 @@ button:disabled {
     display: block;
     margin: 0 auto;
     text-align: center;
+    font-family: sans-serif;
 }
 
 .task-header {
@@ -330,8 +331,8 @@ button:disabled {
 .audio-transcript-missing,
 .audio-transcript-blank {
     display: inline-block;
-    font-size: 24px;
-    height: 36px;
+    font-size: 20px;
+    height: 24px;
     margin: 2px;
 }
 
@@ -347,7 +348,7 @@ button:disabled {
 .audio-transcript-p2,
 .audio-transcript-p3 {
     height: 7px;
-    margin: 2px;
+    margin: 3px;
 }
 
 .audio-transcript-player {
@@ -373,7 +374,7 @@ button:disabled {
 }
 
 .audio-statistics-errors {
-    background: #777777;
+    background: #aaaaaa;
 }
 
 .audio-statistics {
@@ -537,16 +538,46 @@ button:disabled {
     margin: 5px;
 }
 
+.score-question {
+    width: 700px;
+    height: 100px;
+    margin: auto;
+    vertical-align: bottom;
+    position: relative;
+}
+
+.score-question p {
+    margin-top: 50px;
+    width: 350px;
+    text-align: left;
+    vertical-align: bottom;
+    position: absolute;
+}
+
 .score-inputs {
     display: inline-flex;
-    margin: 0 0 20px;
+    margin-left: 0px;
+    position: absolute; 
+    right: 0px;
+    bottom: 0px;
 }
 
 .score-input {
     display: block;
-    margin: auto 5px 0px;
-    width: 80px;
+    margin: auto 0px 0px;
+    width: 70px;
     white-space: pre-wrap;
+}
+
+.score-input label {
+    font-size: 14px;
+    min-width: 70px;
+    position: relative;
+    /*
+    left: 0px;
+    width: 150px;
+    */
+    margin-bottom: 0;
 }
 
 .score-input input label {

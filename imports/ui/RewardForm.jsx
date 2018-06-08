@@ -27,7 +27,7 @@ class OneRewardDisplay extends Component {
     }
 }
 
-class RewardDisplay extends Component {
+export class RewardDisplay extends Component {
     render() {
         let rewards = this.props.rewards;
         let total = 0;
@@ -105,10 +105,15 @@ export class RewardForm extends Component {
         this.setState({submitted: true});
     }
 
-    renderOptions(group, value, extreme_labels, callback) {
+    renderOptions(question, question_num, value, extreme_labels, callback) {
         let option_nums = [1, 2, 3, 4, 5];
         return (
-            <div className="score-inputs" key={group}>
+            <div className="score-question">
+                <p>
+                    <b>Q{question_num + 1}: </b>
+                    {question}
+                </p>
+            <div className="score-inputs" key={question_num}>
                 {
                     option_nums.map((num) => {
                         let label = "" + num;
@@ -127,12 +132,12 @@ export class RewardForm extends Component {
                         
                         return (
                             <div className="score-input" key={num}>
-                                <label htmlFor={group + "-" + num}>{label}</label>
+                                <label htmlFor={question_num + "-" + num}>{label}</label>
                                 <br/>
                                 <input 
                                     type="radio"
-                                    id={group + "-" + num}
-                                    name={group}
+                                    id={question_num + "-" + num}
+                                    name={question_num}
                                     checked={value === num}
                                     onChange={callback.bind(this, num)}
                                 />
@@ -140,6 +145,7 @@ export class RewardForm extends Component {
                         );
                     })
                 }
+            </div>
             </div>
         );
     }
@@ -155,23 +161,24 @@ export class RewardForm extends Component {
             <form
                 onSubmit={this.handleSubmit.bind(this)}
             >
-                <p> How satisfied are you with your payment? </p>
+                <p>Questions:</p>
                 {this.renderOptions(
+                    "How satisfied are you with your payment?",
                     0, 
                     this.state.selected_satisfied, 
                     ["Very unsatisfied", "Very satisfied"],
                     this.handleChangeSatisfied
                 )}
-                <p> To what extent is your payment justified, given your performance?</p>
                 {this.renderOptions(
-                    0, 
+                    "To what extent is your payment justified, given your performance?",
+                    1, 
                     this.state.selected_self, 
                     ["To a small extent", "To a large extent"],
                     this.handleChangeSelf
                 )}
-                <p> To what extent are your teammates' payments justified, given their performance?</p>
                 {this.renderOptions(
-                    1, 
+                    "To what extent are your teammates' payments justified, given their performance?",
+                    2, 
                     this.state.selected_others,
                     ["To a small extent", "To a large extent"],
                     this.handleChangeOthers

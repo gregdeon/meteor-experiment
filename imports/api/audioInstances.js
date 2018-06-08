@@ -11,8 +11,9 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 import {AudioTasks} from './audioTasks.js'
-//import {getRewards} from './scoreFunctions.js';
+import {getRewards} from './scoreFunctions.js';
 //import {getServerTime} from './utils.js';
+
 
 import * as diff from 'diff';
 
@@ -65,6 +66,7 @@ export function addAudioInstance(audio_id, num_players) {
 //          found word i (ex: [true, false, false] means only P1 found it)
 // - typed: list. typed[i] is how many words player i+1 typed.
 // - correct: list. correct[i] is how many words player i+1 typed correctly.
+// - payments: list. payments[i] is how many cents player i+1 earned.
 // Note that number of errors is typed[i] - correct[i].
 export function getInstanceResults(audio_instance) {
     console.log(audio_instance);
@@ -116,7 +118,13 @@ export function getInstanceResults(audio_instance) {
         found: found,
         typed: typed,
         correct: correct,
+        payments: getPayments(found, audio_task.reward_mode),
     };
+}
+
+// Helper function for 
+function getPayments(found_list, reward_mode) {
+    return getRewards(found_list, reward_mode, 0);
 }
 
 Meteor.methods({

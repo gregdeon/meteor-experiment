@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Sound from 'react-sound';
 
-import {RewardForm} from './RewardForm.jsx';
+import {RewardDisplay, RewardForm} from './RewardForm.jsx';
 import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
-import {getSecondsSince, secondsToString} from '../api/utils.js';
+import {getSecondsSince, secondsToString, centsToString} from '../api/utils.js';
 
 // TODO: this is a test for now
 export class AudioTaskScore extends Component {
@@ -154,6 +154,35 @@ export class AudioTaskScore extends Component {
         );
     }
 
+    renderRewards(rewards) {
+        // TODO: get rewards and ratings
+        // getInstanceRewards?
+        let ratings = [null, true, true];
+
+        let total = 0;
+        for(let i = 0; i < rewards.length; i++)
+            total += rewards[i];
+
+        return (
+            <div>
+                <p>Team Bonus: {centsToString(total)} </p>
+                <p>Individual Payments: </p>
+                <RewardDisplay
+                    rewards={rewards}
+                />
+                <RewardForm 
+                    // TODO: add callback for submission here
+                />
+                <p>The next task will start in {this.props.time_left} seconds or as soon as all players submit their ratings.</p>
+                {ratings.map((rating, idx) => {
+                    return (
+                        <p key={idx}>Player {idx+1}: {rating !== null ? "✔" : "✖"}</p>
+                    );
+                })}
+            </div>
+        );
+    }
+
     render() {
         let results = getInstanceResults(this.props.audio_instance);
         return (
@@ -163,9 +192,7 @@ export class AudioTaskScore extends Component {
                 {this.renderTranscript(results)}
                 <div className="task-header">Team Stats:</div>
                 {this.renderStatistics(results)}
-                <RewardForm 
-                    rewards={[10, 20, 30]}
-                />
+                {this.renderRewards(results.payments)}
             </div>
         );
     }
