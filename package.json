@@ -9,6 +9,7 @@
     "bcrypt": "^1.0.3",
     "create-react-class": "^15.6.3",
     "diff": "^3.5.0",
+    "fibers": "^2.0.2",
     "history": "^4.7.2",
     "intro.js": "^2.9.3",
     "meteor-node-stubs": "^0.3.2",

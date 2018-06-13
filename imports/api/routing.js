@@ -73,6 +73,7 @@ export function initializeOutput(stage) {
 // Iterate through all coop instances
 // Check for lobby status, stage times, etc
 export function updateInstances() {
+    //console.log("Updating instances");
     // Safety check
     if(!Meteor.isServer) {
         console.log("Warning: updateInstances() called from client (no effect)")
@@ -90,6 +91,7 @@ export function updateInstances() {
 
 // Update a single coop instance
 function updateCoopInstance(coop_instance) {
+    //console.log(coop_instance.coop_id);
     // Get the coop workflow
     let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
 

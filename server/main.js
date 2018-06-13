@@ -128,5 +128,6 @@ function addExampleFeedbackLetter() {
 }
 
 Meteor.startup(() => {
-    Meteor.setInterval(updateInstances, 200);
+    console.log("Starting server");
+    Meteor.setInterval(updateInstances, 50);
 });

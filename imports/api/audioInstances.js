@@ -127,9 +127,18 @@ function getPayments(found_list, reward_mode) {
     return getRewards(found_list, reward_mode, 0);
 }
 
+function normalizeWord(word) {
+    let lower_case = word.toLowerCase();
+
+    let normalized = '';
+    return normalized;
+}
+
 Meteor.methods({
     'audioInstances.submitWord'(instance_id, player_num, word) {
         // TODO: normalize word?
+
+
         let push_data = {}
         push_data['words.' + player_num] = word
 
