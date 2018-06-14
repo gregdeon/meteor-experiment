@@ -194,6 +194,18 @@ function updateCoopAudio(coop_instance) {
         );
     }
 
+    // If all ratings are in, also move
+    else {
+        let ratings = audio_instance.ratings
+        if(ratings.every(rating => rating !== null)) {        
+            new_stage = audio_stage + 1;
+            AudioInstances.update(
+                {_id: audio_instance._id},
+                {$set: {state: new_stage}}
+            );
+        }
+    }
+
     // If we're at the end, move on
     if(new_stage >= AudioInstanceStates.FINISHED) {
         return coop_stage + 1;

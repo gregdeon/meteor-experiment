@@ -30,7 +30,12 @@ export function getServerTime() {
 }
 
 // Helper function: get seconds since a date
+// Edge case: if date isn't truthy, return 0 seconds
 export function getSecondsSince(date) {
+    if(!date) {
+        return 0;
+    }
+
     let time_now = new Date();
     let elapsed_ms = Math.abs(time_now - date);
     let elapsed_s = (elapsed_ms / 1000);

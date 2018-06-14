@@ -12,7 +12,7 @@ import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 import {AudioTasks} from './audioTasks.js'
 import {getRewards} from './scoreFunctions.js';
-//import {getServerTime} from './utils.js';
+import {getServerTime} from './utils.js';
 
 
 import * as diff from 'diff';
@@ -130,21 +130,46 @@ function getPayments(found_list, reward_mode) {
 function normalizeWord(word) {
     let lower_case = word.toLowerCase();
 
+    let allowed_chars = new Set("abcdefghijklmnopqrstuvwxyz0123456789 ")
+    let space_chars = new Set("-")
     let normalized = '';
-    return normalized;
+    for(let i = 0; i < lower_case.length; i++) {
+        let c = lower_case.charAt(i);
+        if(allowed_chars.has(c)) {
+            normalized += c;
+        }
+        else if(space_chars.has(c)) {
+            normalized += " ";
+        }
+    }
+    return normalized.split(" ");
 }
 
 Meteor.methods({
     'audioInstances.submitWord'(instance_id, player_num, word) {
         // TODO: normalize word?
-
+        let normalized_words = normalizeWord(word);
 
         let push_data = {}
-        push_data['words.' + player_num] = word
+        push_data['words.' + player_num] = {$each: normalized_words}
 
         AudioInstances.update(
             {_id: instance_id},
             {$push: push_data}
+        );
+    },
+
+    'audioInstances.submitRating'(instance_id, player_num, ratings) {
+        // Save a timestamp in case we need it
+        ratings.time_submitted = new Date(getServerTime());
+
+        // Put it into the puzzle instance
+        let upd = {};
+        upd['ratings.' + player_num] = ratings;
+        console.log(upd);
+        AudioInstances.update(
+            {_id: instance_id},
+            {$set: upd}
         );
     },
 });

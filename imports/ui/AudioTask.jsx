@@ -5,8 +5,17 @@ import {RewardDisplay, RewardForm} from './RewardForm.jsx';
 import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString, centsToString} from '../api/utils.js';
 
-// TODO: this is a test for now
 export class AudioTaskScore extends Component {
+    handleSubmit(ratings) {
+        console.log(this.props);
+        Meteor.call(            
+            'audioInstances.submitRating',
+            this.props.audio_instance._id,
+            this.props.player_num,
+            ratings
+        );
+    }
+
     renderPlayerMarkers(num_players) {
         let player_divs = []
         for(let i = 0; i < num_players; i++) {
@@ -155,9 +164,7 @@ export class AudioTaskScore extends Component {
     }
 
     renderRewards(rewards) {
-        // TODO: get rewards and ratings
-        // getInstanceRewards?
-        let ratings = [null, true, true];
+        let ratings = this.props.audio_instance.ratings;
 
         let total = 0;
         for(let i = 0; i < rewards.length; i++)
@@ -171,7 +178,7 @@ export class AudioTaskScore extends Component {
                     rewards={rewards}
                 />
                 <RewardForm 
-                    // TODO: add callback for submission here
+                    submit_callback={this.handleSubmit.bind(this)}
                 />
                 <p>The next task will start in {this.props.time_left} seconds or as soon as all players submit their ratings.</p>
                 {ratings.map((rating, idx) => {
@@ -237,6 +244,7 @@ export class AudioTaskView extends Component {
 
         this.state = {
             text: "",
+            finished_audio: false,
         };
     }
 
@@ -260,9 +268,18 @@ export class AudioTaskView extends Component {
         this.setState({text: new_text});
     }
 
+    handleAudioFinished() {
+        this.setState({
+            finished_audio: true
+        });
+    }
+
     renderAudioPlaybackBar() {
         let end_s = this.props.audio_task.time_s[AudioInstanceStates.TASK];
         let time_s = end_s - this.props.time_left;
+        if(this.props.show_countdown) {
+            time_s = 0;
+        }
         let time_percent = time_s / end_s * 100 + "%";
 
         return (
@@ -321,12 +338,17 @@ export class AudioTaskView extends Component {
         let header_text = "";
         let sound_status = null;
         if(this.props.show_countdown) {
-            header_text = "Audio starting in " + (this.props.seconds_left) + "...";
+            header_text = "Audio starting in " + (this.props.time_left) + "...";
             sound_status = Sound.status.STOPPED;
         }
         else {
             header_text = "Audio playing...";
-            sound_status = Sound.status.PLAYING;
+            if(this.state.finished_audio) {
+                sound_status = Sound.status.STOPPED;
+            }
+            else {
+                sound_status = Sound.status.PLAYING;
+            }
         }
 
         return (
@@ -334,6 +356,8 @@ export class AudioTaskView extends Component {
                 <Sound 
                     url={'/' + this.props.audio_task.audio_path}
                     playStatus={sound_status}
+                    autoLoad={true}
+                    onFinishedPlaying={this.handleAudioFinished.bind(this)}
                 />
                 <div className="task-header">{header_text}</div>
                 {this.renderAudioPlaybackBar()}
@@ -351,6 +375,7 @@ export class AudioTask extends Component {
         super(props);
 
         this.state = {
+            seconds_left: this.props.audio_task.time_s[0],
             update_interval: setInterval(
                 this.updateTimer.bind(this),
                 250,
@@ -369,10 +394,7 @@ export class AudioTask extends Component {
         if(time_left < 0)
             time_left = 0;
         
-        let new_time_left = this.state.time_left.slice();
-        new_time_left[stage_num] = time_left;
-
-        this.setState({time_left: new_time_left});
+        this.setState({seconds_left: time_left});
     }
 
     getTimeLeftStage() {
@@ -392,9 +414,9 @@ export class AudioTask extends Component {
             return stage_len_s - diff_s
     }
 
-    renderAudioScreen() {
+    renderAudioScreen(seconds_left) {
         let stage_num = this.props.audio_instance.state;
-        let seconds_left = Math.floor(this.getTimeLeftStage());
+        //let seconds_left = Math.floor(this.getTimeLeftStage());
         let counting_down = (stage_num === AudioInstanceStates.WAITING)
 
         return (
@@ -408,7 +430,7 @@ export class AudioTask extends Component {
         )
     }
 
-    renderScoreScreen() {
+    renderScoreScreen(seconds_left) {
         return (
             <AudioTaskScore
                 audio_task={this.props.audio_task} 
@@ -421,16 +443,17 @@ export class AudioTask extends Component {
 
     render() {
         let stage_num = this.props.audio_instance.state;
+        let seconds_left = this.state.seconds_left;
         let render_output = null;
 
         switch(stage_num) {
             case AudioInstanceStates.WAITING:
             case AudioInstanceStates.TASK:
-                render_output = this.renderAudioScreen();
+                render_output = this.renderAudioScreen(seconds_left);
                 break;
 
             case AudioInstanceStates.SCORE:
-                render_output = this.renderScoreScreen(); 
+                render_output = this.renderScoreScreen(seconds_left); 
                 break;
         }
 
