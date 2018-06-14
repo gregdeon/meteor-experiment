@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
 
 import {CoopWorkflows, CoopWorkflowStages} from '../api/coopWorkflows.js';
-import {isFull, initializeOutput} from '../api/routing.js';
+import {CoopReadyStates} from '../api/routing.js';
 
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
@@ -54,7 +54,7 @@ class LobbyScreen extends Component {
         let time_now = new Date(getServerTime()).getTime();
         let time_start = this.props.coop_instance.time_started;
 
-        let elapsed_s = Math.floor((time_now - time_start) / 1000)
+        let elapsed_s = Math.floor((time_now - time_start) / 1000);
         let new_left_s = this.props.coop_workflow.lobby_time * 60 - elapsed_s;
 
         if(new_left_s < 0)
@@ -165,7 +165,7 @@ export class CoopWorkflow extends Component {
             return (<div>Setting things up for you...</div>);
         }
 
-        if(!this.props.coop_instance.ready) {
+        if(this.props.coop_instance.ready_state !== CoopReadyStates.READY) {
             return (<div>Setting things up for you...</div>);
         }
 

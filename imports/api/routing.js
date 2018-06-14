@@ -11,7 +11,7 @@ import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
 import {CoopWorkflowInstances} from './coopWorkflowInstances.js';
 
 import {addPuzzleInstance} from './puzzleInstances.js';
-import {AudioInstances, addAudioInstance, AudioInstanceStates} from './audioInstances.js';
+import {AudioInstances, addAudioInstance, AudioInstanceStates, getInstanceResults} from './audioInstances.js';
 import {AudioTasks} from './audioTasks.js';
 
 // Helper counter to track how many coop instances we've made
@@ -40,6 +40,12 @@ const getRoutingCounter = function() {
     return incrementCounter(Counters, 'coop_instances')
 }
 
+// Coop workflow ready_state values
+export const CoopReadyStates = {
+    NOT_READY: 0, // Just made
+    WORKING: 1, // One thread is setting up
+    READY: 2, // Ready to go
+};
 
 
 export function isFull(coop_instance) {
@@ -63,7 +69,8 @@ export function initializeOutput(stage) {
 
         case CoopWorkflowStages.AUDIO:
             let audio_id = stage.id;
-            output_id = addAudioInstance(audio_id);
+            // TODO: handle any number of players
+            output_id = addAudioInstance(audio_id, 3);
             break;
     }
 
@@ -92,6 +99,12 @@ export function updateInstances() {
 // Update a single coop instance
 function updateCoopInstance(coop_instance) {
     //console.log(coop_instance.coop_id);
+    // If it's not ready, set it up
+    if (coop_instance.ready_state !== CoopReadyStates.READY ) {
+        getWorkflowReady(coop_instance);
+        return;
+    }
+
     // Get the coop workflow
     let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
 
@@ -109,7 +122,7 @@ function updateCoopInstance(coop_instance) {
     // Find which stage we should go to
     switch(stage.type) {
         case CoopWorkflowStages.LOBBY:
-            new_stage = updateCoopLobby(coop_instance);
+            new_stage = updateCoopLobby(coop_workflow, coop_instance);
             break;
 
         case CoopWorkflowStages.PUZZLE:
@@ -138,17 +151,69 @@ function updateCoopInstance(coop_instance) {
     }
 }
 
-function updateCoopLobby(coop_instance) {
+function getWorkflowReady(coop_instance) {
+    // Try to claim this workflow as getting ready
+    let num_updated = CoopWorkflowInstances.update(
+        {   
+            _id: coop_instance._id,
+            ready_state: CoopReadyStates.NOT_READY,
+        },
+        {
+            $set: {
+                ready_state: CoopReadyStates.WORKING
+            }
+        }
+    )
+    if(num_updated !== 1) {
+        return;
+    }
+
+    // Find the coop workflow that they should use
+    let coop_workflows = CoopWorkflows.find().fetch();
+    let coop_count = coop_workflows.length;
+    let coop_num = getRoutingCounter() % coop_count;
+    let coop_workflow = coop_workflows[coop_num]
+    let coop_id = coop_workflow._id
+
+    // Pick a coop workflow
+    CoopWorkflowInstances.update(
+        {_id: coop_instance._id, },
+        {
+            $set: {
+                coop_id: coop_id,
+            }
+        }
+    )
+
+    // Also initialize our group's outputs
+    coop_workflow.stages.map((stage, idx) => {
+        let output_id = initializeOutput(stage);
+        console.log(CoopWorkflowInstances.update(
+            {_id: coop_instance._id},
+            {$push: {
+                output: output_id,
+            }},
+        ));
+    });
+
+    // Finally, mark as ready
+    CoopWorkflowInstances.update(
+        {_id: coop_instance._id},
+        {$set: {ready_state: CoopReadyStates.READY}},
+    );
+}
+
+function updateCoopLobby(coop_workflow, coop_instance) {
     // Move to next stage if lobby is done
     if(isFull(coop_instance)) {
         return coop_instance.stage + 1;
     }
 
     // Find how long is left on the lobby
-    let time_now = new Date();
-    let elapsed_ms = Math.abs(time_now - time_started);
-    let elapsed_s = (diff_ms / 1000);
-    let lobby_s = coop_instance.lobby_time * 60;
+    let time_now = new Date(getServerTime());
+    let elapsed_ms = Math.abs(time_now - coop_instance.time_started);
+    let elapsed_s = (elapsed_ms / 1000);
+    let lobby_s = coop_workflow.lobby_time * 60;
     let seconds_left = lobby_s - elapsed_s;
 
     // If countdown is done, skip to the end
@@ -208,6 +273,11 @@ function updateCoopAudio(coop_instance) {
 
     // If we're at the end, move on
     if(new_stage >= AudioInstanceStates.FINISHED) {
+        let payments = getInstanceResults(audio_instance).payments;
+        AudioInstances.update(
+            {_id: audio_instance._id},
+            {$set: {bonuses: payments}}
+        )
         return coop_stage + 1;
     }
     else {
@@ -264,7 +334,7 @@ Meteor.methods({
             // Update/insert
             {
                 $setOnInsert: {
-                    ready: false,
+                    ready_state: CoopReadyStates.NOT_READY,
                     time_started: new Date(getServerTime()),
                 },
                 $push: {
@@ -275,45 +345,6 @@ Meteor.methods({
         console.log("Upsert output:");
         console.log(upsert_output);
 
-        // If we made the group...
-        if(upsert_output.insertedId) {
-            coop_instance_id = upsert_output.insertedId
-
-            // Find the coop workflow that they should use
-            // NOTE: because this can take a while, don't depend on this output
-            // existing in the UI!
-            let coop_workflows = CoopWorkflows.find().fetch();
-            let coop_count = coop_workflows.length;
-            let coop_num = getRoutingCounter() % coop_count;
-            let coop_workflow = coop_workflows[coop_num]
-            let coop_id = coop_workflow._id
-
-            // Pick a coop workflow
-            CoopWorkflowInstances.update(
-                {_id: coop_instance_id},
-                {
-                    $set: {
-                        coop_id: coop_id,
-                    }
-                }
-            )
-
-            // Also initialize our group's outputs
-            coop_workflow.stages.map((stage, idx) => {
-                let output_id = initializeOutput(stage);
-                console.log(CoopWorkflowInstances.update(
-                    {_id: coop_instance_id},
-                    {$push: {
-                        output: output_id,
-                    }},
-                ));
-            });
-
-            // Finally, mark as ready
-            CoopWorkflowInstances.update(
-                {_id: coop_instance_id},
-                {$set: {ready: true}},
-            );
-        }
+        // Server will automatically set up everything from here
     },
 });

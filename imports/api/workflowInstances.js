@@ -17,6 +17,7 @@ import {getPlayerNumber} from '../api/coopWorkflowInstances.js';
 import {getRewards} from './scoreFunctions.js';
 import {Puzzles} from './puzzles.js';
 import {PuzzleInstances} from './puzzleInstances.js';
+import {AudioInstances} from './audioInstances.js';
 
 export const WorkflowInstances = new Mongo.Collection('workflowinstances', {
     idGeneration: 'MONGO',
@@ -90,8 +91,9 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
     if(coop_instance) {
         let player_num = getPlayerNumber(user_id, coop_instance);
         let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
-        if(coop_instance.ready) {
+        if(coop_instance.ready_state == 2) {
             coop_workflow.stages.map((stage, idx) => {
+                let rewards = [0, 0, 0]
                 // No money for stages we haven't done yet
                 if(idx >= coop_instance.stage)
                     return;
@@ -101,7 +103,7 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
                         let puzzle_instance_id = coop_instance.output[idx];
                         let puzzle_instance = PuzzleInstances.findOne(puzzle_instance_id);
                         let puzzle = Puzzles.findOne(puzzle_instance.puzzle);
-                        let rewards = getRewards(
+                        rewards = getRewards(
                             puzzle_instance,
                             puzzle.reward_mode,
                             puzzle.score_mode,
@@ -115,7 +117,12 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
                         break;
 
                     case CoopWorkflowStages.AUDIO:
-                        // TODO
+                        let audio_id = coop_instance.output[idx];
+                        let audio_instance = AudioInstances.findOne(audio_id);
+                        rewards = audio_instance.bonuses;
+
+                        base += 25;
+                        bonus += rewards[player_num];
                         break;
                 }
             });

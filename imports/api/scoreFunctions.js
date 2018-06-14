@@ -38,8 +38,6 @@ export function getTieredReward(points)
 
 function getReward(points) {
     // TODO: handle tiered vs non-tiered reward?
-
-    // TODO: pick a good scale factor
     let cents_per_point = 0.5;
     return points * cents_per_point;
 }
