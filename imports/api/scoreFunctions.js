@@ -38,8 +38,16 @@ export function getTieredReward(points)
 
 function getReward(points) {
     // TODO: handle tiered vs non-tiered reward?
+    /* This is per-word bonus
     let cents_per_point = 0.5;
     return points * cents_per_point;
+    */
+
+    // This is tiered reward
+    let n_words = 15
+    let cents_per_group = 5
+    let groups = Math.floor(points / n_words);
+    return groups * cents_per_group;
 }
 
 // Get number of points from found list
@@ -114,6 +122,7 @@ function equalSplit(found_list, score_mode) {
     // Split: just divide equally
     let per_player = total_reward / 3;
     let ret = [per_player, per_player, per_player];
+    ret.push(total_reward);
     return ret;
 }
 
@@ -141,6 +150,7 @@ function proportionalSplit(found_list, score_mode) {
     for(var i = 0; i < 3; i++) {
         ret.push(total_reward * found_counts[i] / total_found);
     }
+    ret.push(total_reward);
 
     return ret;
 }
@@ -175,6 +185,7 @@ function shapleySplit(found_list, score_mode) {
         }
         ret.push(ret_i / 6);
     }
+    ret.push(rewards[0b111]);
 
     return ret;
 }
@@ -205,6 +216,7 @@ function unfairSplit(found_list, score_mode) {
         var proportion = (i === worst_player ? 0.5 : 0.25);
         ret.push(total_reward * proportion);
     }
+    ret.push(total_reward);
     return ret;
 }
 
@@ -223,24 +235,36 @@ export const RewardModes = {
 };
 
 // TODO: remove score_mode, maybe?
+// Returns a list of rewards like [10, 20, 30, 60]
+// Last reward is total (helpful in case of rounding)
 export function getRewards(found_list, reward_mode, score_mode) {
+    // debugging
+    reward_mode = RewardModes.PROPORTIONAL;
     //let found_list = instance.found;
+    let reward_list = [0, 0, 0];
     switch(reward_mode) {
         case RewardModes.EQUAL:
-            return roundDown(equalSplit(found_list, score_mode));
+            reward_list = roundDown(equalSplit(found_list, score_mode));
+            break;
 
         case RewardModes.PROPORTIONAL:
-            return roundDown(proportionalSplit(found_list, score_mode));
+            reward_list = roundDown(proportionalSplit(found_list, score_mode));
+            break;
 
         case RewardModes.SHAPLEY:
-            return roundDown(shapleySplit(found_list, score_mode));
+            reward_list = roundDown(shapleySplit(found_list, score_mode));
+            break;
 
         case RewardModes.UNFAIR:
-            return roundDown(unfairSplit(found_list, score_mode));
+            reward_list = roundDown(unfairSplit(found_list, score_mode));
+            break;
 
         case RewardModes.DEBUG:
-            return [10, 20, 30];
+            reward_list = [10, 20, 30];
+            break;
     }
+
+    return reward_list;
 }
 
 // Helper function for score box

@@ -73,30 +73,116 @@ export class AudioTaskScore extends Component {
         );
     }
 
-    renderTranscript(results) {
-        let word_list = this.props.audio_task.words;
-        console.log(this.props.audio_instance);
-        console.log(results);
+    renderTranscript(results, player_num) {
+        let word_list = this.props.audio_instance.words[player_num]
+        let words_correct = results.typed[player_num];
 
-        let anybody_found_word = results.found.map(found_list => {
-            for(let i = 0; i < found_list.length; i++){
-                if(found_list[i])
-                    return true;
+        let diff = results.diffs[player_num];
+        let word_divs = diff.map((part, idx) => {
+            // Words they typed wrong
+            if(part.added) {
+                return part.value.map((word, j) => (
+                    <div className="audio-transcript-text-wrong" key={idx*1000 + j}>
+                        {word}
+                    </div>
+                ));
             }
-            return false;
+            // Words they missed
+            else if(part.removed) {
+                return part.value.map((word, j) => (
+                    <div className="audio-transcript-text-missing" key={idx*1000 + j}>
+                        {word}
+                    </div>
+                ));
+            } 
+            // Words they typed correctly
+            else {
+                return part.value.map((word, j) => (
+                    <div className="audio-transcript-text" key={idx*1000 + j}>
+                        {word}
+                    </div>
+                ));
+            }
         });
 
+/*
         let word_divs = word_list.map((word, idx) => {
-            if(idx > 0 && !anybody_found_word[idx] && !anybody_found_word[idx-1])
-                return null;
-            else 
-                return this.renderWord(word, results.found[idx], idx);
-        });
+            if(words_correct[idx]) {
+                return (
+                    <div className={"audio-transcript-text-p" + (player_num+1)} key={idx}>
+                        {word}
+                    </div>
+                );
+            }
+            else {
+                return (
+                    <div className="audio-transcript-text-wrong" key={idx}>
+                        {word}
+                    </div>
+                );
+            }
+        })
+*/
 
         return (
             <div className="audio-transcript">
-                {this.renderPlayerMarkers(results.typed.length)}
                 {word_divs}
+            </div>
+        );
+    }
+
+    renderAllTranscripts(results, player_num) {
+        let transcript_divs = [];
+        for(let i = 0; i < 3; i++) {
+            transcript_divs.push(this.renderTranscript(results, i));
+        }
+
+        let status_divs = [];
+        let max_typed = results.anybody_found.length;
+        for(let i = 0; i < 3; i++) {
+            let num_typed = results.typed[i].length;
+            let num_correct = results.typed[i].filter(v => v).length;
+            let num_errors = num_typed - num_correct;
+            let percent_typed = Math.floor(num_typed / max_typed * 100);
+            let percent_correct = num_typed === 0 ? 0 : Math.floor(num_correct / num_typed * 100);
+            
+            status_divs.push(
+                <div className="audio-transcript-stats">
+                    <b>words typed: </b>
+                    {num_typed + "/" + max_typed + " (" + percent_typed + "%), "}
+                    <b>correct: </b>
+                    {num_correct + "/" + num_typed + " (" + percent_correct + "%)"}
+                </div>
+            )
+        }
+
+        return (
+            <div>
+                {transcript_divs.map((div, idx) => {
+                    let player_string = "Player " + (idx+1);
+                    if(idx === player_num) {
+                        player_string += " (you)"
+                    }
+                    return (
+                        <div className="audio-transcript-wrapper">
+                            <div className="audio-transcript-player">{player_string}:</div>
+                            {status_divs[idx]}
+                            {div}
+                        </div>
+                    )
+                })}
+            </div>
+        );
+    }
+
+    renderPlotItem(player_num, value, max_value) {
+        let percent = value / max_value
+        return (
+            <div 
+                className={"audio-statistics-p" +(player_num + 1)} 
+                style={{width: 100*percent + "%"}}
+            >
+                {value}
             </div>
         );
     }
@@ -119,32 +205,48 @@ export class AudioTaskScore extends Component {
         );
     }
 
-    renderStatistics(results) {
+    renderStatistics(results, player_num) {
         let results_rows = [];
-        let max_typed = results.typed.reduce(function(a, b) {
-            return Math.max(a, b);
-        });
+        let max_typed = results.anybody_found.length;
 
         if(max_typed == 0) {
             max_typed = 1;
         }
+        // TODO: fix this to look for the max
+        max_typed = 59;
 
         for(let i = 0; i < results.typed.length; i++) {
-            let num_typed = results.typed[i];
-            let num_correct = results.correct[i];
+            let num_typed = results.typed[i].length;
+            let num_correct = results.typed[i].filter(v => v).length;
             let num_errors = num_typed - num_correct;
 
-            let percent_correct = num_correct / max_typed;
-            let percent_errors = num_errors / max_typed;
-            let plot_div = this.renderWordsPlot(i, percent_correct, percent_errors);
+            //let percent_correct = num_correct / max_typed;
+            //let percent_errors = num_errors / max_typed;
+            let typed_plot = this.renderPlotItem(i, num_typed, max_typed);
+            let correct_plot = this.renderPlotItem(i, num_correct, max_typed);
+
+            //let plot_div = this.renderWordsPlot(i, percent_correct, percent_errors);
+
+            let player_string = "Player " + (i+1);
+            if(player_num === i) {
+                player_string += " (you)";
+            }
 
             results_rows.push(
                 <tr key={i}>
-                    <td>Player {i+1}</td>
+                    <td>{player_string}</td>
                     <td>{num_typed}</td>
+                    <td>
+                        <div className="audio-statistics-plot">{typed_plot}</div>
+                    </td>
                     <td>{num_correct}</td>
+                    <td>
+                        <div className="audio-statistics-plot">{correct_plot}</div>
+                    </td>
                     <td>{num_errors}</td>
+                    {/* 
                     <td>{plot_div}</td>
+                    */}
                 </tr>
             );
         }
@@ -153,10 +255,9 @@ export class AudioTaskScore extends Component {
             <table className="audio-statistics"><tbody>
                 <tr key={-1}>
                     <th>Player</th>
-                    <th>Typed</th>
-                    <th>Correct</th>
+                    <th>Typed</th><th/>
+                    <th>Correct</th><th/>
                     <th>Errors</th>
-                    <th>Plot</th>
                 </tr>
                 {results_rows}
             </tbody></table>
@@ -166,24 +267,24 @@ export class AudioTaskScore extends Component {
     renderRewards(rewards) {
         let ratings = this.props.audio_instance.ratings;
 
-        let total = 0;
-        for(let i = 0; i < rewards.length; i++)
-            total += rewards[i];
+        let total = rewards[3];
+        //for(let i = 0; i < rewards.length; i++)
+        //    total += rewards[i];
 
         return (
             <div>
-                <p>Team Bonus: {centsToString(total)} </p>
-                <p>Individual Payments: </p>
+                <p>Individual payments: </p>
                 <RewardDisplay
-                    rewards={rewards}
+                    rewards={rewards.slice(0, 3)}
                 />
+                <div className="task-header">Questions</div>
                 <RewardForm 
                     submit_callback={this.handleSubmit.bind(this)}
                 />
                 <p>The next task will start in {this.props.time_left} seconds or as soon as all players submit their ratings.</p>
                 {ratings.map((rating, idx) => {
                     return (
-                        <p key={idx}>Player {idx+1}: {rating !== null ? "✔" : "✖"}</p>
+                        <div className="score-screen-submitted" key={idx}>Player {idx+1}: {rating !== null ? "✔" : "✖"}</div>
                     );
                 })}
             </div>
@@ -192,13 +293,19 @@ export class AudioTaskScore extends Component {
 
     render() {
         let results = getInstanceResults(this.props.audio_instance);
+        let num_found = results.anybody_found.filter(v => v).length;
+        let total_pay = results.payments[3];
         return (
             <div className="task-container">
                 <div className="task-header">Audio clip finished!</div>
-                <div className="task-header">Final transcript:</div>
-                {this.renderTranscript(results)}
-                <div className="task-header">Team Stats:</div>
-                {this.renderStatistics(results)}
+                {this.renderAllTranscripts(results, this.props.player_num)}
+                {/*
+                <p>You typed:</p>
+                {this.renderTranscript(results, this.props.player_num)}
+                <div className="task-header">Team statistics:</div>
+                {this.renderStatistics(results, this.props.player_num)}
+                */}
+                <p>Your team earned <b>{centsToString(total_pay)}</b> for typing <b>{num_found}</b> correct words (5c per 15 words).</p>
                 {this.renderRewards(results.payments)}
             </div>
         );

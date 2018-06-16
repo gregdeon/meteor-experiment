@@ -161,27 +161,27 @@ export class RewardForm extends Component {
             <form
                 onSubmit={this.handleSubmit.bind(this)}
             >
-                <p>Questions:</p>
+                <p>Given your team's performance...</p>
                 {this.renderOptions(
-                    "How satisfied are you with your payment?",
+                    "Is your payment justified?",
                     0, 
-                    this.state.selected_satisfied, 
-                    ["Very unsatisfied", "Very satisfied"],
-                    this.handleChangeSatisfied
-                )}
-                {this.renderOptions(
-                    "To what extent is your payment justified, given your performance?",
-                    1, 
                     this.state.selected_self, 
                     ["To a small extent", "To a large extent"],
                     this.handleChangeSelf
                 )}
                 {this.renderOptions(
-                    "To what extent are your teammates' payments justified, given their performance?",
-                    2, 
+                    "Are your teammates' payments justified?",
+                    1, 
                     this.state.selected_others,
                     ["To a small extent", "To a large extent"],
                     this.handleChangeOthers
+                )}
+                {this.renderOptions(
+                    "How satisfied are you with your payment?",
+                    2, 
+                    this.state.selected_satisfied, 
+                    ["Very unsatisfied", "Very satisfied"],
+                    this.handleChangeSatisfied
                 )}
                 <br/>
                 <button

@@ -308,36 +308,65 @@ button:disabled {
     font-size: 24px;
 }
 
+.audio-transcript-wrapper {
+    width: 960px;
+    text-align: left;
+    margin: auto;
+}
+
 .audio-transcript {
-    width: 700px;
+    width: 960px;
     border: 2px solid #7f7f7f;
     /*
     height: 100px;
     overflow-y: scroll;
     */
     font-size: 0;
-    text-align: left;
+    text-align: justify;
+    text-justify: distribute-all-lines;
     margin: 5px auto 10px;
 }
 
 .audio-transcript-word,
 .audio-transcript-players {
     display: inline-block;
-    margin: 2px;
+    margin: 0 2px;
     vertical-align: top;
 }
 
 .audio-transcript-text,
-.audio-transcript-missing,
+.audio-transcript-text-wrong,
+.audio-transcript-text-missing,
 .audio-transcript-blank {
     display: inline-block;
-    font-size: 20px;
-    height: 24px;
+    font-size: 16px;
+    height: 20px;
     margin: 2px;
+    /*
+    padding: 2px;
+    */
 }
 
-.audio-transcript-missing {
-    color: #777777;
+/*
+.audio-transcript-text-p1 {
+    color: var(--p1-highlight);
+}
+
+.audio-transcript-text-p2 {
+    color: var(--p2-highlight);
+}
+
+.audio-transcript-text-p3 {
+    color: var(--p3-highlight);
+}
+*/
+
+.audio-transcript-text-wrong {
+    color: #ff7777;
+}
+
+.audio-transcript-text-missing {
+    color: #cccccc;
 }
 
 .audio-transcript-blank {
@@ -348,33 +377,37 @@ button:disabled {
 .audio-transcript-p2,
 .audio-transcript-p3 {
     height: 7px;
-    margin: 3px;
+    margin: 3px 1px;
 }
 
 .audio-transcript-player {
-    height: 11px;
-    font-size: 11px;
+    width: 120px;
     font-weight: bold;
-    margin: -2px 0 2px 0;
+    float: left;
+}
+
+.audio-transcript-stats {
+    display: inline;
+    left: 120px;
 }
 
 .audio-transcript-p1,
 .audio-statistics-p1 {
-    background: var(--p1-highlight);
+    background: var(--p1-color);
 }
 
 .audio-transcript-p2,
 .audio-statistics-p2 {
-    background: var(--p2-highlight);
+    background: var(--p2-color);
 }
 
 .audio-transcript-p3,
 .audio-statistics-p3 {
-    background: var(--p3-highlight);
+    background: var(--p3-color);
 }
 
 .audio-statistics-errors {
-    background: #aaaaaa;
+    background: #cccccc;
 }
 
 .audio-statistics {
@@ -389,7 +422,7 @@ button:disabled {
 
 .audio-statistics-plot {
     width: 200px;
-    height: 20px;
+    height: 24px;
     border: solid 1px;
     padding: 1px;
     display: flex;
@@ -538,9 +571,14 @@ button:disabled {
     margin: 5px;
 }
 
+.score-screen-submitted {
+    display: inline-flex;   
+    margin: 0 20px;
+}
+
 .score-question {
-    width: 700px;
-    height: 100px;
+    width: 960px;
+    height: 80px;
     margin: auto;
     vertical-align: bottom;
     position: relative;
@@ -565,7 +603,7 @@ button:disabled {
 .score-input {
     display: block;
     margin: auto 0px 0px;
-    width: 70px;
+    width: 110px;
     white-space: pre-wrap;
 }
 

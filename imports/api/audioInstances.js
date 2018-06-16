@@ -66,6 +66,7 @@ export function addAudioInstance(audio_id, num_players) {
 //          found word i (ex: [true, false, false] means only P1 found it)
 // - typed: list. typed[i] is how many words player i+1 typed.
 // - correct: list. correct[i] is how many words player i+1 typed correctly.
+// - anybody_found: list of True/False for each word
 // - payments: list. payments[i] is how many cents player i+1 earned.
 // Note that number of errors is typed[i] - correct[i].
 export function getInstanceResults(audio_instance) {
@@ -78,22 +79,29 @@ export function getInstanceResults(audio_instance) {
     let num_words = true_words.length;
     let num_players = all_typed_words.length;
 
-    let correct = Array(num_players).fill(0);
-    let typed = Array(num_players).fill(0);
     let found = Array(num_words);
     for(let i = 0; i < num_words; i++) {
         found[i] = new Array(0);
     }
+    let anybody_found = Array(num_words).fill(false);
+
+    let typed = Array(num_players);
+    let diffs = Array(num_players);
 
     for(let i = 0; i < num_players; i++) {
+        typed[i] = new Array(0);
+
         let typed_words = all_typed_words[i];
         let words_diff = diff.diffArrays(true_words, typed_words);
+        diffs[i] = words_diff;
 
         let current_word = 0;
         words_diff.map(part => {
             // Words they typed that weren't in the string
             if(part.added) {
-                typed[i] += part.count;
+                for(let j = 0; j < part.count; j++) {
+                    typed[i].push(false)
+                }
             }
             // Words they missed
             else if(part.removed) {
@@ -104,10 +112,10 @@ export function getInstanceResults(audio_instance) {
             } 
             // Words they typed correctly
             else {
-                typed[i] += part.count;
-                correct[i] += part.count;
                 for(let j = 0; j < part.count; j++) {
                     found[current_word+j].push(true);
+                    anybody_found[current_word+j] = true;
+                    typed[i].push(true);
                 }
                 current_word += part.count;
             }
@@ -116,8 +124,9 @@ export function getInstanceResults(audio_instance) {
 
     return {
         found: found,
+        anybody_found: anybody_found,
         typed: typed,
-        correct: correct,
+        diffs: diffs,
         payments: getPayments(found, audio_task.reward_mode),
     };
 }
