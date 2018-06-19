@@ -50,7 +50,7 @@ class AdminUI extends Component {
 
     handleSelectedPlayer(event) {
         this.setState({
-            selected_player: event.target.value,
+            selected_player: parseInt(event.target.value),
         });
     }
 
@@ -219,7 +219,7 @@ class AdminUI extends Component {
                     audio_task={audio_task}
                     audio_instance={audio_instance}
                     player_num={this.state.selected_player}
-                    time_left={60}
+                    time_left={audio_task.time_s[1] - 10}
                     show_countdown={false}
                 />
             );

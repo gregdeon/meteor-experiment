@@ -682,6 +682,9 @@ button:disabled {
 .tutorial-inner {
     display: inline-block;
     position: relative;
+    /* TODO: include and read these from database */;
+    width: 990px;
+    height: 1332px;
 }
 
 .tutorial-box {
