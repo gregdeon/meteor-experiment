@@ -74,11 +74,6 @@ class LobbyScreen extends Component {
         $('#audio').html('<audio autoplay><source src="/rooster.wav"></audio>');
     }
 
-    componentWillUnmount() {
-        // We're tearing down, so play the alert now
-        playAlert();
-    }
-
     renderStatus() {
         let status_items = [];
         let user_ids = this.props.coop_instance.user_ids;
@@ -149,10 +144,15 @@ class LobbyScreen extends Component {
 
     componentWillUnmount() {
         clearInterval(this.state.queue_update);
+
+        // We're tearing down, so play the alert now
+        this.playAlert();
     }
 }
 
 export class CoopWorkflow extends Component {
+    // Helper function: lobby alerts need to be here
+
     render() {
         console.log(this.props);
 
