@@ -110,7 +110,7 @@ function updateCoopInstance(coop_instance) {
 
     // If we're done, don't bother
     let stage_num = coop_instance.stage;
-    if(stage_num >= coop_workflow.stages.length) 
+    if(stage_num >= coop_workflow.stages.length || stage_num < 0) 
         return;
 
     // Find which stage we're on

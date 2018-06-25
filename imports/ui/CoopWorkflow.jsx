@@ -179,6 +179,10 @@ export class CoopWorkflow extends Component {
         let output_id = this.props.coop_instance.output[stage_num];
 
         // Move on if we're past the end
+        if(stage_num < 0) {
+            this.props.lobbyFailedCallback();
+            return null;
+        }
         if(stage_num >= stages.length) {
             this.props.finishedCallback();
             return null;

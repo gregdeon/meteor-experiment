@@ -120,8 +120,29 @@ function equalSplit(found_list, score_mode) {
     let total_reward = getReward(points_obj.points);
 
     // Split: just divide equally
-    let per_player = total_reward / 3;
-    let ret = [per_player, per_player, per_player];
+    let players_found = 0;
+    let found_counts = [];
+
+    for(var i = 0; i < 3; i++) {
+        let num_found = getPointsPlayers(found_list, 1 << i).found;
+        found_counts.push(num_found);
+        if(num_found > 0) {
+            players_found += 1;
+        }
+    }
+
+    if(players_found === 0) {
+        return [0, 0, 0, total_reward];
+    }
+
+    let per_player = total_reward / players_found;
+    let ret = [];
+    for(let i = 0; i < 3; i++) {
+        if(found_counts[i] > 0)
+            ret.push(per_player);
+        else
+            ret.push(0);
+    }
     ret.push(total_reward);
     return ret;
 }
@@ -190,31 +211,48 @@ function shapleySplit(found_list, score_mode) {
     return ret;
 }
 
+let unfair_lookup = [
+    // 0 players: doesn't matter... 
+    {worst: 1.0, others: 0.0},
+    // 1 player: player takes all
+    {worst: 1.0, others: 0.0},
+    // 2 players: split 60/40
+    {worst: 0.6, others: 0.4},
+    // 3 players: split 50/25/25
+    {worst: 0.5, others: 0.25},
+];
+
 function unfairSplit(found_list, score_mode) {
     let total_points = getPointsPlayers(found_list, 0b111);
     let total_reward = getReward(total_points.points);
 
     // Find how many words each player got
-    let found = [];
-    for(let i = 0; i < 3; i++) {
-        found.push(getPointsPlayers(found_list, 1 << i).found);
-    }
-
-    // Find which player was the worst
+    // and find which player was the worst
+    var found = [];
+    var players_found = 0;
     var worst_player = 0;
-    for(var i = 1; i < 3; i++) {
-        if(found[i] < found[worst_player]) {
+    for(let i = 0; i < 3; i++) {
+        let num_found = getPointsPlayers(found_list, 1 << i).found; 
+        found.push(num_found);
+        if(num_found > 0) {
+            players_found += 1;
+        }
+        if(found[worst_player] === 0 || found[i] < found[worst_player]) {
             worst_player = i;
         }
     }
 
-
-
-    // Split 50/25/25 with 50 for the worst
+    // Pick which way to pay people
+    let payment_split = unfair_lookup[players_found];
     var ret = [];
     for(var i = 0; i < 3; i++) {
-        var proportion = (i === worst_player ? 0.5 : 0.25);
-        ret.push(total_reward * proportion);
+        if(found[i] > 0) {
+            var proportion = (i === worst_player ? payment_split.worst : payment_split.others);
+            ret.push(total_reward * proportion);
+        }
+        else {
+            ret.push(0);
+        }
     }
     ret.push(total_reward);
     return ret;
@@ -239,7 +277,7 @@ export const RewardModes = {
 // Last reward is total (helpful in case of rounding)
 export function getRewards(found_list, reward_mode, score_mode) {
     // debugging
-    reward_mode = RewardModes.PROPORTIONAL;
+    reward_mode = RewardModes.UNFAIR;
     //let found_list = instance.found;
     let reward_list = [0, 0, 0];
     switch(reward_mode) {

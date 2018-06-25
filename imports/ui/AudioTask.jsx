@@ -158,13 +158,19 @@ export class AudioTaskScore extends Component {
 
         return (
             <div>
+                <div className="audio-transcript-legend">
+                    Legend:
+                    <div className="audio-transcript-text">correct words</div>-
+                    <div className="audio-transcript-text-wrong">incorrect words</div>-
+                    <div className="audio-transcript-text-missing">missing words</div>
+                </div>
                 {transcript_divs.map((div, idx) => {
                     let player_string = "Player " + (idx+1);
                     if(idx === player_num) {
                         player_string += " (you)"
                     }
                     return (
-                        <div className="audio-transcript-wrapper">
+                        <div className="audio-transcript-wrapper" key={idx}>
                             <div className="audio-transcript-player">{player_string}:</div>
                             {status_divs[idx]}
                             {div}

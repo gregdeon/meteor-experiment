@@ -362,7 +362,8 @@ button:disabled {
 */
 
 .audio-transcript-text-wrong {
-    color: #ff7777;
+    color: #ff5050;
+    font-style: italic;
 }
 
 .audio-transcript-text-missing {

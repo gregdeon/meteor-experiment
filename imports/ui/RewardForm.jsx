@@ -161,7 +161,7 @@ export class RewardForm extends Component {
             <form
                 onSubmit={this.handleSubmit.bind(this)}
             >
-                <p>Given your team's performance...</p>
+                <p>Given you and your teamates' performance, answer the following questions:</p>
                 {this.renderOptions(
                     "Is your payment justified?",
                     0, 

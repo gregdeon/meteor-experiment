@@ -46,7 +46,7 @@ export class Survey extends Component {
         Meteor.call(
             'surveys.addResponse',
             this.props.survey._id,
-            this.workflow_instance_id,
+            this.props.workflow_instance_id,
             this.state.responses,
         );
         // Continue

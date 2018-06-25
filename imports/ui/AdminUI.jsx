@@ -213,27 +213,43 @@ class AdminUI extends Component {
         console.log(audio_instance);
         let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
 
+        let task_component = null;
+
         if(this.state.selected_view === "task") {
-            return (
-                <AudioTaskView
-                    audio_task={audio_task}
-                    audio_instance={audio_instance}
-                    player_num={this.state.selected_player}
-                    time_left={audio_task.time_s[1] - 10}
-                    show_countdown={false}
-                />
-            );
+            task_component = <AudioTaskView
+                audio_task={audio_task}
+                audio_instance={audio_instance}
+                player_num={this.state.selected_player}
+                time_left={audio_task.time_s[1] - 10}
+                show_countdown={false}
+            />
         } 
         else if(this.state.selected_view === "score") {
-            return(
-                <AudioTaskScore 
-                    audio_task={audio_task}
-                    audio_instance={audio_instance}
-                    player_num={this.state.selected_player}
-                    time_left={60}
-                />
-            );
+            task_component = <AudioTaskScore 
+                audio_task={audio_task}
+                audio_instance={audio_instance}
+                player_num={this.state.selected_player}
+                time_left={60}
+            />;
         }
+
+        let ratings_divs = audio_instance.ratings.map((rating, idx) => {
+            let ratings = "Not submitted";
+            if(rating !== null) {
+                ratings = 'Self Fairness: ' + rating.self + ', Team Fairness: ' + rating.others + ', Satisfaction: ' + rating.satisfied;
+            }
+            return <div><b>Player {idx+1}:</b> {ratings}</div>;
+        });
+
+        return (
+            <div>
+                <div style={{textAlign: 'center'}}>
+                    Ratings:
+                    {ratings_divs}
+                </div>
+                {task_component}
+            </div>
+        );
     }
 
     renderTaskView() {
