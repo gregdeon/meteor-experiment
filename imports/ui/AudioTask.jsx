@@ -311,7 +311,7 @@ export class AudioTaskScore extends Component {
                 <div className="task-header">Team statistics:</div>
                 {this.renderStatistics(results, this.props.player_num)}
                 */}
-                <p>Your team earned <b>{centsToString(total_pay)}</b> for typing <b>{num_found}</b> correct words (5c per 15 words).</p>
+                <p>Your team earned <b>{centsToString(total_pay)}</b> for typing <b>{num_found}</b> correct words (5c per 10 words).</p>
                 {this.renderRewards(results.payments)}
             </div>
         );

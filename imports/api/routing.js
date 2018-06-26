@@ -11,7 +11,7 @@ import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
 import {CoopWorkflowInstances} from './coopWorkflowInstances.js';
 
 import {addPuzzleInstance} from './puzzleInstances.js';
-import {AudioInstances, addAudioInstance, AudioInstanceStates, getInstanceResults} from './audioInstances.js';
+import {AudioInstances, addAudioInstance, AudioInstanceStates, getInstanceResults, getRatingsDone} from './audioInstances.js';
 import {AudioTasks} from './audioTasks.js';
 
 // Helper counter to track how many coop instances we've made
@@ -261,8 +261,7 @@ function updateCoopAudio(coop_instance) {
 
     // If all ratings are in, also move
     else {
-        let ratings = audio_instance.ratings
-        if(ratings.every(rating => rating !== null)) {        
+        if(getRatingsDone(audio_instance)) {      
             new_stage = audio_stage + 1;
             AudioInstances.update(
                 {_id: audio_instance._id},

@@ -44,7 +44,7 @@ function getReward(points) {
     */
 
     // This is tiered reward
-    let n_words = 15
+    let n_words = 10
     let cents_per_group = 5
     let groups = Math.floor(points / n_words);
     return groups * cents_per_group;
@@ -277,7 +277,6 @@ export const RewardModes = {
 // Last reward is total (helpful in case of rounding)
 export function getRewards(found_list, reward_mode, score_mode) {
     // debugging
-    reward_mode = RewardModes.UNFAIR;
     //let found_list = instance.found;
     let reward_list = [0, 0, 0];
     switch(reward_mode) {
