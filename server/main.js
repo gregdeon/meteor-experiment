@@ -25,6 +25,7 @@ import {ScoreModes, RewardModes} from '../imports/api/scoreFunctions.js';
 import {RoutingCounter, updateInstances} from '../imports/api/routing.js';
 
 import {BlockedUsers} from '../imports/api/blockedUsers.js';
+import {ErrorLog} from '../imports/api/errorLog.js';
 
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({

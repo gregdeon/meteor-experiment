@@ -165,7 +165,10 @@ export class Workflow extends Component {
     render() {
         // Get a workflow if we don't have one
         if(!this.props.workflowInstance) {
-            this.props.history.push('/start/');
+            Meteor.call(
+                'workflowinstances.setUpWorkflow',
+                Meteor.user()._id,
+            )
             return <div>Setting things up for you...</div>
         }
         else {

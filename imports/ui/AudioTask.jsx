@@ -476,6 +476,12 @@ export class AudioTaskView extends Component {
                 {this.renderAudioPlaybackBar()}
                 {this.renderTextEntry()}
                 {this.renderTeamStatus()}
+                <div>
+                Audio not playing?
+                <button onClick={this.restartAudio.bind(this)}>
+                    Start Audio
+                </button>
+                </div>
             </div>
         );
     }

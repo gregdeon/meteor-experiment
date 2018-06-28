@@ -35,15 +35,6 @@ class StopRepeat extends Component {
 }
 
 class App extends Component {
-    checkRepeat(assign_id) {
-        workflow_instance = this.props.workflowInstance;
-        if(!workflow_instance) {
-            return false;
-        }
-
-        return (assign_id !== workflow_instance.assign_id);
-    }
-
     render() {
         // Wait for db connections
         if(!this.props.ready) {
