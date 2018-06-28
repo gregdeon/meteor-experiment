@@ -24,6 +24,8 @@ import {ScoreModes, RewardModes} from '../imports/api/scoreFunctions.js';
 
 import {RoutingCounter, updateInstances} from '../imports/api/routing.js';
 
+import {BlockedUsers} from '../imports/api/blockedUsers.js';
+
 function addExampleWorkflow(consent_id, survey_id, coop_id, letter_id) {
     let workflow_id = Workflows.insert({
         stages: [
@@ -129,5 +131,5 @@ function addExampleFeedbackLetter() {
 
 Meteor.startup(() => {
     console.log("Starting server");
-    Meteor.setInterval(updateInstances, 500);
+    Meteor.setInterval(updateInstances, 800);
 });

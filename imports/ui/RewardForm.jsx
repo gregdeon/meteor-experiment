@@ -6,8 +6,12 @@ class OneRewardDisplay extends Component {
             return "";
         }
 
-        if(this.props.percent < 10) {
+        if(this.props.percent < 7.5) {
             return "" + this.props.reward;
+        }
+
+        if(this.props.percent < 10) {
+            return "P" + (this.props.player + 1) + ": " + this.props.reward;
         }
 
         return "P" + (this.props.player + 1) + ": " + this.props.reward + "c";

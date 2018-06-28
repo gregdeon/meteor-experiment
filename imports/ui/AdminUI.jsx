@@ -88,6 +88,7 @@ class AdminUI extends Component {
     }
 
     renderPuzzleSelector() {
+        console.log(this.props);
         let coop_instance = this.props.coop_instances[this.state.selected_coop];
         let stage_ids = coop_instance.output;
         return (

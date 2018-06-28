@@ -553,6 +553,7 @@ button:disabled {
     text-align: center;
     float: left;
     outline: solid 2px;
+    height: 100%;
 }
 
 .score-option-p1 {

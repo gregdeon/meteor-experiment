@@ -236,14 +236,16 @@ function unfairSplit(found_list, score_mode) {
         found.push(num_found);
         if(num_found > 0) {
             players_found += 1;
-        }
-        if(found[worst_player] === 0 || found[i] < found[worst_player]) {
-            worst_player = i;
+            if(found[worst_player] === 0 || found[i] < found[worst_player]) {
+                worst_player = i;
+            }
         }
     }
 
     // Pick which way to pay people
     let payment_split = unfair_lookup[players_found];
+
+    console.log(payment_split);
     var ret = [];
     for(var i = 0; i < 3; i++) {
         if(found[i] > 0) {
@@ -276,8 +278,6 @@ export const RewardModes = {
 // Returns a list of rewards like [10, 20, 30, 60]
 // Last reward is total (helpful in case of rounding)
 export function getRewards(found_list, reward_mode, score_mode) {
-    // debugging
-    //let found_list = instance.found;
     let reward_list = [0, 0, 0];
     switch(reward_mode) {
         case RewardModes.EQUAL:
