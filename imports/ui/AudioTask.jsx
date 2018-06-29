@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import Sound from 'react-sound';
+//import Sound from 'react-sound';
 
 import {RewardDisplay, RewardForm} from './RewardForm.jsx';
 import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString, centsToString} from '../api/utils.js';
+import {soundManager} from 'soundmanager2'
 
 export class AudioTaskScore extends Component {
     handleSubmit(ratings) {
@@ -350,6 +351,23 @@ class ScrollingTranscript extends Component {
     }
 }
 
+// Wrapper for React Sound
+// Doesn't always update - fixes replaying bug when typing
+/*
+class SoundWrapper extends Sound {
+    shouldComponentUpdate(nextProps, nextState) {
+        console.log(nextProps);
+        if(this.props.url !== nextProps.url ||
+            this.props.playFromPosition !== nextProps.playFromPosition ||
+            this.props.playStatus !== nextProps.playStatus
+        )
+            return true;
+        else
+            return false;
+    }
+}
+*/
+
 // Component for the audio task
 export class AudioTaskView extends Component {
     constructor(props) {
@@ -357,8 +375,83 @@ export class AudioTaskView extends Component {
 
         this.state = {
             text: "",
-            finished_audio: false,
+            sound: null,
+            finished_sound: false,
         };
+    }
+
+    componentWillUnmount() {
+        this.removeSound();
+    }
+
+    createSound(url, finished_callback) {
+        this.removeSound();
+        let sound = soundManager.createSound({
+            //url: '/' + this.props.audio_task.audio_path,
+            url: url,
+            onfinish: finished_callback,
+        });
+        this.setState({
+            sound: sound,
+        });
+
+        return sound;
+    }
+
+    removeSound() {
+        if(this.state.sound !== null) {
+            this.state.sound.destruct();
+        }
+        this.setState({
+            sound: null,
+        });
+    }
+
+    handleAudioDone() {
+        this.setState({
+            finished_sound: true,
+        });
+    }
+
+    updateAudio() {
+        // Main function that controls audio
+        // If we don't have a sound, load it now
+        let sound = this.state.sound;
+        let update_state = false;
+        if(sound === null) {
+            update_state = true;
+            sound = this.createSound(
+                '/' + this.props.audio_task.audio_path,
+                this.handleAudioDone.bind(this)
+            );
+            sound.load();
+        }
+
+        // If we're in the task, play our sound (only once)
+        if(
+            this.props.audio_instance.state === AudioInstanceStates.TASK
+            && sound.playState === 0
+            && !this.state.finished_sound
+        ) {
+            sound.play();
+        }
+
+        if(update_state) {
+            this.setState({
+                sound: sound
+            })
+        }
+    }
+
+    restartAudio() {
+        let time_stage = this.props.audio_task.time_s[AudioInstanceStates.TASK];
+        let time_elapsed = time_stage - this.props.time_left;
+        if(this.state.sound) {
+            this.state.sound.stop();
+            this.state.sound.setPosition(time_elapsed * 1000)
+        }
+
+        this.updateAudio();
     }
 
     handleTextInput(event) {
@@ -379,12 +472,6 @@ export class AudioTaskView extends Component {
         }
 
         this.setState({text: new_text});
-    }
-
-    handleAudioFinished() {
-        this.setState({
-            finished_audio: true
-        });
     }
 
     renderAudioPlaybackBar() {
@@ -452,34 +539,33 @@ export class AudioTaskView extends Component {
         let sound_status = null;
         if(this.props.show_countdown) {
             header_text = "Audio starting in " + (this.props.time_left) + "...";
-            sound_status = Sound.status.STOPPED;
         }
         else {
             header_text = "Audio playing...";
-            if(this.state.finished_audio) {
-                sound_status = Sound.status.STOPPED;
-            }
-            else {
-                sound_status = Sound.status.PLAYING;
-            }
         }
+
+        this.updateAudio();
 
         return (
             <div className="task-container">
-                <Sound 
+        {/*
+                <SoundWrapper
                     url={'/' + this.props.audio_task.audio_path}
+                    playFromPosition={this.state.start_position * 1000}
                     playStatus={sound_status}
                     autoLoad={true}
                     onFinishedPlaying={this.handleAudioFinished.bind(this)}
                 />
+        */}
                 <div className="task-header">{header_text}</div>
                 {this.renderAudioPlaybackBar()}
                 {this.renderTextEntry()}
                 {this.renderTeamStatus()}
                 <div>
-                Audio not playing?
-                <button onClick={this.restartAudio.bind(this)}>
-                    Start Audio
+                <br/>
+                Audio not playing? <br/>
+                <button style={{padding: 5}} onClick={this.restartAudio.bind(this)}>
+                    Restart Audio
                 </button>
                 </div>
             </div>
