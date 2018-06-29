@@ -8,13 +8,13 @@ import {withTracker} from 'meteor/react-meteor-data';
 import {WorkflowInstances} from '../api/workflowInstances.js';
 import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
 import {Puzzles} from '../api/puzzles.js';
-import {PuzzleInstances} from '../api/puzzleInstances.js';
+//import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {AudioTasks} from '../api/audioTasks.js';
-import {AudioInstances} from '../api/audioInstances.js';
+//import {AudioInstances} from '../api/audioInstances.js';
 import {BlockedUsers} from '../api/blockedUsers.js';
 
 // UI
-import {Workflow} from './Workflow.jsx';
+import WorkflowContainer from './Workflow.jsx';
 import {LoginForm} from './LoginForm.jsx';
 import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 
@@ -56,10 +56,9 @@ class App extends Component {
      
         // Show their workflow
         return (
-            <Workflow
-                workflowInstance={this.props.workflowInstance}
-                coopInstance={this.props.coopInstance}
-                history={this.props.history}
+            <WorkflowContainer
+                workflow_instance={this.props.workflow_instance}
+                coop_instance={this.props.coop_instance}
             />
         );
     }
@@ -77,9 +76,9 @@ export default withTracker(() => {
         Meteor.subscribe('feedbackletters'),
         Meteor.subscribe('tutorials'),
         Meteor.subscribe('puzzles'),
-        Meteor.subscribe('puzzleinstances'),
+        //Meteor.subscribe('puzzleinstances'),
         Meteor.subscribe('audiotasks'),
-        Meteor.subscribe('audioinstances'),
+        //Meteor.subscribe('audioinstances'),
         Meteor.subscribe('servertime'),
         Meteor.subscribe('blockedusers'),
     ];
@@ -102,16 +101,12 @@ export default withTracker(() => {
 
         // Note that these may be undefined - it's up to the app to
         // deal with these cases
-        workflowInstance: WorkflowInstances.findOne(),
-        coopInstance: CoopWorkflowInstances.findOne(),
+        workflow_instance: WorkflowInstances.findOne(),
+        coop_instance: CoopWorkflowInstances.findOne(),
 
         // TODO: this is a total hack
         // Force re-renders whenever anything gets changed in these
-        puzzle_instances: PuzzleInstances.find().fetch(),
-        audio_instances: AudioInstances.find().fetch(),
-
-        // TODO: remove these when done debugging
-        //puzzle: Puzzles.findOne(),
-        //puzzleInstance: PuzzleInstances.findOne();
+        //puzzle_instances: PuzzleInstances.find().fetch(),
+        //audio_instances: AudioInstances.find({_id: {$in: audio_id_list}}).fetch(),
     };
 })(App);

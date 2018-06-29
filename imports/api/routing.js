@@ -143,6 +143,16 @@ function updateCoopInstance(coop_instance) {
             {_id: coop_instance._id},
             {$set: {stage: new_stage}}
         );
+
+        // TODO: set time started now
+        /*
+        if(coop_workflow.stages[new_stage].type === CoopWorkflowStages.AUDIO) {
+            AudioInstances.update(
+                {_id: coop_workflow.stages[new_stage].id},
+                {$set: {?}}
+            );
+        }
+        */
     }
 
     // Update the individual workflows if we need to

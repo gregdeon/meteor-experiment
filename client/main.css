@@ -677,6 +677,10 @@ button:disabled {
     text-align: center;
 }
 
+.tutorial-buttons {
+    margin: 20px;
+}
+
 .tutorial-button {
     margin: 5px;
 }

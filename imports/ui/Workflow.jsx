@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
+import {withTracker} from 'meteor/react-meteor-data';
 
 import {ConsentForm} from './ConsentForm.jsx';
 import {Survey} from './Survey.jsx';
@@ -14,6 +15,8 @@ import {FeedbackLetters} from '../api/feedbackLetters.js';
 import {Tutorials} from '../api/tutorials.js';
 import {CoopWorkflows} from '../api/coopWorkflows.js';
 import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
+import {PuzzleInstances} from '../api/puzzleInstances.js';
+import {AudioInstances} from '../api/audioInstances.js';
 
 // Left-pad a number with 0s
 function pad(num, digits)
@@ -84,25 +87,25 @@ class WorkflowHeader extends Component {
     }
 }
 
-export class Workflow extends Component {
+class Workflow extends Component {
     advanceWorkflowStage() {
         Meteor.call(
             'workflowinstances.advanceStage',
-            this.props.workflowInstance._id,
+            this.props.workflow_instance._id,
         );
     }
 
     skipToWorkflowEnd() {
         Meteor.call(
             'workflowinstances.skipToEnd',
-            this.props.workflowInstance._id,
+            this.props.workflow_instance._id,
         );
     }
 
     renderStage() {
         console.log(this.props);        
-        let workflow = Workflows.findOne({_id: this.props.workflowInstance.workflow_id});
-        let stage_num = this.props.workflowInstance.stage;
+        let workflow = Workflows.findOne({_id: this.props.workflow_instance.workflow_id});
+        let stage_num = this.props.workflow_instance.stage;
         let stages = workflow.stages;
         let stage = stages[stage_num];
         if(stage_num < 0) {
@@ -126,14 +129,14 @@ export class Workflow extends Component {
                 return (
                     <Survey 
                         survey={survey}
-                        workflow_instance_id={this.props.workflowInstance._id}
+                        workflow_instance_id={this.props.workflow_instance._id}
                         finishedCallback={this.advanceWorkflowStage.bind(this)}
                     />
                 );
 
             case WorkflowStages.FEEDBACK:
                 let feedback_letter = FeedbackLetters.findOne({_id: stage.id});
-                let confirm_code = this.props.workflowInstance.confirm_code
+                let confirm_code = this.props.workflow_instance.confirm_code
                 // Note: no finished callback for feedback letters
                 return (
                     <FeedbackLetter
@@ -144,8 +147,8 @@ export class Workflow extends Component {
 
             case WorkflowStages.COOP:
                 return (
-                    <CoopWorkflow 
-                        coop_instance={this.props.coopInstance}
+                    <CoopWorkflow
+                        coop_instance={this.props.coop_instance}
                         finishedCallback={this.advanceWorkflowStage.bind(this)}
                         lobbyFailedCallback={this.skipToWorkflowEnd.bind(this)}
                     />
@@ -163,8 +166,12 @@ export class Workflow extends Component {
     }
 
     render() {
+        if(!this.props.ready) {
+            return null;
+        }
+
         // Get a workflow if we don't have one
-        if(!this.props.workflowInstance) {
+        if(!this.props.workflow_instance) {
             Meteor.call(
                 'workflowinstances.setUpWorkflow',
                 Meteor.user()._id,
@@ -175,8 +182,8 @@ export class Workflow extends Component {
             return (
                 <div>
                     <WorkflowHeader
-                        workflow_instance={this.props.workflowInstance}
-                        coop_instance={this.props.coopInstance}
+                        workflow_instance={this.props.workflow_instance}
+                        coop_instance={this.props.coop_instance}
                      />
                     {this.renderStage()}
 
@@ -187,3 +194,26 @@ export class Workflow extends Component {
         }
     }
 }
+
+
+export default WorkflowContainer = withTracker((props) => {
+    let puzzle_handle = null;
+    let audio_handle = null;
+    let ready = true;
+
+    if(props.coop_instance) {
+        let stage_ids = props.coop_instance.output;
+        audio_handle = Meteor.subscribe('audioinstances.inList', stage_ids);
+        ready = audio_handle.ready();
+        //puzzle_handle = Meteor.subscribe('puzzleinstances.inList', stage_ids);
+        //ready = puzzle_handle.ready() && audio_handle.ready();
+    }
+
+    return {
+        ready: ready,
+        workflow_instance: props.workflow_instance,
+        coop_instance: props.coop_instance,
+        // Hack
+        audio_instances: AudioInstances.find().fetch(),
+    };
+})(Workflow);

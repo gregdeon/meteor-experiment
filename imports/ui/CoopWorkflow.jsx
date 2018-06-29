@@ -227,3 +227,4 @@ export class CoopWorkflow extends Component {
         }
     }
 }
+

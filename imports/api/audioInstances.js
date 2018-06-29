@@ -23,10 +23,13 @@ export const AudioInstances = new Mongo.Collection('audioinstances', {
 });
 
 if (Meteor.isServer) {
-    Meteor.publish('audioinstances', function publish(){
+    Meteor.publish('audioinstances', function publish(id_list){
+        return AudioInstances.find({});
+    });    
+
+    Meteor.publish('audioinstances.inList', function publish(id_list){
         return AudioInstances.find({
-            // TODO: really need to make sure we don't publish lots of these
-            // If we do this, make sure admin can still see all of them
+            _id: {$in: id_list}
         });
     });
 }

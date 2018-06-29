@@ -361,15 +361,9 @@ export default withTracker(() => {
         coop_instances: CoopWorkflowInstances.find().fetch(),
 //        puzzle_instances: PuzzleInstances.find().fetch(),
 
-        // TODO: handle cases where user has joined more than one workflow
-        // For now, assume there's only one
-
         // TODO: this is a total hack
         // Force re-renders whenever state updates
         audio_instances: AudioInstances.find().fetch(),
 
-        // TODO: remove these when done debugging
-        //puzzle: Puzzles.findOne(),
-        //puzzleInstance: PuzzleInstances.findOne(),
     };
 })(AdminUI);
