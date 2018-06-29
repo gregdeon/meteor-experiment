@@ -159,7 +159,7 @@ export class AudioTaskScore extends Component {
 
         return (
             <div>
-                <div className="audio-transcript-legend">
+                <div className="audio-transcript-legend" key={-1}>
                     Legend:
                     <div className="audio-transcript-text">correct words</div>-
                     <div className="audio-transcript-text-wrong">incorrect words</div>-
@@ -375,6 +375,10 @@ export class AudioTaskView extends Component {
 
         this.state = {
             text: "",
+            sound_update_interval: setInterval(
+                this.updateAudio.bind(this),
+                250,
+            ),
             sound: null,
             finished_sound: false,
         };
@@ -382,6 +386,10 @@ export class AudioTaskView extends Component {
 
     componentWillUnmount() {
         this.removeSound();
+        if(this.state.sound_update_interval)
+        {
+            clearInterval(this.state.sound_update_interval);
+        }    
     }
 
     createSound(url, finished_callback) {
@@ -444,11 +452,17 @@ export class AudioTaskView extends Component {
     }
 
     restartAudio() {
-        let time_stage = this.props.audio_task.time_s[AudioInstanceStates.TASK];
-        let time_elapsed = time_stage - this.props.time_left;
+        // Don't do anything if the audio hasn't started yet
         if(this.state.sound) {
             this.state.sound.stop();
-            this.state.sound.setPosition(time_elapsed * 1000)
+            if(this.props.audio_instance.state !== AudioInstanceStates.TASK) {
+                this.state.sound.setPosition(0)
+            }
+            else {
+                let time_stage = this.props.audio_task.time_s[AudioInstanceStates.TASK];
+                let time_elapsed = time_stage - this.props.time_left;
+                this.state.sound.setPosition(time_elapsed * 1000);
+            }
         }
 
         this.updateAudio();
@@ -544,7 +558,7 @@ export class AudioTaskView extends Component {
             header_text = "Audio playing...";
         }
 
-        this.updateAudio();
+        //this.updateAudio();
 
         return (
             <div className="task-container">
@@ -586,6 +600,12 @@ export class AudioTask extends Component {
                 250,
             ),
         };
+    }
+
+    componentWillUnmount() {
+        if(this.state.update_interval) {
+            clearInterval(this.state.update_interval);
+        }
     }
 
     updateTimer() {

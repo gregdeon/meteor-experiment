@@ -28,7 +28,7 @@ if (Meteor.isServer) {
 export function submitError(msg, url, line, col, err) {
     console.log(err);
     ErrorLog.insert({
-        user_id: this.userId,
+        user_id: Meteor.userId(),
         time: new Date(),
         msg: msg,
         url: url,

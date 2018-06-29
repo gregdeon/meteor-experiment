@@ -239,7 +239,7 @@ class AdminUI extends Component {
             if(rating !== null) {
                 ratings = 'Self Fairness: ' + rating.self + ', Team Fairness: ' + rating.others + ', Satisfaction: ' + rating.satisfied;
             }
-            return <div><b>Player {idx+1}:</b> {ratings}</div>;
+            return <div key={idx}><b>Player {idx+1}:</b> {ratings}</div>;
         });
 
         return (
