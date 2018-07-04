@@ -23,7 +23,7 @@ export const AudioInstances = new Mongo.Collection('audioinstances', {
 });
 
 if (Meteor.isServer) {
-    Meteor.publish('audioinstances', function publish(id_list){
+    Meteor.publish('audioinstances', function publish(){
         return AudioInstances.find({});
     });    
 

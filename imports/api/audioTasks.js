@@ -3,7 +3,6 @@
 // Contents:
 // - audio_path: path to an audio file
 // - words: list of ground truth words
-// - time_s: list of maximum times that each stage will take
 // - reward_mode: one of RewardModes
 
 import {Meteor} from 'meteor/meteor'; 
