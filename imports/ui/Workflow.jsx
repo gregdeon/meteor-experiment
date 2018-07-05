@@ -7,6 +7,7 @@ import {Survey} from './Survey.jsx';
 import {FeedbackLetter} from './FeedbackLetter.jsx';
 import {CoopWorkflow} from './CoopWorkflow.jsx';
 import {TutorialScreen} from './Tutorial.jsx';
+import {AudioRatingScreen} from './AudioRatingTask.jsx';
 
 import {Workflows, WorkflowStages} from '../api/workflows.js';
 import {ConsentForms} from '../api/consentForms.js';
@@ -162,6 +163,16 @@ class Workflow extends Component {
                         finishedCallback={this.advanceWorkflowStage.bind(this)}
                     />
                 );
+
+            case WorkflowStages.AUDIO_RATING:
+                // TODO
+                let rating_instance = null;
+                
+                return (
+                    <AudioRatingScreen
+                        audio_rating_instance={rating_instance}
+                    />
+                )
         }
     }
 
