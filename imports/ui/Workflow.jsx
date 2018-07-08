@@ -172,6 +172,7 @@ class Workflow extends Component {
                 return (
                     <AudioRatingScreen
                         rating_instance={rating_instance}
+                        finishedCallback={this.advanceWorkflowStage.bind(this)}
                     />
                 )
         }

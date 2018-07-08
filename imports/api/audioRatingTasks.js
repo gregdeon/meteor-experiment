@@ -17,3 +17,4 @@ if (Meteor.isServer) {
         return AudioRatingTasks.find();
     });
 }
+

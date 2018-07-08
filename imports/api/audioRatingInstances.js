@@ -8,6 +8,8 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
+import {getServerTime} from './utils.js';
+
 export const AudioRatingInstances = new Mongo.Collection('audioratinginstances', {
     idGeneration: 'MONGO',
 });
@@ -30,4 +32,18 @@ export function createAudioRatingInstance(rating_task_id) {
     return instance_id;
 }
 
-// TODO: add Meteor method for submitting 
+Meteor.methods({
+    'audioRatingInstances.submitRating'(instance_id, answer) {
+        let time_submitted = new Date(getServerTime());
+        let upd = {
+            rating: answer,
+            time_submitted: time_submitted,
+        };
+
+        AudioRatingInstances.update(
+            {_id: instance_id},
+            {$set: upd}
+        );
+    },
+
+})

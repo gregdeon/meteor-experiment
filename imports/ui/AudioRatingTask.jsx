@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import {RewardDisplay} from './RewardForm.jsx';
+
 import {getResultsFromText} from '../api/audioInstances.js';
 import {AudioRatingTasks} from '../api/audioRatingTasks.js';
 import {centsToString} from '../api/utils.js';
@@ -7,18 +9,28 @@ import {centsToString} from '../api/utils.js';
 // TODO: this is mainly copied from the AudioTaskScore class in AudioTask.jsx
 // Would be best to refactor it to remove duplicate code
 export class AudioRatingScreen extends Component {
-    handleSubmit(ratings) {
-        console.log(this.props);
-        /*
-        TODO
+    constructor (props) {
+        super(props);
+
+        this.state = {
+            selected_answer: null,
+        };
+    }
+
+    handleChangeAnswer(val) {
+        this.setState({selected_answer: val});
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        // console.log(this.state);
 
         Meteor.call(            
-            'audioInstances.submitRating',
-            this.props.audio_instance._id,
-            this.props.player_num,
-            ratings
+            'audioRatingInstances.submitRating',
+            this.props.rating_instance._id,
+            this.state.selected_answer,
         );
-        */
+        this.props.finishedCallback();
     }
 
     renderWord(word, found_list, key) {
@@ -145,17 +157,78 @@ export class AudioRatingScreen extends Component {
         );
     }
 
+    renderOptions(question_num, value, extreme_labels, callback) {
+        let option_nums = [1, 2, 3, 4, 5];
+        return (
+            <div className="score-question">
+            <div className="score-inputs" key={question_num}>
+                {
+                    option_nums.map((num) => {
+                        let label = "" + num;
+                        
+                        if (num === 1) {
+                            label = extreme_labels[0] + "\n" + label;
+                        }
+                        if (num === 5) {
+                            label = extreme_labels[1] + "\n" + label;
+                        }
+                        
+                        return (
+                            <div className="score-input" key={num}>
+                                <label htmlFor={question_num + "-" + num}>{label}</label>
+                                <br/>
+                                <input 
+                                    type="radio"
+                                    id={question_num + "-" + num}
+                                    name={question_num}
+                                    checked={value === num}
+                                    onChange={callback.bind(this, num)}
+                                />
+                            </div>
+                        );
+                    })
+                }
+            </div>
+            </div>
+        );
+    }
+
+    renderQuestions() {
+        let button_active = (this.state.selected_answer !== null);
+        return (
+            <form
+                onSubmit={this.handleSubmit.bind(this)}
+            >
+                <p>Given the team members' performance, are their payments justified?</p>
+                {this.renderOptions(
+                    0, 
+                    this.state.selected_answer, 
+                    ["To a small extent", "To a large extent"],
+                    this.handleChangeAnswer
+                )}
+                <br/>
+                <button
+                    className="score-button"
+                    type="submit"
+                    disabled={!button_active}
+                >
+                    Submit
+                </button>
+            </form>
+        );
+    }
+
     renderRewards(rewards) {
         let total = rewards[3];
 
         return (
             <div>
                 <p>Individual payments: </p>
-                <div>TODO</div>
-            {/*
                 <RewardDisplay
                     rewards={rewards.slice(0, 3)}
                 />
+                {this.renderQuestions()}
+            {/*
                 <div className="task-header">Questions</div>
                 <RewardForm 
                     submit_callback={this.handleSubmit.bind(this)}

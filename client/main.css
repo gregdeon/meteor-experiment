@@ -597,7 +597,9 @@ button:disabled {
 .score-inputs {
     display: inline-flex;
     margin-left: 0px;
+    /* Hack: just removing this for rating-only task...
     position: absolute; 
+    */
     right: 0px;
     bottom: 0px;
 }
