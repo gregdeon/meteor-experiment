@@ -18,6 +18,7 @@ import {CoopWorkflows} from '../api/coopWorkflows.js';
 import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {AudioInstances} from '../api/audioInstances.js';
+import {AudioRatingInstances} from '../api/audioRatingInstances.js';
 
 // Left-pad a number with 0s
 function pad(num, digits)
@@ -165,12 +166,12 @@ class Workflow extends Component {
                 );
 
             case WorkflowStages.AUDIO_RATING:
-                // TODO
-                let rating_instance = null;
-                
+                let output_id = this.props.workflow_instance.output[stage_num];
+                let rating_instance = AudioRatingInstances.findOne({_id: output_id});
+
                 return (
                     <AudioRatingScreen
-                        audio_rating_instance={rating_instance}
+                        rating_instance={rating_instance}
                     />
                 )
         }

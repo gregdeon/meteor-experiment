@@ -63,6 +63,17 @@ export function addAudioInstance(audio_id, num_players) {
     return instance_id;
 }
 
+// Wrapper function for getResultsFromText
+export function getInstanceResults(audio_instance) {
+    console.log(audio_instance);
+    let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
+
+    let true_words = audio_task.words;
+    let all_typed_words = audio_instance.words;
+
+    return getResultsFromText(true_words, all_typed_words, audio_task.reward_mode);
+}
+
 // Get some statistics on how well the group performed
 // This includes:
 // - found: list of lists. found[i] is a list describing which players 
@@ -72,13 +83,7 @@ export function addAudioInstance(audio_id, num_players) {
 // - anybody_found: list of True/False for each word
 // - payments: list. payments[i] is how many cents player i+1 earned.
 // Note that number of errors is typed[i] - correct[i].
-export function getInstanceResults(audio_instance) {
-    console.log(audio_instance);
-    let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
-
-    let true_words = audio_task.words;
-    let all_typed_words = audio_instance.words;
-
+export function getResultsFromText(true_words, all_typed_words, reward_mode) {
     let num_words = true_words.length;
     let num_players = all_typed_words.length;
 
@@ -130,7 +135,7 @@ export function getInstanceResults(audio_instance) {
         anybody_found: anybody_found,
         typed: typed,
         diffs: diffs,
-        payments: getPayments(found, audio_task.reward_mode),
+        payments: getPayments(found, reward_mode),
     };
 }
 

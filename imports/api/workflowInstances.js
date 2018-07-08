@@ -4,6 +4,8 @@
 // - user_id: reference to user
 // - workflow_id: reference to workflow
 // - stage: current stage of the user
+// - output: list of IDs of stage instances (task instances, survey instances, etc)
+//   (note: output list doesn't include all stage types. TODO.)
 // - assign_id: MTurk assignment ID
 // - confirm_code: UUID for confirmation code
 
@@ -18,6 +20,7 @@ import {getRewards} from './scoreFunctions.js';
 import {Puzzles} from './puzzles.js';
 import {PuzzleInstances} from './puzzleInstances.js';
 import {AudioInstances} from './audioInstances.js';
+import {createAudioRatingInstance} from './audioRatingInstances.js';
 
 export const WorkflowInstances = new Mongo.Collection('workflowinstances', {
     idGeneration: 'MONGO',
@@ -52,6 +55,7 @@ export function getWorkflowProgress(instance, coop_instance) {
             case WorkflowStages.SURVEY:
             case WorkflowStages.FEEDBACK:
             case WorkflowStages.TUTORIAL:
+            case WorkflowStages.AUDIO_RATING:
                 total += 1;
                 if(instance.stage > idx)
                     done += 1;
@@ -156,13 +160,33 @@ Meteor.methods({
         }
 
         // None exist, so make a new one instead
-        // No need to return - props will get updated right away
+        let output_list = [];
+
+        // Build output list
+        // TODO: this should be more generic instead of a switch-case
+        for(let i = 0; i < workflow.stages.length; i++) {
+            let stage = workflow.stages[i];
+            let output_id = null;
+            switch(stage.type) {
+                case WorkflowStages.AUDIO_RATING:
+                    let task_id = stage.id;
+                    output_id = createAudioRatingInstance(task_id);
+                    break;
+            }
+
+            output_list.push(output_id);
+        }
+        
+        // Add instance to the database
         WorkflowInstances.insert({
             user_id: user_id,
             workflow_id: workflow._id,
             stage: 0,
+            output: output_list,
             confirm_code: null,
         })
+
+        // No need to return - props will get updated right away
     },
 
     'workflowinstances.advanceStage'(instance_id) {

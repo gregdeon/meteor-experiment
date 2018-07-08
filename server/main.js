@@ -23,6 +23,7 @@ import {PuzzleInstances} from '../imports/api/puzzleInstances.js';
 import {AudioTasks} from '../imports/api/audioTasks.js';
 import {AudioInstances} from '../imports/api/audioInstances.js';
 import {AudioRatingTasks} from '../imports/api/audioRatingTasks.js';
+import {AudioRatingInstances} from '../imports/api/audioRatingInstances.js'
 import {ScoreModes, RewardModes} from '../imports/api/scoreFunctions.js';
 
 import {RoutingCounter, updateInstances} from '../imports/api/routing.js';

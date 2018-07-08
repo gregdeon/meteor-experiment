@@ -79,6 +79,10 @@ export default withTracker(() => {
         //Meteor.subscribe('puzzleinstances'),
         Meteor.subscribe('audiotasks'),
         //Meteor.subscribe('audioinstances'),
+
+        Meteor.subscribe('audioratingtasks'),
+        Meteor.subscribe('audioratinginstances'),
+
         Meteor.subscribe('servertime'),
         Meteor.subscribe('blockedusers'),
     ];
