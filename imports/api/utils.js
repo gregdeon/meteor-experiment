@@ -1,3 +1,6 @@
+// Counters for routing workflows
+export const Counters = new Mongo.Collection('counters');
+
 // Timing
 export const ServerTime = new Mongo.Collection('servertime', {
     idGeneration: 'MONGO',

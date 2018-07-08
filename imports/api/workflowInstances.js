@@ -13,6 +13,8 @@ import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 import {Random} from 'meteor/random';
 
+import {incrementCounter} from 'meteor/konecty:mongo-counter';
+
 import {Workflows, WorkflowStages} from './workflows.js';
 import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
 import {getPlayerNumber} from '../api/coopWorkflowInstances.js';
@@ -21,6 +23,8 @@ import {Puzzles} from './puzzles.js';
 import {PuzzleInstances} from './puzzleInstances.js';
 import {AudioInstances} from './audioInstances.js';
 import {createAudioRatingInstance} from './audioRatingInstances.js';
+
+import {Counters} from './utils.js';
 
 export const WorkflowInstances = new Mongo.Collection('workflowinstances', {
     idGeneration: 'MONGO',
@@ -36,6 +40,10 @@ if (Meteor.isServer) {
             return this.ready();
         }
     });
+}
+
+const getWorkflowCounter = function() {
+    return incrementCounter(Counters, 'workflow_instances')
 }
 
 export function getWorkflowProgress(instance, coop_instance) {
@@ -144,26 +152,28 @@ Meteor.methods({
         // DEBUG
         console.log("Making workflow instance for " + user_id);
 
-        // TODO: find the workflow that they should use
-        // For now, just assume there's only one
-        let workflow = Workflows.findOne();
-
         // Try to find an instance for them
         let instance = WorkflowInstances.findOne({
             user_id: user_id,
-            workflow_id: workflow._id,
+            //workflow_id: workflow._id,
         });
 
         // They have one, so 
         if(instance) {
             return;
         }
-
+        
         // None exist, so make a new one instead
-        let output_list = [];
+        // Find the workflow that they should use
+        let num_workflows = Workflows.find().count();
+        let workflow_num = getWorkflowCounter() % num_workflows;
+        let workflow = Workflows.findOne({number: workflow_num});
+
+
 
         // Build output list
         // TODO: this should be more generic instead of a switch-case
+        let output_list = [];
         for(let i = 0; i < workflow.stages.length; i++) {
             let stage = workflow.stages[i];
             let output_id = null;

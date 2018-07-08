@@ -2,3 +2,5 @@ node_modules/
 .meteor/
 up.bat
 settings.json
+public/*.mp3
+public/*.wav

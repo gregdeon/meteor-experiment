@@ -1,6 +1,7 @@
 // workflows.js
 // Collection for describing experiment steps
 // Contents:
+// - number: if there are multiple workflows, when should this one be assigned?
 // - stages: list of objects with
 //   - type: one of WorkflowStages
 //   - id: ID of a consent form, survey, feedback letter, etc

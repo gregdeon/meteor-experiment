@@ -3,7 +3,7 @@
 import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 
-import {getServerTime, getSecondsSince} from './utils.js';
+import {Counters, getServerTime, getSecondsSince} from './utils.js';
 import {incrementCounter} from 'meteor/konecty:mongo-counter';
 
 import {WorkflowInstances} from './workflowInstances.js';
@@ -35,7 +35,7 @@ const doAutoIncrement = function(collection, callback) {
 }
 
 */
-Counters = new Mongo.Collection('counters');
+
 const getRoutingCounter = function() {
     return incrementCounter(Counters, 'coop_instances')
 }
