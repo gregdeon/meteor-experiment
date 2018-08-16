@@ -22,14 +22,20 @@ export class AudioRatingScreen extends Component {
     }
 
     handleSubmit(event) {
+        // Submit
         event.preventDefault();
-        // console.log(this.state);
-
         Meteor.call(            
             'audioRatingInstances.submitRating',
             this.props.rating_instance._id,
             this.state.selected_answer,
         );
+
+        // Reset interface
+        this.setState({
+            selected_answer: null,
+        });
+
+        // Move to next stage
         this.props.finishedCallback();
     }
 

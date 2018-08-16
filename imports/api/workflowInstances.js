@@ -166,8 +166,9 @@ Meteor.methods({
         // None exist, so make a new one instead
         // Find the workflow that they should use
         let num_workflows = Workflows.find().count();
-        let workflow_num = getWorkflowCounter() % num_workflows;
-        let workflow = Workflows.findOne({number: workflow_num});
+        let workflow_num = (getWorkflowCounter() - 1) % num_workflows;
+        let workflow = Workflows.findOne({}, {sort: ['number'], skip: workflow_num});
+        console.log(workflow_num);
 
 
 
