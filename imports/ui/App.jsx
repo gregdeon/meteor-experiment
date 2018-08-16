@@ -6,7 +6,6 @@ import {withTracker} from 'meteor/react-meteor-data';
 
 // API requirements
 import {WorkflowInstances} from '../api/workflowInstances.js';
-import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
 import {Puzzles} from '../api/puzzles.js';
 //import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {AudioTasks} from '../api/audioTasks.js';
@@ -58,7 +57,6 @@ class App extends Component {
         return (
             <WorkflowContainer
                 workflow_instance={this.props.workflow_instance}
-                coop_instance={this.props.coop_instance}
             />
         );
     }
@@ -68,8 +66,6 @@ export default withTracker(() => {
     const sub = [
         Meteor.subscribe('workflows'),
         Meteor.subscribe('workflowinstances'),
-        Meteor.subscribe('coopworkflows'),
-        Meteor.subscribe('coopworkflowinstances'),
         Meteor.subscribe('consentforms'),
         Meteor.subscribe('surveys'),
         Meteor.subscribe('surveyinstances'),
@@ -106,11 +102,5 @@ export default withTracker(() => {
         // Note that these may be undefined - it's up to the app to
         // deal with these cases
         workflow_instance: WorkflowInstances.findOne(),
-        coop_instance: CoopWorkflowInstances.findOne(),
-
-        // TODO: this is a total hack
-        // Force re-renders whenever anything gets changed in these
-        //puzzle_instances: PuzzleInstances.find().fetch(),
-        //audio_instances: AudioInstances.find({_id: {$in: audio_id_list}}).fetch(),
     };
 })(App);

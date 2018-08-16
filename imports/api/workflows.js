@@ -17,7 +17,6 @@ export const WorkflowStages = {
     CONSENT: 0, 
     SURVEY: 1,
     FEEDBACK: 2,
-    COOP: 3,
     TUTORIAL: 4,
     AUDIO_RATING: 5,
 };

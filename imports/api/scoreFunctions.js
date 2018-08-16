@@ -36,7 +36,7 @@ export function getTieredReward(points)
     return 0;
 }
 
-function getReward(points) {
+export function getReward(points) {
     // TODO: handle tiered vs non-tiered reward?
     /* This is per-word bonus
     let cents_per_point = 0.5;
@@ -50,9 +50,16 @@ function getReward(points) {
     return groups * cents_per_group;
 }
 
+// Floor every number in a list
+export function roundDown(split) {
+    return split.map((r) => Math.floor(r));
+}
+
 // Get number of points from found list
 // For now, 1 word = 1 point
 // Returns number of words found and number of points (these are equal for now)
+// TODO: move this into audio task
+/*
 function getPoints(found_list, idxs) 
 {
     let num_found = 0;
@@ -68,31 +75,34 @@ function getPoints(found_list, idxs)
         points: num_found
     };
 }
+*/
 
 // Get number of points for some number of players
 // player_mask is a number in [0, 7]; the 3 bits mark whether to include
 // players 1 (LSB), 2, and 3 (MSB)
+// TODO: move this into audio task
+/*
 function getPointsPlayers(found, player_mask) 
 {
-    /* TODO: support both puzzles and audio tasks 
-    This is the puzzle code 
-    note: argument 1 was "instance" and contained a puzzleInstance
+    // TODO: support both puzzles and audio tasks 
+    // This is the puzzle code 
+    // note: argument 1 was "instance" and contained a puzzleInstance
 
-    let found_list = instance.found;
-    let words_per_player = found_list.length / 3;
-    let idx_list = [];
+    // let found_list = instance.found;
+    // let words_per_player = found_list.length / 3;
+    // let idx_list = [];
 
-    for(let i = 0; i < 3; i++) {
-        let include_player = !!(player_mask >> i & 1);
-        if(include_player) {
-            for(let j = 0; j < words_per_player; j++) {
-                idx_list.push(i * words_per_player + j);
-            }
-        }
-    }
+    // for(let i = 0; i < 3; i++) {
+    //     let include_player = !!(player_mask >> i & 1);
+    //     if(include_player) {
+    //         for(let j = 0; j < words_per_player; j++) {
+    //             idx_list.push(i * words_per_player + j);
+    //         }
+    //     }
+    // }
 
-    return getPoints(found_list, idx_list);
-    */
+    // return getPoints(found_list, idx_list);
+    
 
     let num_found = 0;
     for(let i = 0; i < found.length; i++) {
@@ -114,88 +124,70 @@ function getPointsPlayers(found, player_mask)
     };
 
 }
+*/
 
-function equalSplit(found_list, score_mode) {
-    let points_obj = getPointsPlayers(found_list, 0b111);
-    let total_reward = getReward(points_obj.points);
+export function equalSplit(points_list) {
+    let total_reward = getReward(points_list[0b111]);
 
-    // Split: just divide equally
+    // Find number of players
     let players_found = 0;
-    let found_counts = [];
-
     for(var i = 0; i < 3; i++) {
-        let num_found = getPointsPlayers(found_list, 1 << i).found;
-        found_counts.push(num_found);
+        let num_found = points_list[1 << i];
         if(num_found > 0) {
             players_found += 1;
         }
     }
 
     if(players_found === 0) {
-        return [0, 0, 0, total_reward];
+        return [0, 0, 0];
     }
 
     let per_player = total_reward / players_found;
     let ret = [];
     for(let i = 0; i < 3; i++) {
-        if(found_counts[i] > 0)
+        if(points_list[1 << i] > 0)
             ret.push(per_player);
         else
             ret.push(0);
     }
-    ret.push(total_reward);
-    return ret;
+    return roundDown(ret);
 }
 
-function proportionalSplit(found_list, score_mode) {
-    let total_points = getPointsPlayers(found_list, 0b111);
-    let total_reward = getReward(total_points.points);
+export function proportionalSplit(points_list) {
+    let total_reward = getReward(points_list[0b111]);
 
-    //let total_found = total_points.found;
     let total_found = 0;
     let found_counts = [];
 
     for(var i = 0; i < 3; i++) {
-        let num_found = getPointsPlayers(found_list, 1 << i).found;
+        let num_found = points_list[1 << i];
         total_found += num_found;
         found_counts.push(num_found);
     }
 
     // If nobody found anything, split equally
     if(total_found === 0) {
-        return equalSplit(found_list, score_mode);
+        return [0, 0, 0]
     }
 
     // Split proportionally
-    var ret = [];
-    for(var i = 0; i < 3; i++) {
-        ret.push(total_reward * found_counts[i] / total_found);
-    }
-    ret.push(total_reward);
-
-    return ret;
+    var ret = found_counts.map((found_count) => total_reward * found_count / total_found);
+    return roundDown(ret);
 }
 
-// Shapley values
-function shapleySplit(found_list, score_mode) {
-    // Get list of rewards for all coalitions
-    let rewards = []
-    for(let i = 0; i < 2**3; i++) {
-        let points = getPointsPlayers(found_list, i);
-        let reward = getReward(points.points);
-        rewards.push(reward);
-    }
 
-    // Weights for Shapley values
-    // TODO: could calculate these automatically
-    let shapley_weights = [
-        // P1
-        [-2, 2, -1, 1, -1, 1, -2, 2],
-        // P2
-        [-2, -1, 2, 1, -1, -2, 1, 2],
-        // P3
-        [-2, -1, -1, -2, 2, 1, 1, 2],
-    ];
+// Weights for Shapley values
+// TODO: could calculate these automatically
+let shapley_weights = [
+    [-2, 2, -1, 1, -1, 1, -2, 2], // P1
+    [-2, -1, 2, 1, -1, -2, 1, 2], // P2
+    [-2, -1, -1, -2, 2, 1, 1, 2], // P3
+];
+
+// Shapley values
+export function shapleySplit(points_list) {
+    // Get list of rewards for all coalitions
+    let rewards = points_list.map((points) => getReward(points))
 
     // Calculate final rewards
     let ret = [];
@@ -206,33 +198,28 @@ function shapleySplit(found_list, score_mode) {
         }
         ret.push(ret_i / 6);
     }
-    ret.push(rewards[0b111]);
 
-    return ret;
+    return roundDown(ret);
 }
 
+
 let unfair_lookup = [
-    // 0 players: doesn't matter... 
-    {worst: 1.0, others: 0.0},
-    // 1 player: player takes all
-    {worst: 1.0, others: 0.0},
-    // 2 players: split 60/40
-    {worst: 0.6, others: 0.4},
-    // 3 players: split 50/25/25
-    {worst: 0.5, others: 0.25},
+    {worst: 1.0, others: 0.0},  // 0 players: doesn't matter... 
+    {worst: 1.0, others: 0.0},  // 1 player: player takes all
+    {worst: 0.6, others: 0.4},  // 2 players: split 60/40
+    {worst: 0.5, others: 0.25}, // 3 players: split 50/25/25
 ];
 
-function unfairSplit(found_list, score_mode) {
-    let total_points = getPointsPlayers(found_list, 0b111);
-    let total_reward = getReward(total_points.points);
+export function unfairSplit(points_list) {
+    let total_points = points_list[0b111];
+    let total_reward = getReward(total_points);
 
-    // Find how many words each player got
-    // and find which player was the worst
+    // Find how many words each player got and find which player was the worst
     var found = [];
     var players_found = 0;
     var worst_player = 0;
     for(let i = 0; i < 3; i++) {
-        let num_found = getPointsPlayers(found_list, 1 << i).found; 
+        let num_found = points_list[1 << i]; 
         found.push(num_found);
         if(num_found > 0) {
             players_found += 1;
@@ -244,26 +231,17 @@ function unfairSplit(found_list, score_mode) {
 
     // Pick which way to pay people
     let payment_split = unfair_lookup[players_found];
+    var ret = found.map((num_found, i) => {
+        if(num_found === 0)
+            return 0;
 
-    console.log(payment_split);
-    var ret = [];
-    for(var i = 0; i < 3; i++) {
-        if(found[i] > 0) {
-            var proportion = (i === worst_player ? payment_split.worst : payment_split.others);
-            ret.push(total_reward * proportion);
-        }
-        else {
-            ret.push(0);
-        }
-    }
-    ret.push(total_reward);
-    return ret;
+        let proportion = (i === worst_player ? payment_split.worst : payment_split.others);
+        return total_reward * proportion;
+    });
+    return roundDown(ret);
 }
 
-function roundDown(split) {
-    console.log(split);
-    return split.map((r) => Math.floor(r));
-}
+
 
 export const RewardModes = {
     EQUAL: 0,

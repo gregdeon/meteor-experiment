@@ -16,8 +16,6 @@ import {Random} from 'meteor/random';
 import {incrementCounter} from 'meteor/konecty:mongo-counter';
 
 import {Workflows, WorkflowStages} from './workflows.js';
-import {CoopWorkflows, CoopWorkflowStages} from './coopWorkflows.js';
-import {getPlayerNumber} from '../api/coopWorkflowInstances.js';
 import {getRewards} from './scoreFunctions.js';
 import {Puzzles} from './puzzles.js';
 import {PuzzleInstances} from './puzzleInstances.js';
@@ -42,19 +40,13 @@ if (Meteor.isServer) {
     });
 }
 
+// TODO: maybe handle this counter ourselves
 const getWorkflowCounter = function() {
     return incrementCounter(Counters, 'workflow_instances')
 }
 
-export function getWorkflowProgress(instance, coop_instance) {
+export function getWorkflowProgress(instance) {
     let workflow = Workflows.findOne({_id: instance.workflow_id});
-    /*
-    let coop_workflow = (
-        coop_instance 
-        ? CoopWorkflows.findOne({_id: coop_instance.coop_id})
-        : null
-    );*/
-
     let done = 0;
     let total = 0;
     workflow.stages.map((stage, idx) => {
@@ -68,21 +60,6 @@ export function getWorkflowProgress(instance, coop_instance) {
                 if(instance.stage > idx)
                     done += 1;
                 break;
-            
-            case WorkflowStages.COOP:
-                // TODO: this assumes that all workflows have the same length
-                let coop_workflow = CoopWorkflows.findOne({_id: stage.id[0]})
-                total += coop_workflow.stages.length;
-
-                if(coop_instance) {
-                    if(coop_instance.stage < 0) {
-                        done += coop_workflow.stages.length;
-                    }
-                    else {
-                        done += coop_instance.stage;
-                    }
-                } 
-                break;
         }
     })
 
@@ -93,13 +70,17 @@ export function getWorkflowProgress(instance, coop_instance) {
     };
 }
 
-export function getWorkflowEarnings(instance, coop_instance, user_id) {
+export function getWorkflowEarnings(instance, user_id) {
     let base = 0;
     let bonus = 0;
+
+    getWorkflowEarnings
 
     console.log(user_id);
 
     // TODO: this function assumes that the regular workflow is worth nothing
+    // TODO: port this code from coop workflows to regular workflows
+    /*
     if(coop_instance) {
         let player_num = getPlayerNumber(user_id, coop_instance);
         let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
@@ -141,6 +122,7 @@ export function getWorkflowEarnings(instance, coop_instance, user_id) {
         }
     }
 
+    */
     return {
         base: base,
         bonus: bonus,
@@ -226,27 +208,5 @@ Meteor.methods({
                 $set: upd
             });
         }
-    },
-
-    // TODO: refactor this to avoid duplicating confirm code generation
-    'workflowinstances.skipToEnd'(instance_id) {
-        let instance = WorkflowInstances.findOne({_id: instance_id});
-        let workflow = Workflows.findOne({_id: instance.workflow_id});
-
-        let num_stages = workflow.stages.length;
-        let new_stage = num_stages - 1;
-
-        let upd = {stage: new_stage};
-
-        if(this.isSimulation) {
-            upd.confirm_code = "Generating, please wait...";
-        } 
-        else {
-            upd.confirm_code = Random.id();
-        }
-
-        WorkflowInstances.update(instance_id, {
-            $set: upd
-        });
     },
 });

@@ -7,8 +7,6 @@ import {withTracker} from 'meteor/react-meteor-data';
 
 import {Puzzles} from '../api/puzzles.js';
 import {PuzzleInstances} from '../api/puzzleInstances.js';
-import {CoopWorkflowInstances} from '../api/coopWorkflowInstances.js';
-import {CoopWorkflows, CoopWorkflowStages} from '../api/coopWorkflows.js';
 import {Tutorials} from '../api/tutorials.js';
 
 import {PuzzleView} from './WordSearchPuzzle.jsx';
@@ -22,6 +20,7 @@ import {AudioTaskView, AudioTaskScore} from './AudioTask.jsx';
 import {AudioInstances} from '../api/audioInstances.js';
 import {AudioTasks} from '../api/audioTasks.js';
 
+// TODO: modify this for individual workflows instead of coop
 class AdminUI extends Component {
     constructor(props) {
         super(props);
