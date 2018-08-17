@@ -55,77 +55,6 @@ export function roundDown(split) {
     return split.map((r) => Math.floor(r));
 }
 
-// Get number of points from found list
-// For now, 1 word = 1 point
-// Returns number of words found and number of points (these are equal for now)
-// TODO: move this into audio task
-/*
-function getPoints(found_list, idxs) 
-{
-    let num_found = 0;
-    for(let i = 0; i < idxs.length; i++)
-    {
-        let idx = idxs[i];
-        if(found_list[idx])
-            num_found += 1;
-    }
-
-    return {
-        found: num_found,
-        points: num_found
-    };
-}
-*/
-
-// Get number of points for some number of players
-// player_mask is a number in [0, 7]; the 3 bits mark whether to include
-// players 1 (LSB), 2, and 3 (MSB)
-// TODO: move this into audio task
-/*
-function getPointsPlayers(found, player_mask) 
-{
-    // TODO: support both puzzles and audio tasks 
-    // This is the puzzle code 
-    // note: argument 1 was "instance" and contained a puzzleInstance
-
-    // let found_list = instance.found;
-    // let words_per_player = found_list.length / 3;
-    // let idx_list = [];
-
-    // for(let i = 0; i < 3; i++) {
-    //     let include_player = !!(player_mask >> i & 1);
-    //     if(include_player) {
-    //         for(let j = 0; j < words_per_player; j++) {
-    //             idx_list.push(i * words_per_player + j);
-    //         }
-    //     }
-    // }
-
-    // return getPoints(found_list, idx_list);
-    
-
-    let num_found = 0;
-    for(let i = 0; i < found.length; i++) {
-        let found_this_word = false;
-        for(let j = 0; j < 3; j++) {
-            let include_player = !!(player_mask >> j & 1);
-            if(include_player && found[i][j]) {
-                found_this_word = true;
-                break;
-            }
-        }
-        if(found_this_word)
-            num_found += 1;
-    }
-
-    return {
-        found: num_found,
-        points: num_found,
-    };
-
-}
-*/
-
 export function equalSplit(points_list) {
     let total_reward = getReward(points_list[0b111]);
 
@@ -241,8 +170,6 @@ export function unfairSplit(points_list) {
     return roundDown(ret);
 }
 
-
-
 export const RewardModes = {
     EQUAL: 0,
     PROPORTIONAL: 1,
@@ -252,26 +179,25 @@ export const RewardModes = {
     DEBUG: -1,
 };
 
-// TODO: remove score_mode, maybe?
 // Returns a list of rewards like [10, 20, 30, 60]
 // Last reward is total (helpful in case of rounding)
-export function getRewards(found_list, reward_mode, score_mode) {
+export function getRewards(points_list, reward_mode) {
     let reward_list = [0, 0, 0];
     switch(reward_mode) {
         case RewardModes.EQUAL:
-            reward_list = roundDown(equalSplit(found_list, score_mode));
+            reward_list = equalSplit(points_list);
             break;
 
         case RewardModes.PROPORTIONAL:
-            reward_list = roundDown(proportionalSplit(found_list, score_mode));
+            reward_list = proportionalSplit(points_list);
             break;
 
         case RewardModes.SHAPLEY:
-            reward_list = roundDown(shapleySplit(found_list, score_mode));
+            reward_list = shapleySplit(points_list);
             break;
 
         case RewardModes.UNFAIR:
-            reward_list = roundDown(unfairSplit(found_list, score_mode));
+            reward_list = unfairSplit(points_list);
             break;
 
         case RewardModes.DEBUG:
@@ -280,14 +206,4 @@ export function getRewards(found_list, reward_mode, score_mode) {
     }
 
     return reward_list;
-}
-
-// Helper function for score box
-export function getCurrentStatus(instance, reward_mode) {
-    let total_points = getPointsPlayers(instance, 0b111);
-    let reward = getTieredReward(total_points.points);
-    return {
-        points: total_points.points,
-        tier: reward.tier,
-    };
 }

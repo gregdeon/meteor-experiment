@@ -1,7 +1,7 @@
 import chai from 'chai'
 let expect = chai.expect
 
-import {getTieredReward, getReward, roundDown, equalSplit, proportionalSplit, shapleySplit, unfairSplit} from './scoreFunctions'
+import {getTieredReward, getReward, roundDown, equalSplit, proportionalSplit, shapleySplit, unfairSplit, RewardModes, getRewards} from './scoreFunctions'
 
 // Unused
 describe('getTieredReward', function() {
@@ -81,5 +81,24 @@ describe('unfairSplit', function() {
     })
     it('handles 2 players', function() {
         expect(unfairSplit([0, 10, 20, 0, 0, 0, 0, 30])).to.deep.equal([9, 6, 0])
+    })
+})
+
+describe('getRewards', function() {
+    let points_list;
+    beforeEach(function(){
+        points_list = [0, 9, 20, 29, 31, 40, 51, 60];
+    })
+    it('handles equal splits', function() {
+        expect(getRewards(points_list, RewardModes.EQUAL)).to.deep.equal([10, 10, 10])
+    })
+    it('handles proportional splits', function() {
+        expect(getRewards(points_list, RewardModes.PROPORTIONAL)).to.deep.equal([4, 10, 15])
+    })
+    it('handles Shapley splits', function() {
+        expect(getRewards(points_list, RewardModes.SHAPLEY)).to.deep.equal([2, 10, 17])
+    })
+    it('handles Unfair splits', function() {
+        expect(getRewards(points_list, RewardModes.UNFAIR)).to.deep.equal([15, 7, 7])
     })
 })

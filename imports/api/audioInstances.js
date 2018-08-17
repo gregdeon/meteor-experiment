@@ -1,6 +1,7 @@
 // audioInstances.js
 // Collection for storing a single group transcription
 // Contents:
+// TODO: update these
 // - audio_task: ID of an AudioTask
 // - state: current state of the group (countdown, transcribe, score screen)
 // - time_started: list of times starting each of the stages
@@ -14,19 +15,19 @@ import {AudioTasks} from './audioTasks.js'
 import {getRewards} from './scoreFunctions.js';
 import {getServerTime} from './utils.js';
 
-
 import * as diff from 'diff';
-
 
 export const AudioInstances = new Mongo.Collection('audioinstances', {
     idGeneration: 'MONGO',
 });
 
 if (Meteor.isServer) {
+    // Subscribe to all audio instances. Useful for admin access
     Meteor.publish('audioinstances', function publish(){
         return AudioInstances.find({});
     });    
 
+    // Subscribe 
     Meteor.publish('audioinstances.inList', function publish(id_list){
         return AudioInstances.find({
             _id: {$in: id_list}
@@ -62,6 +63,66 @@ export function addAudioInstance(audio_id, num_players) {
 
     return instance_id;
 }
+
+// Find the Myers diff between the ground truth and a set of words
+export function diffWords(true_words, typed_words) {
+    return diff.diffArrays(true_words, typed_words);
+}
+
+// List whether each typed word was correct or not 
+// Input should be the output of diffWords
+export function listTypedCorrect(words_diff) {
+    let ret = [];
+    words_diff.forEach(part => {
+        // If they didn't type it, don't add anything
+        if(part.removed)
+            return;
+
+        for(let i = 0; i < part.count; i++) {
+            ret.push(!part.added);
+        }
+    })
+    return ret;
+}
+
+// List whether each of the ground truth words were typed
+// Input should be the output of diffWords
+export function listGroundTruthTyped(words_diff) {
+    let ret = [];
+    words_diff.forEach(part => {
+        // If if wasn't in the ground truth, don't add anything
+        if(part.added)
+            return;
+
+        for(let i = 0; i < part.count; i++) {
+            ret.push(!part.removed);
+        }
+    })
+    return ret;
+}
+
+// Count how many words were typed by each combination of players
+// Inputs should be outputs from listGroundTruthTyped
+// Output is a list of number of words typed by [0, p1, p2, p1+2, p3, p1+3, p2+3, all]
+export function getNumCorrectByPlayers(typed_p1, typed_p2, typed_p3) {
+    let ret = [0, 0, 0, 0, 0, 0, 0, 0];
+    for(let word_idx = 0; word_idx < typed_p1.length; word_idx++) {
+        let w1 = typed_p1[word_idx];
+        let w2 = typed_p2[word_idx];
+        let w3 = typed_p3[word_idx];
+
+        ret[0b001] += w1;
+        ret[0b010] += w2;
+        ret[0b011] += w1 | w2;
+        ret[0b100] += w3;
+        ret[0b101] += w1 | w3;
+        ret[0b110] += w2 | w3;
+        ret[0b111] += w1 | w2 | w3;
+    }
+
+    return ret;
+}
+
 
 // Wrapper function for getResultsFromText
 export function getInstanceResults(audio_instance) {
