@@ -157,10 +157,6 @@ button:disabled {
     text-align: center;
 }
 
-.survey-container h3 {
-    font-size: 20px;
-}
-
 .survey-container textarea {
     font-family: sans-serif;
     width: 80%;
@@ -169,7 +165,7 @@ button:disabled {
 
 .survey-required {
     color: #ff0000;
-    margin: auto 5px;
+    margin: 0px 5px;
 }
 
 .survey-question {
@@ -178,6 +174,7 @@ button:disabled {
 
 .survey-question-text {
     display: flex;
+    font-size: 20px;
 }
 
 .survey-choices div,

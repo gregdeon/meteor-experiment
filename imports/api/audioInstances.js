@@ -205,24 +205,6 @@ function getPayments(found_list, reward_mode) {
     return getRewards(found_list, reward_mode, 0);
 }
 
-// Helper function for routing
-export function getRatingsDone(audio_instance) {
-    // Can't be done ratings unless we're on the rating screen
-    if(audio_instance.state < AudioInstanceStates.SCORE) {
-        return false;
-    }
-
-    for(let i = 0; i < audio_instance.ratings.length; i++) {
-        let rating = audio_instance.ratings[i];
-        let words_typed = audio_instance.words[i];
-
-        if(rating === null && words_typed.length > 0) {
-            return false;
-        }
-    }
-    return true;
-}
-
 function normalizeWord(word) {
     let lower_case = word.toLowerCase();
 

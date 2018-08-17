@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-class OneRewardDisplay extends Component {
+export class OneRewardDisplay extends Component {
     getRewardString() {
         if(this.props.percent <= 0) {
             return "";
@@ -61,6 +61,7 @@ export class RewardDisplay extends Component {
     }
 }
 
+// TODO: turn this into a single 3-option question
 export class RewardForm extends Component {
     constructor (props) {
         super(props);

@@ -2,6 +2,65 @@ import React, { Component } from 'react';
 
 import {QuestionTypes} from '../api/surveys.js';
 
+export class SurveyTextShort extends Component {
+    handleInput(event) {
+        this.props.updateCallback(event.target.value);
+    }
+
+    render() {
+       return <input
+            type="text"
+            value={this.props.value || ""}
+            onChange={this.handleInput.bind(this)}
+        /> 
+    }
+}
+
+export class SurveyTextLong extends Component {
+    handleInput(event) {
+        this.props.updateCallback(event.target.value);
+    }
+
+    render() {
+       return <textarea
+            value={this.props.value || ""}
+            onChange={this.handleInput.bind(this)}
+        /> 
+    }
+}
+
+export class SurveyQuestion extends Component {
+    renderInput() {
+        switch(this.props.type) {
+            case QuestionTypes.TEXT_SHORT:
+                return <SurveyTextShort
+                    value={this.props.value || ""}
+                    updateCallback={this.props.updateCallback}
+                />
+
+            case QuestionTypes.TEXT_LONG:
+                return <SurveyTextLong
+                    value={this.props.value || ""}
+                    updateCallback={this.props.updateCallback}
+                />
+            case QuestionTypes.MULTIPLE_CHOICE:
+                return <div>TODO: multiple choice</div>
+        }
+    }
+
+    render() {
+        return (
+            <div className="survey-question">
+                <div className="survey-question-text">
+                    {this.props.required ? <p className="survey-required">*</p> : null}
+                    <p>{this.props.text}</p>
+                </div>
+                {this.renderInput()}
+            </div>
+        );
+    }
+}
+
 export class Survey extends Component {
     constructor(props) {
         super(props);
