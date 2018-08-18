@@ -29,6 +29,32 @@ export class SurveyTextLong extends Component {
     }
 }
 
+export class SurveyMultipleChoice extends Component {
+    handleInput(idx) {
+        this.props.updateCallback(idx);
+    }
+
+    render() {
+        return <div className="survey-choices"> {   
+            this.props.options.map((option, idx) => {
+                return (
+                    <div key={idx}>
+                    <label>
+                        <input 
+                            type="radio"
+                            value={idx}
+                            checked={this.props.value === idx}
+                            onChange={this.handleInput.bind(this, idx)}
+                        />
+                        {option}
+                    </label>
+                    </div>
+                );
+            })
+        } </div>
+    }
+}
+
 export class SurveyQuestion extends Component {
     renderInput() {
         switch(this.props.type) {
@@ -44,7 +70,11 @@ export class SurveyQuestion extends Component {
                     updateCallback={this.props.updateCallback}
                 />
             case QuestionTypes.MULTIPLE_CHOICE:
-                return <div>TODO: multiple choice</div>
+                return <SurveyMultipleChoice
+                    value={this.props.value}
+                    options={this.props.options}
+                    updateCallback={this.props.updateCallback}
+                />
         }
     }
 
@@ -112,100 +142,11 @@ export class Survey extends Component {
         this.props.finishedCallback();
     }
 
-    handleText(question_num, event) {
-        let new_responses = this.state.responses.slice();
-        new_responses[question_num] = event.target.value;
-        this.setState({responses: new_responses});
-    }    
-
-    handleSelectRadio(question_num, value) {
+    handleUpdate(question_num, value) {
+        console.log(question_num, value)
         let new_responses = this.state.responses.slice();
         new_responses[question_num] = value;
         this.setState({responses: new_responses});
-    }
-
-    renderRequiredStar() {
-        return (
-            <div className="survey-required">*</div>
-        );
-    }
-
-    renderTextShort(question_num) {
-        let val = this.state.responses[question_num];
-        val = (val === null ? "" : val);
-        return (
-            <input
-                type="text"
-                value={val}
-                onChange={this.handleText.bind(this, question_num)}
-            />
-        );
-    }
-
-    renderTextLong(question_num) {
-        let val = this.state.responses[question_num];
-        val = (val === null ? "" : val);
-        return (
-            <textarea
-                value={val}
-                onInput={this.handleText.bind(this, question_num)}
-            />
-        );
-    }
-
-    renderMultipleChoice(question_num) {
-        let question = this.props.survey.questions[question_num];
-        return (
-            <div className="survey-choices">
-            {   
-                question.options.map((option, idx) => {
-                    return (
-                        <div key={idx}>
-                        <label>
-                            <input 
-                            type="radio"
-                            value={idx}
-                            checked={this.state.responses[question_num] === idx}
-                            onChange={this.handleSelectRadio.bind(this, question_num, idx)}
-                            />
-                            {option}
-                        </label>
-                        </div>
-                    );
-                })
-            }
-            </div>
-        );
-    }
-
-    renderQuestion(question_num) {
-        let question = this.props.survey.questions[question_num]
-        let input = null;
-        switch (question.type) {
-            case QuestionTypes.TEXT_SHORT:
-                input = this.renderTextShort(question_num);
-                break;
-
-            case QuestionTypes.TEXT_LONG:
-                input = this.renderTextLong(question_num);
-                break;
-
-            case QuestionTypes.MULTIPLE_CHOICE:
-                input = this.renderMultipleChoice(question_num);
-                break;
-        }
-        return (
-            <div 
-                className="survey-question"
-                key={question_num}
-            >
-                <div className="survey-question-text">
-                    <h3>{question.text}</h3>
-                    {question.required ? this.renderRequiredStar() : null}
-                </div>
-                {input}
-            </div>
-        );
     }
 
     render () {
@@ -216,7 +157,12 @@ export class Survey extends Component {
                 <hr/>
 
                 {survey.questions.map((question, idx) => (
-                    this.renderQuestion(idx)
+                    <SurveyQuestion 
+                        key={idx} 
+                        updateCallback={this.handleUpdate.bind(this, idx)}
+                        value={this.state.responses[idx]}
+                        {...question}
+                    />
                 ))}
 
                 <div className="survey-submit">

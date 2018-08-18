@@ -74,8 +74,6 @@ export function getWorkflowEarnings(instance, user_id) {
     let base = 0;
     let bonus = 0;
 
-    getWorkflowEarnings
-
     console.log(user_id);
 
     // TODO: this function assumes that the regular workflow is worth nothing

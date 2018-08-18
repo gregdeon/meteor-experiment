@@ -6,7 +6,7 @@ import Paper from '@material-ui/core/Paper';
 
 import {ConsentForm} from './ConsentForm'
 import {RewardDisplay} from './RewardForm'
-import {SurveyQuestion} from './Survey'
+import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
 
@@ -61,26 +61,50 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Survey">
-                <SandboxItem title="Short text question">
-                    <SurveyQuestion 
-                        text="Sample question"
-                        type={QuestionTypes.TEXT_SHORT}
-                        updateCallback={console.log}
-                    />
-                </SandboxItem>                     
-                <SandboxItem title="Long text question">
-                    <SurveyQuestion 
-                        text="Sample question with long text"
-                        type={QuestionTypes.TEXT_LONG}
-                        updateCallback={console.log}
-                    />
-                </SandboxItem>                
-                <SandboxItem title="Required question">
-                    <SurveyQuestion 
-                        text="Sample question"
-                        required={true}
+                <SandboxItem title="Full survey">
+                    <Survey
+                        survey={{
+                            title: "Survey Example with a Long Title",
+                            questions: [
+                                {text: "Question 1", type: QuestionTypes.TEXT_SHORT, required: true},
+                                {text: "Question 2", type: QuestionTypes.TEXT_LONG, required: true},
+                                {text: "Question 3", type: QuestionTypes.MULTIPLE_CHOICE, options:["Option 1", "Option 2"], required: true},
+                            ]
+                        }}
+                        finishedCallback={console.log}
                     />
                 </SandboxItem>
+                <SandboxCategory title="Question Types">
+                    <SandboxItem title="Short text question">
+                        <SurveyQuestion 
+                            text="Sample question"
+                            type={QuestionTypes.TEXT_SHORT}
+                            updateCallback={console.log}
+                        />
+                    </SandboxItem>                     
+                    <SandboxItem title="Long text question">
+                        <SurveyQuestion 
+                            text="Sample question with long text"
+                            type={QuestionTypes.TEXT_LONG}
+                            updateCallback={console.log}
+                        />
+                    </SandboxItem>     
+                    <SandboxItem title="Multiple choice question">
+                        <SurveyQuestion 
+                            text="Sample question with multiple options"
+                            type={QuestionTypes.MULTIPLE_CHOICE}
+                            options={["First option", "Another option"]}
+                            updateCallback={console.log}
+                        />
+                    </SandboxItem>                
+                    <SandboxItem title="Required question">
+                        <SurveyQuestion 
+                            text="Sample question"
+                            type={QuestionTypes.TEXT_SHORT}
+                            required={true}
+                        />
+                    </SandboxItem>
+                </SandboxCategory>
             </SandboxCategory>
 
             <SandboxCategory title="Feedback Letter">
