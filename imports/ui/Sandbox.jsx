@@ -5,7 +5,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
 import {ConsentForm} from './ConsentForm'
-import {RewardDisplay} from './RewardForm'
+import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
@@ -32,7 +32,9 @@ function SandboxItem(props) {
             {props.title}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-            {props.children}
+            <div className="sandbox-item">
+                {props.children}
+            </div>
         </ExpansionPanelDetails>
     </ExpansionPanel>
 }
@@ -55,15 +57,22 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Reward Screen">
-                <SandboxItem title="Reward display">
-                    <RewardDisplay rewards={[20, 30, 50]} />
+                <SandboxItem title="Reward Questions">
+                    <RewardQuestions 
+                        submit_callback={console.log}
+                    />
                 </SandboxItem>
-                <SandboxItem title="Reward display with 0">
-                    <RewardDisplay rewards={[5, 0, 22]} />
-                </SandboxItem>
-                <SandboxItem title="Reward display with small percentages">
-                    <RewardDisplay rewards={[2, 5, 50]} />
-                </SandboxItem>
+                <SandboxCategory title="Reward Display">
+                    <SandboxItem title="Reward display">
+                        <RewardDisplay rewards={[20, 30, 50]} />
+                    </SandboxItem>
+                    <SandboxItem title="Reward display with 0">
+                        <RewardDisplay rewards={[5, 0, 22]} />
+                    </SandboxItem>
+                    <SandboxItem title="Reward display with small percentages">
+                        <RewardDisplay rewards={[2, 5, 50]} />
+                    </SandboxItem>
+                </SandboxCategory>
             </SandboxCategory>
 
             <SandboxCategory title="Consent Form">

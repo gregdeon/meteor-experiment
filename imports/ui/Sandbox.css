@@ -4,3 +4,9 @@
     margin-right: auto;
     margin-top: 50px;
 }
+
+.sandbox-item {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}

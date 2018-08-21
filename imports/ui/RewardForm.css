@@ -1,0 +1,18 @@
+.reward-buttons-container * {
+    margin: 0px 10px !important;
+}
+
+.reward-button-contents {
+    width: 120px;
+    display: flex;
+}
+
+.reward-button-contents * {
+    margin: auto 5px !important;
+}
+
+.reward-button-contents p {
+    flex: 1;
+    text-align: center;
+    vertical-align: baseline;
+}
