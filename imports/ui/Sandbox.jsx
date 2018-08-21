@@ -9,6 +9,7 @@ import {RewardDisplay} from './RewardForm'
 import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
+import {ProgressBar, WorkflowHeader} from './Workflow'
 
 import './Sandbox.css'
 
@@ -39,6 +40,20 @@ function SandboxItem(props) {
 export default class Sandbox extends Component {
     render() {
         return <div className='sandbox-container'>
+            <SandboxCategory title="Workflow">
+                <SandboxItem title="Progress bar">
+                    <ProgressBar num_stages={10} current_stage={2} />
+                </SandboxItem>
+                <SandboxItem title="Header">
+                    <WorkflowHeader
+                        username={"A0123456789ABCDEF"}
+                        num_stages={10} 
+                        current_stage={2}
+                        bonus_cents={123}
+                    />
+                </SandboxItem>
+            </SandboxCategory>
+
             <SandboxCategory title="Reward Screen">
                 <SandboxItem title="Reward display">
                     <RewardDisplay rewards={[20, 30, 50]} />

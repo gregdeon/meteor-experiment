@@ -17,69 +17,38 @@ import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances
 import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {AudioInstances} from '../api/audioInstances.js';
 import {AudioRatingInstances} from '../api/audioRatingInstances.js';
+import {centsToString} from '../api/utils.js';
 
-// Left-pad a number with 0s
-function pad(num, digits)
-{
-    var ret = "" + num;
-    while(ret.length < digits)
-        ret = "0" + ret;
-    return ret;
+export class ProgressBar extends Component {
+    render() {
+        let percent_done = this.props.current_stage / this.props.num_stages * 100;
+        return <div className="workflow-progress-bar">
+            <div 
+                className="workflow-progress-filled"
+                style={{width: percent_done + "%"}}
+            />
+        </div>
+    }
 }
 
-class WorkflowHeader extends Component {
-    renderProgress() {
-        console.log(this.props);
-        let progress = getWorkflowProgress(
-            this.props.workflow_instance,
-        );
-
-        let percent_done = progress.done / progress.total * 100;
-        return (
-            <div className="workflow-progress">
-                Progress: 
-                <div className="workflow-progress-bar">
-                    <div 
-                        className="workflow-progress-filled"
-                        style={{width: percent_done + "%"}}
-                    />
-                </div>
-                {progress.done} / {progress.total}
-            </div>
-        );
-    }
-
-    formatPay(cents) {
-        return "$" + Math.floor(cents/100) + "." + pad(cents%100, 2);
-    }
-
-    renderEarnings() {
-        let earnings = getWorkflowEarnings(
-            this.props.workflow_instance,
-            Meteor.userId(),
-        );
-        return (
-            <div className="workflow-earnings">
-                {/*"Base: "
-                    + this.formatPay(earnings.base) 
-                    + ' / Bonus: '
-                    + this.formatPay(earnings.bonus)
-                */}
-                {
-                    "Bonus: " + this.formatPay(earnings.bonus)
-                }
-            </div>
-        );
-    }
-
+export class WorkflowHeader extends Component {
     render() {
         return (
             <div className="workflow-header">
                 <div className="workflow-user">
-                    Username: {Meteor.user().username + ' '}
+                    Username: {this.props.username}
+                </div>            
+                <div className="workflow-progress">
+                    Progress: 
+                    <ProgressBar 
+                        num_stages={this.props.num_stages}
+                        current_stage={this.props.current_stage}
+                    /> 
+                    {this.props.current_stage} / {this.props.num_stages}
                 </div>
-                {this.renderProgress()}
-                {this.renderEarnings()}
+                <div className="workflow-earnings">
+                    {"Bonus: " + centsToString(this.props.bonus_cents)}
+                </div>
             </div>
         );
     }
@@ -172,9 +141,21 @@ class Workflow extends Component {
             return <div>Setting things up for you...</div>
         }
         else {
+            let progress = getWorkflowProgress(
+                this.props.workflow_instance,
+            );
+
+            let earnings = getWorkflowEarnings(
+                this.props.workflow_instance,
+                Meteor.userId(),
+            );
             return (
                 <div>
                     <WorkflowHeader
+                        username={Meteor.user().username + ' '}
+                        num_stages={progress.total}
+                        current_stage={progress.done}
+                        bonus_cents={earnings.bonus}
                         workflow_instance={this.props.workflow_instance}
                      />
                     {this.renderStage()}

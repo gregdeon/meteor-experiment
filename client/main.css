@@ -62,9 +62,8 @@ button:disabled {
     margin: 20px 0;
     font-size: 20px;
     font-family: sans-serif;
-    text-align: center;
-    overflow: auto;
 
+    display: flex;
     position: sticky;
     top: 0;
     z-index: 1;
@@ -82,15 +81,15 @@ button:disabled {
 .workflow-user {
     float: left;
     text-align: left;
-    width: 30%;
+    width: 40%;
 }
 
-.workflow-progress, 
-.workflow-admin
+.workflow-progress
 {
     float: center;
     text-align: center;
     display: inline-flex;
+    width: 45%;
 }
 
 .workflow-progress-bar {
@@ -109,7 +108,14 @@ button:disabled {
 .workflow-earnings {
     float: right;
     text-align: right;
-    width: 30%;
+    width: 15%;
+}
+
+.workflow-admin
+{
+    float: center;
+    text-align: center;
+    display: inline-flex;
 }
 
 /* Consent form, feedback letter, and experiment already completed screens */
