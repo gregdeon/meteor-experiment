@@ -5,6 +5,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
 import {ConsentForm} from './ConsentForm'
+import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, TRANSCRIPT_WORD_STATES} from './AudioTask.jsx'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
@@ -55,6 +56,40 @@ export default class Sandbox extends Component {
                     />
                 </SandboxItem>
             </SandboxCategory>
+
+            <SandboxCategory title="Audio Task">
+                <SandboxItem title="Transcription Interface">
+                    <RewardQuestions 
+                        submit_callback={console.log}
+                    />
+                </SandboxItem>
+            </SandboxCategory>
+
+            <SandboxCategory title="Audio Results">
+                <SandboxItem title="Transcript">
+                    <AudioTranscript
+                    />
+                </SandboxItem>
+                <SandboxItem title="Status Bar">
+                    <AudioTranscriptStatusBar 
+                        num_words={30}
+                        num_typed={25}
+                        num_correct={19}
+                    />
+                </SandboxItem>
+                <SandboxItem title="Transcript Text">
+                    <AudioTranscriptText
+                        words={[
+                            {text: 'these', status: TRANSCRIPT_WORD_STATES.CORRECT},
+                            {text: 'are', status: TRANSCRIPT_WORD_STATES.INCORRECT},
+                            {text: 'some', status: TRANSCRIPT_WORD_STATES.NOT_TYPED},
+                            {text: 'words', status: TRANSCRIPT_WORD_STATES.CORRECT}
+                        ]}
+                    />
+                </SandboxItem>
+            </SandboxCategory>
+
+            
 
             <SandboxCategory title="Reward Screen">
                 <SandboxItem title="Reward Questions">

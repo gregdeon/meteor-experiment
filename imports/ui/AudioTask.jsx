@@ -6,6 +6,56 @@ import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js'
 import {getSecondsSince, secondsToString, centsToString} from '../api/utils.js';
 import {soundManager} from 'soundmanager2'
 
+export class AudioTranscriptStatusBar extends Component {
+    render() {
+        let num_words = this.props.num_words;
+        let num_typed = this.props.num_typed;
+        let num_correct = this.props.num_correct;
+
+        let percent_typed = Math.floor(num_typed / num_words * 100);
+        let percent_correct = num_typed === 0 ? 0 : Math.floor(num_correct / num_typed * 100);
+        
+        return <div className="audio-transcript-stats">
+            <b>words typed: </b>
+            {num_typed + "/" + num_words + " (" + percent_typed + "%), "}
+            <b>correct: </b>
+            {num_correct + "/" + num_typed + " (" + percent_correct + "%)"}
+        </div>
+    }
+}
+
+export const TRANSCRIPT_WORD_STATES = {
+    CORRECT: 0,
+    INCORRECT: 1,
+    NOT_TYPED: 2,
+}
+
+// TODO: use this in other components
+export class AudioTranscriptText extends Component {
+    render() {
+        let class_lookup = {
+            [TRANSCRIPT_WORD_STATES.CORRECT]: 'audio-transcript-text',
+            [TRANSCRIPT_WORD_STATES.INCORRECT]: 'audio-transcript-text-wrong',
+            [TRANSCRIPT_WORD_STATES.NOT_TYPED]: 'audio-transcript-text-missing'
+        }
+
+        return <div className="audio-transcript">
+            {this.props.words.map((word, idx) => {
+                let div_class = class_lookup[word.status];
+                return <div key={idx} className={div_class}>
+                    {word.text}
+                </div>
+            })}
+        </div>
+    }
+}
+
+export class AudioTranscript extends Component {
+    render() {
+        return <div>TODO</div>
+    }
+}
+
 export class AudioTaskScore extends Component {
     handleSubmit(ratings) {
         console.log(this.props);
@@ -14,63 +64,6 @@ export class AudioTaskScore extends Component {
             this.props.audio_instance._id,
             this.props.player_num,
             ratings
-        );
-    }
-
-    renderPlayerMarkers(num_players) {
-        let player_divs = []
-        for(let i = 0; i < num_players; i++) {
-            player_divs.push(
-                <div className="audio-transcript-player"
-                    key={i}
-                >
-                    Player {i+1}
-                </div>
-            );
-        }
-
-        return (
-            <div className="audio-transcript-players">
-                <div className="audio-transcript-blank" />
-                {player_divs}
-            </div>
-
-        );
-    }
-
-    renderWord(word, found_list, key) {
-        let found_divs = found_list.map((word, idx) => {
-            let style = {visibility: found_list[idx] ? "visible" : "hidden"}
-
-            return (
-                <div 
-                    className={"audio-transcript-p" + (idx+1)} 
-                    style={style}
-                    key={idx}
-                />
-            );
-        });
-
-        let found_any = false;
-        for(let i = 0; i < found_list.length; i++) {
-            if(found_list[i]) {
-                found_any = true;
-                break;
-            }
-        }
-
-        return (
-            <div className="audio-transcript-word" key={key}>
-                {found_any 
-                    ? <div className="audio-transcript-text">
-                        {word}
-                    </div>
-                    : <div className="audio-transcript-missing">
-                        ?
-                    </div>
-                }
-                {found_divs}
-            </div>
         );
     }
 
@@ -139,21 +132,14 @@ export class AudioTaskScore extends Component {
         }
 
         let status_divs = [];
-        let max_typed = results.anybody_found.length;
+        let num_words = results.anybody_found.length;
         for(let i = 0; i < 3; i++) {
-            let num_typed = results.typed[i].length;
-            let num_correct = results.typed[i].filter(v => v).length;
-            let num_errors = num_typed - num_correct;
-            let percent_typed = Math.floor(num_typed / max_typed * 100);
-            let percent_correct = num_typed === 0 ? 0 : Math.floor(num_correct / num_typed * 100);
-            
             status_divs.push(
-                <div className="audio-transcript-stats">
-                    <b>words typed: </b>
-                    {num_typed + "/" + max_typed + " (" + percent_typed + "%), "}
-                    <b>correct: </b>
-                    {num_correct + "/" + num_typed + " (" + percent_correct + "%)"}
-                </div>
+                <AudioTranscriptStatusBar
+                    num_words={num_words}
+                    num_typed={results.typed[i].length}
+                    num_correct={results.typed[i].filter(v => v).length}
+                />
             )
         }
 
