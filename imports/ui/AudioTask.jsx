@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 //import Sound from 'react-sound';
 
 import {RewardDisplay, RewardForm} from './RewardForm.jsx';
-import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
+import {DIFF_STATES, AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString, centsToString} from '../api/utils.js';
 import {soundManager} from 'soundmanager2'
 
@@ -24,19 +24,13 @@ export class AudioTranscriptStatusBar extends Component {
     }
 }
 
-export const TRANSCRIPT_WORD_STATES = {
-    CORRECT: 0,
-    INCORRECT: 1,
-    NOT_TYPED: 2,
-}
-
 // TODO: use this in other components
 export class AudioTranscriptText extends Component {
     render() {
         let class_lookup = {
-            [TRANSCRIPT_WORD_STATES.CORRECT]: 'audio-transcript-text',
-            [TRANSCRIPT_WORD_STATES.INCORRECT]: 'audio-transcript-text-wrong',
-            [TRANSCRIPT_WORD_STATES.NOT_TYPED]: 'audio-transcript-text-missing'
+            [DIFF_STATES.CORRECT]: 'audio-transcript-text',
+            [DIFF_STATES.INCORRECT]: 'audio-transcript-text-wrong',
+            [DIFF_STATES.NOT_TYPED]: 'audio-transcript-text-missing'
         }
 
         return <div className="audio-transcript">
@@ -52,7 +46,34 @@ export class AudioTranscriptText extends Component {
 
 export class AudioTranscript extends Component {
     render() {
-        return <div>TODO</div>
+        let player_string = "Player " + (this.props.player_num);
+        if(this.props.is_user) {
+            player_string += " (you)"
+        }
+
+        let num_words = this.props.words.filter(
+            v => v.status == DIFF_STATES.CORRECT || v.status == DIFF_STATES.NOT_TYPED
+        ).length;
+        let num_typed = this.props.words.filter(
+            v => v.status == DIFF_STATES.CORRECT || v.status == DIFF_STATES.INCORRECT
+        ).length;
+        let num_correct = this.props.words.filter(
+            v => v.status == DIFF_STATES.CORRECT
+        ).length;
+
+        return <div className="audio-transcript-wrapper">
+            <div className="audio-transcript-player">
+                {player_string}:
+            </div>
+            <AudioTranscriptStatusBar
+                num_words={num_words}
+                num_typed={num_typed}
+                num_correct={num_correct}
+            />
+            <AudioTranscriptText
+                words={this.props.words}
+            />
+        </div>
     }
 }
 
@@ -165,95 +186,6 @@ export class AudioTaskScore extends Component {
                     )
                 })}
             </div>
-        );
-    }
-
-    renderPlotItem(player_num, value, max_value) {
-        let percent = value / max_value
-        return (
-            <div 
-                className={"audio-statistics-p" +(player_num + 1)} 
-                style={{width: 100*percent + "%"}}
-            >
-                {value}
-            </div>
-        );
-    }
-
-    renderWordsPlot(player_num, percent_correct, percent_errors) {
-        return (
-            <div className="audio-statistics-plot">
-                <div 
-                    className={"audio-statistics-p" + (player_num + 1)} 
-                    style={{width: 100*percent_correct + "%"}}
-                />
-                <div 
-                    className={"audio-statistics-errors"} 
-                    style={{
-                        width: 100*percent_errors + "%",
-                        left: 100*percent_correct + "%"
-                    }}
-                />
-            </div>
-        );
-    }
-
-    renderStatistics(results, player_num) {
-        let results_rows = [];
-        let max_typed = results.anybody_found.length;
-
-        if(max_typed == 0) {
-            max_typed = 1;
-        }
-        // TODO: fix this to look for the max
-        max_typed = 59;
-
-        for(let i = 0; i < results.typed.length; i++) {
-            let num_typed = results.typed[i].length;
-            let num_correct = results.typed[i].filter(v => v).length;
-            let num_errors = num_typed - num_correct;
-
-            //let percent_correct = num_correct / max_typed;
-            //let percent_errors = num_errors / max_typed;
-            let typed_plot = this.renderPlotItem(i, num_typed, max_typed);
-            let correct_plot = this.renderPlotItem(i, num_correct, max_typed);
-
-            //let plot_div = this.renderWordsPlot(i, percent_correct, percent_errors);
-
-            let player_string = "Player " + (i+1);
-            if(player_num === i) {
-                player_string += " (you)";
-            }
-
-            results_rows.push(
-                <tr key={i}>
-                    <td>{player_string}</td>
-                    <td>{num_typed}</td>
-                    <td>
-                        <div className="audio-statistics-plot">{typed_plot}</div>
-                    </td>
-                    <td>{num_correct}</td>
-                    <td>
-                        <div className="audio-statistics-plot">{correct_plot}</div>
-                    </td>
-                    <td>{num_errors}</td>
-                    {/* 
-                    <td>{plot_div}</td>
-                    */}
-                </tr>
-            );
-        }
-
-        return (
-            <table className="audio-statistics"><tbody>
-                <tr key={-1}>
-                    <th>Player</th>
-                    <th>Typed</th><th/>
-                    <th>Correct</th><th/>
-                    <th>Errors</th>
-                </tr>
-                {results_rows}
-            </tbody></table>
         );
     }
 

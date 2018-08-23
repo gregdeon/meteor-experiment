@@ -64,40 +64,44 @@ export function addAudioInstance(audio_id, num_players) {
     return instance_id;
 }
 
+export const DIFF_STATES = {
+    CORRECT: 0,
+    INCORRECT: 1,
+    NOT_TYPED: 2,
+}
+
 // Find the Myers diff between the ground truth and a set of words
 export function diffWords(true_words, typed_words) {
-    return diff.diffArrays(true_words, typed_words);
+    let raw_diff = diff.diffArrays(true_words, typed_words);
+
+    let ret = []
+    raw_diff.forEach(part => {
+        let state = (part.removed ? DIFF_STATES.NOT_TYPED : part.added ? DIFF_STATES.INCORRECT : DIFF_STATES.CORRECT)
+        part.value.forEach(word => {
+            ret.push({text: word, state: state});
+        })
+    })
+
+    return ret;
 }
 
 // List whether each typed word was correct or not 
 // Input should be the output of diffWords
 export function listTypedCorrect(words_diff) {
-    let ret = [];
-    words_diff.forEach(part => {
-        // If they didn't type it, don't add anything
-        if(part.removed)
-            return;
-
-        for(let i = 0; i < part.count; i++) {
-            ret.push(!part.added);
-        }
-    })
+    let words_typed = words_diff.filter(
+        word => word.state == DIFF_STATES.CORRECT || word.state == DIFF_STATES.INCORRECT
+    );
+    let ret = words_typed.map(word => word.state == DIFF_STATES.CORRECT);
     return ret;
 }
 
 // List whether each of the ground truth words were typed
 // Input should be the output of diffWords
 export function listGroundTruthTyped(words_diff) {
-    let ret = [];
-    words_diff.forEach(part => {
-        // If if wasn't in the ground truth, don't add anything
-        if(part.added)
-            return;
-
-        for(let i = 0; i < part.count; i++) {
-            ret.push(!part.removed);
-        }
-    })
+    let words_truth = words_diff.filter(
+        word => word.state == DIFF_STATES.CORRECT || word.state == DIFF_STATES.NOT_TYPED
+    );
+    let ret = words_truth.map(word => word.state == DIFF_STATES.CORRECT);
     return ret;
 }
 

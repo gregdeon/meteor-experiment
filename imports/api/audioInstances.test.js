@@ -1,26 +1,18 @@
 import chai from 'chai'
 let expect = chai.expect
 
-import {diffWords, listTypedCorrect, listGroundTruthTyped, getNumCorrectByPlayers} from './audioInstances'
+import {DIFF_STATES, diffWords, listTypedCorrect, listGroundTruthTyped, getNumCorrectByPlayers} from './audioInstances'
 
 describe('diffWords', function() {
     it('computes diffs', function() {
         let diff_output = diffWords(['this', 'is', 'a', 'test'], ['this', 'is', 'my', 'test']) 
-        expect(diff_output).to.have.lengthOf(4)
-
-        expect(diff_output[0].count).to.equal(2)
-        expect(diff_output[0].value).to.deep.equal(['this', 'is'])
-
-        expect(diff_output[1].count).to.equal(1)
-        expect(diff_output[1].removed).to.equal(true)
-        expect(diff_output[1].value).to.deep.equal(['a'])
-
-        expect(diff_output[2].count).to.equal(1)
-        expect(diff_output[2].added).to.equal(true)
-        expect(diff_output[2].value).to.deep.equal(['my'])
-
-        expect(diff_output[3].count).to.equal(1)
-        expect(diff_output[3].value).to.deep.equal(['test'])
+        expect(diff_output).to.deep.equal([
+            {text: 'this', state: DIFF_STATES.CORRECT},
+            {text: 'is', state: DIFF_STATES.CORRECT},
+            {text: 'a', state: DIFF_STATES.NOT_TYPED},
+            {text: 'my', state: DIFF_STATES.INCORRECT},
+            {text: 'test', state: DIFF_STATES.CORRECT},
+        ])
     })
 })
 

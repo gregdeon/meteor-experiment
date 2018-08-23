@@ -66,10 +66,32 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Audio Results">
-                <SandboxItem title="Transcript">
-                    <AudioTranscript
-                    />
-                </SandboxItem>
+                <SandboxCategory title="Transcript">
+                    <SandboxItem title="Own Transcript">
+                        <AudioTranscript
+                            player_num={1}
+                            is_user={true}
+                            words={[
+                                {text: 'these', status: DIFF_STATES.CORRECT},
+                                {text: 'are', status: DIFF_STATES.INCORRECT},
+                                {text: 'some', status: DIFF_STATES.NOT_TYPED},
+                                {text: 'words', status: DIFF_STATES.CORRECT}
+                            ]}
+                        />
+                    </SandboxItem>
+                    <SandboxItem title="Others' Transcript">
+                        <AudioTranscript
+                            player_num={1}
+                            is_user={false}
+                            words={[
+                                {text: 'these', status: DIFF_STATES.CORRECT},
+                                {text: 'are', status: DIFF_STATES.INCORRECT},
+                                {text: 'some', status: DIFF_STATES.NOT_TYPED},
+                                {text: 'words', status: DIFF_STATES.CORRECT}
+                            ]}
+                        />
+                    </SandboxItem>
+                </SandboxCategory>
                 <SandboxItem title="Status Bar">
                     <AudioTranscriptStatusBar 
                         num_words={30}
@@ -80,16 +102,14 @@ export default class Sandbox extends Component {
                 <SandboxItem title="Transcript Text">
                     <AudioTranscriptText
                         words={[
-                            {text: 'these', status: TRANSCRIPT_WORD_STATES.CORRECT},
-                            {text: 'are', status: TRANSCRIPT_WORD_STATES.INCORRECT},
-                            {text: 'some', status: TRANSCRIPT_WORD_STATES.NOT_TYPED},
-                            {text: 'words', status: TRANSCRIPT_WORD_STATES.CORRECT}
+                            {text: 'these', status: DIFF_STATES.CORRECT},
+                            {text: 'are', status: DIFF_STATES.INCORRECT},
+                            {text: 'some', status: DIFF_STATES.NOT_TYPED},
+                            {text: 'words', status: DIFF_STATES.CORRECT}
                         ]}
                     />
                 </SandboxItem>
             </SandboxCategory>
-
-            
 
             <SandboxCategory title="Reward Screen">
                 <SandboxItem title="Reward Questions">
