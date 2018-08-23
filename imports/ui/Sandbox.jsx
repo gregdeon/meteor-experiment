@@ -5,7 +5,8 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
 import {ConsentForm} from './ConsentForm'
-import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen} from './AudioTask.jsx'
+import {AudioTaskInput, PlaybackBar, ScrollingTranscript} from './AudioTask.jsx'
+import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx'
 import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {SurveyQuestion, Survey} from './Survey'
@@ -96,9 +97,20 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Audio Task">
-                <SandboxItem title="Transcription Interface">
-                    <RewardQuestions 
-                        submit_callback={console.log}
+                <SandboxItem title="Text Input">
+                    <AudioTaskInput
+                        onTypedWord={console.log}
+                    />
+                </SandboxItem>
+                <SandboxItem title="Playback Bar">
+                    <PlaybackBar
+                        time_elapsed={61}
+                        total_time={119}
+                    />
+                </SandboxItem>
+                <SandboxItem title="Transcript">
+                    <ScrollingTranscript 
+                        words={["these", "are", "a", "few", "words", "that", "have", "been", "typed"]}
                     />
                 </SandboxItem>
             </SandboxCategory>
