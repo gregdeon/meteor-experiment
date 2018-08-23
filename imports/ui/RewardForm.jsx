@@ -99,17 +99,19 @@ export class RewardQuestions extends Component {
                     <p>Given you and your teamates' performance, how fair do you think your payments are?</p>
                     <div className="reward-buttons-container">
                         {answer_buttons.map((button, idx) => (
-                            <Button 
-                                variant="contained" 
-                                color={button.color}
-                                onClick={this.handleClick.bind(this, idx)}
-                                key={idx}
-                            >
-                                <div className="reward-button-contents">
-                                    {button.icon}
-                                    <p>{button.text}</p>
-                                </div>
-                            </Button>   
+                            <div className="reward-button-wrapper">
+                                <Button 
+                                    variant="contained" 
+                                    color={button.color}
+                                    onClick={this.handleClick.bind(this, idx)}
+                                    key={idx}
+                                >
+                                    <div className="reward-button-contents">
+                                        {button.icon}
+                                        <p>{button.text}</p>
+                                    </div>
+                                </Button>   
+                            </div>
                         ))}
                     </div>
                 </MuiThemeProvider>

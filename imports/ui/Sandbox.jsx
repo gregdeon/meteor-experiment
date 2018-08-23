@@ -5,7 +5,8 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
 import {ConsentForm} from './ConsentForm'
-import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, TRANSCRIPT_WORD_STATES} from './AudioTask.jsx'
+import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen} from './AudioTask.jsx'
+import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
@@ -42,6 +43,43 @@ function SandboxItem(props) {
 
 export default class Sandbox extends Component {
     render() {
+        // Word lists for score screen
+        let word_lists = [
+            // P1
+            [
+                {text: 'these', status: DIFF_STATES.CORRECT},
+                {text: 'are', status: DIFF_STATES.INCORRECT},
+                {text: 'some', status: DIFF_STATES.NOT_TYPED},
+                {text: 'words', status: DIFF_STATES.CORRECT}
+            ],
+            // P2
+            [
+                {text: 'this', status: DIFF_STATES.CORRECT},
+                {text: 'is', status: DIFF_STATES.CORRECT},
+                {text: 'a', status: DIFF_STATES.CORRECT},
+                {text: 'slightly', status: DIFF_STATES.CORRECT},
+                {text: 'longer', status: DIFF_STATES.CORRECT},
+                {text: 'list', status: DIFF_STATES.CORRECT},
+                {text: 'of', status: DIFF_STATES.CORRECT},
+                {text: 'words', status: DIFF_STATES.CORRECT},
+                {text: 'which', status: DIFF_STATES.CORRECT},
+                {text: 'is', status: DIFF_STATES.CORRECT},
+                {text: 'mostly', status: DIFF_STATES.CORRECT},
+                {text: 'correct', status: DIFF_STATES.NOT_TYPED},
+            ],
+            // P2
+            [
+                {text: 'this', status: DIFF_STATES.CORRECT},
+                {text: 'list', status: DIFF_STATES.CORRECT},
+                {text: 'of', status: DIFF_STATES.CORRECT},
+                {text: 'words', status: DIFF_STATES.CORRECT},
+                {text: 'is', status: DIFF_STATES.CORRECT},
+                {text: 'not', status: DIFF_STATES.CORRECT},
+                {text: 'as', status: DIFF_STATES.CORRECT},
+                {text: 'long', status: DIFF_STATES.CORRECT},
+            ]
+        ]
+
         return <div className='sandbox-container'>
             <SandboxCategory title="Workflow">
                 <SandboxItem title="Progress bar">
@@ -66,29 +104,28 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Audio Results">
+                <SandboxItem title="Results Screen">
+                    <AudioTaskScoreScreen
+                        player_num={3}
+                        word_lists={word_lists}
+                        total_pay={30}
+                        total_correct={61}
+                        rewards={[5, 10, 15]}
+                    />
+                </SandboxItem>
                 <SandboxCategory title="Transcript">
                     <SandboxItem title="Own Transcript">
                         <AudioTranscript
                             player_num={1}
                             is_user={true}
-                            words={[
-                                {text: 'these', status: DIFF_STATES.CORRECT},
-                                {text: 'are', status: DIFF_STATES.INCORRECT},
-                                {text: 'some', status: DIFF_STATES.NOT_TYPED},
-                                {text: 'words', status: DIFF_STATES.CORRECT}
-                            ]}
+                            words={word_lists[2]}
                         />
                     </SandboxItem>
                     <SandboxItem title="Others' Transcript">
                         <AudioTranscript
                             player_num={1}
                             is_user={false}
-                            words={[
-                                {text: 'these', status: DIFF_STATES.CORRECT},
-                                {text: 'are', status: DIFF_STATES.INCORRECT},
-                                {text: 'some', status: DIFF_STATES.NOT_TYPED},
-                                {text: 'words', status: DIFF_STATES.CORRECT}
-                            ]}
+                            words={word_lists[2]}
                         />
                     </SandboxItem>
                 </SandboxCategory>
@@ -101,12 +138,11 @@ export default class Sandbox extends Component {
                 </SandboxItem>
                 <SandboxItem title="Transcript Text">
                     <AudioTranscriptText
-                        words={[
-                            {text: 'these', status: DIFF_STATES.CORRECT},
-                            {text: 'are', status: DIFF_STATES.INCORRECT},
-                            {text: 'some', status: DIFF_STATES.NOT_TYPED},
-                            {text: 'words', status: DIFF_STATES.CORRECT}
-                        ]}
+                        words={word_lists[2]}
+                    />
+                </SandboxItem>
+                <SandboxItem title="Legend">
+                    <AudioTranscriptLegend
                     />
                 </SandboxItem>
             </SandboxCategory>

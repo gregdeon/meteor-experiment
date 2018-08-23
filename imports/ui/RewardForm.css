@@ -1,5 +1,9 @@
-.reward-buttons-container * {
-    margin: 0px 10px !important;
+.reward-buttons-container {
+    display: inline-flex;
+}
+
+.reward-button-wrapper {
+    margin: 0px 10px;
 }
 
 .reward-button-contents {
