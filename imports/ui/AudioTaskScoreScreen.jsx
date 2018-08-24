@@ -25,7 +25,6 @@ export class AudioTranscriptStatusBar extends Component {
     }
 }
 
-// TODO: use this in other components
 export class AudioTranscriptText extends Component {
     render() {
         let class_lookup = {

@@ -5,7 +5,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
 import {ConsentForm} from './ConsentForm'
-import {AudioTaskInput, PlaybackBar, ScrollingTranscript} from './AudioTask.jsx'
+import {AudioTaskView, AudioTaskInput, PlaybackBar, ScrollingTranscript} from './AudioTask.jsx'
 import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx'
 import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
@@ -81,6 +81,13 @@ export default class Sandbox extends Component {
             ]
         ]
 
+        // Props for all audio tasks
+        let audio_task_callbacks = {
+            onTypedWord: console.log,
+            restartAudio: (() => console.log("Clicked on Restart Audio")),
+            startCountdown: (() => console.log("Clicked on Start Countdown")),
+        }
+
         return <div className='sandbox-container'>
             <SandboxCategory title="Workflow">
                 <SandboxItem title="Progress bar">
@@ -97,6 +104,38 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Audio Task">
+                <SandboxCategory title="Task Screen">
+                    <SandboxItem title="Not Started">
+                        <AudioTaskView
+                            started_countdown={false}
+                            countdown_time={3}
+                            audio_clip_elapsed={0}
+                            audio_clip_length={119}
+                            words={[]}
+                            {...audio_task_callbacks}
+                        />
+                    </SandboxItem>
+                    <SandboxItem title="Counting Down">
+                        <AudioTaskView
+                            started_countdown={true}
+                            countdown_time={3}
+                            audio_clip_elapsed={0}
+                            audio_clip_length={119}
+                            words={[]}
+                            {...audio_task_callbacks}
+                        />
+                    </SandboxItem>
+                    <SandboxItem title="Playing">
+                        <AudioTaskView
+                            started_countdown={true}
+                            countdown_time={0}
+                            audio_clip_elapsed={61}
+                            audio_clip_length={119}
+                            words={["these", "are", "a", "few", "words", "that", "have", "been", "typed"]}
+                            {...audio_task_callbacks}
+                        />
+                    </SandboxItem>
+                </SandboxCategory>
                 <SandboxItem title="Text Input">
                     <AudioTaskInput
                         onTypedWord={console.log}

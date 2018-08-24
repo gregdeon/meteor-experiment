@@ -65,16 +65,7 @@ export class AudioTaskInput extends Component {
         // TODO: support \n here? This would require watching for onkeydown instead of oninput 
         if(new_text.endsWith(" ")) {
             let typed_word = new_text.slice(0, -1);
-
             this.props.onTypedWord(typed_word)
-            /* TODO: handle this properly
-            Meteor.call(
-                'audioInstances.submitWord', 
-                this.props.audio_instance._id,
-                this.props.player_num,
-                typed_word
-            );
-            */
 
             // Empty the text box again
             new_text = "";
@@ -85,7 +76,8 @@ export class AudioTaskInput extends Component {
 
     render() {
         return <input 
-            autoFocus
+            // autoFocus
+            ref="input_field"
             type="text" 
             className="audio-input" 
             value={this.state.text}
@@ -97,79 +89,42 @@ export class AudioTaskInput extends Component {
 
 // Component for the audio task
 export class AudioTaskView extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            text: "",
-        };
+    handleStartCountdown() {
+        // Focus on the text input box here
+        this.refs.input_field.refs.input_field.focus();
+        this.props.startCountdown();
     }
 
-    renderAudioPlaybackBar() {
-        /* TODO: get time left from audio task */
-        /*
-        let end_s = this.props.audio_task.time_s[AudioInstanceStates.TASK];
-        let time_s = end_s - this.props.time_left;
-        if(this.props.show_countdown) {
-            time_s = 0;
+    renderHeader() {
+        if(!this.props.started_countdown) {
+            return <div>
+                <div className="task-header">Click to start audio clip</div>
+                <button onClick={this.handleStartCountdown.bind(this)}>
+                    Start Clip
+                </button>
+            </div>
         }
-        let time_percent = time_s / end_s * 100 + "%";
-        */
-        return (
-            <div className="audio-view">
-                <div className="audio-playback"> 
-                    <div className="audio-playback-filled" style={{width: time_percent}}/>
-                </div>
-                <div className="audio-view-bottom">
-                    <div className="audio-view-time">
-                        {secondsToString(time_s)}   
-                    </div>
-                    <div className="audio-view-end">
-                        {secondsToString(end_s)}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    renderTextEntry() {
-        let word_lists = this.props.audio_instance.words;
-        let word_list = word_lists[this.props.player_num];
-
-        return (
-            <div className="audio-text">
-                <ScrollingTranscript words={word_list} />
-                <AudioTaskInput
-                    onTypedWord={console.log /*TODO: submit word*/}
-                />
-            </div>
-        );
+        else if(this.props.countdown_time > 0) {
+            return <div className="task-header">Audio starting in {this.props.countdown_time}...</div>
+        }
+        else {
+            return <div className="task-header">Audio playing...</div>
+        }
     }
 
     render() {
-        let header_text = "";
-        let sound_status = null;
-        if(this.props.show_countdown) {
-            header_text = "Audio starting in " + (this.props.time_left) + "...";
-        }
-        else {
-            header_text = "Audio playing...";
-        }
-
-        //this.updateAudio();
-
         return (
             <div className="task-container">
-                <div className="task-header">{header_text}</div>
-                {this.renderAudioPlaybackBar()}
-                {this.renderTextEntry()}
-                {this.renderTeamStatus()}
+                {this.renderHeader()}
+                <PlaybackBar time_elapsed={this.props.audio_clip_elapsed} total_time={this.props.audio_clip_length}/>
+                <ScrollingTranscript words={this.props.words} />
+                <AudioTaskInput ref="input_field" onTypedWord={this.props.onTypedWord}/>
                 <div>
-                <br/>
-                Audio not playing? <br/>
-                <button style={{padding: 5}} onClick={this.restartAudio.bind(this)}>
-                    Restart Audio
-                </button>
+                    <br/>
+                    Audio not playing? <br/>
+                    <button style={{padding: 5}} onClick={this.props.restartAudio}>
+                        Restart Audio
+                    </button>
                 </div>
             </div>
         );
@@ -196,6 +151,25 @@ export class AudioTask extends Component {
             clearInterval(this.state.update_interval);
         }
     }
+        /* TODO: handle submitted words properly
+            Meteor.call(
+                'audioInstances.submitWord', 
+                this.props.audio_instance._id,
+                this.props.player_num,
+                typed_word
+            );
+            */
+
+
+    /* TODO: get time left from audio task */
+    /*
+    let end_s = this.props.audio_task.time_s[AudioInstanceStates.TASK];
+    let time_s = end_s - this.props.time_left;
+    if(this.props.show_countdown) {
+        time_s = 0;
+    }
+    let time_percent = time_s / end_s * 100 + "%";
+    */
 
 
     // TODO: integrate sound into timing logic
