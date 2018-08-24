@@ -2,6 +2,7 @@
 // Collection for storing the contents of an audio transcription task
 // Contents:
 // - audio_path: path to an audio file
+// - audio_length: length of the audio clip in seconds
 // - words_truth: list of ground truth words
 // - words_typed_p1: list of words typed by P1
 // - words_typed_p2: list of words typed by P2

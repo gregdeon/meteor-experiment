@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import {AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx'
+
 import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js';
 import {getSecondsSince, secondsToString, centsToString} from '../api/utils.js';
 import {soundManager} from 'soundmanager2'
@@ -131,6 +133,12 @@ export class AudioTaskView extends Component {
     }
 }
 
+const AUDIO_TASK_STATES = {
+    WAITING: 0,
+    COUNTING_DOWN: 1,
+    PLAYING: 2,
+    SCORE_SCREEN: 3,
+}
 
 // Wrapper to handle stages and timers
 export class AudioTask extends Component {
@@ -138,12 +146,19 @@ export class AudioTask extends Component {
         super(props);
 
         this.state = {
-            seconds_left: this.props.audio_task.time_s[0],
-            update_interval: setInterval(
-                this.updateTimer.bind(this),
-                250,
-            ),
+            // seconds_left: this.props.audio_task.time_s[0],
+            // update_interval: setInterval(
+            //     this.updateTimer.bind(this),
+            //     250,
+            // ),
         };
+    }
+
+    componentDidMount() {
+        // Log entry time here
+        if(!this.props.audio_instance.time_entered) {
+            Meteor.call('audioInstances.recordTimeEntered', this.props.audio_instance);
+        }
     }
 
     componentWillUnmount() {
@@ -151,15 +166,6 @@ export class AudioTask extends Component {
             clearInterval(this.state.update_interval);
         }
     }
-        /* TODO: handle submitted words properly
-            Meteor.call(
-                'audioInstances.submitWord', 
-                this.props.audio_instance._id,
-                this.props.player_num,
-                typed_word
-            );
-            */
-
 
     /* TODO: get time left from audio task */
     /*
@@ -268,6 +274,7 @@ export class AudioTask extends Component {
     */
 
     // TODO: pass this into the score screen
+    /*
     handleSubmit(ratings) {
         console.log(this.props);
         Meteor.call(            
@@ -335,33 +342,60 @@ export class AudioTask extends Component {
             />
         );
     }
+    */
+
+    handleTypedWord(word) {
+        // TODO: check current stage first
+        Meteor.call(
+            'audioInstances.submitWord', 
+            this.props.audio_instance,
+            word
+        );
+    }
+
+
+    renderCurrentTask() {
+        let current_stage = 0;
+        switch(current_stage) {
+            case AUDIO_TASK_STATES.WAITING:
+                return <AudioTaskView 
+                    started_countdown={false}
+                    audio_clip_elapsed={0}
+                    audio_clip_length={119}
+                    words={this.props.audio_instance.words_typed}
+                    onTypedWord={this.handleTypedWord.bind(this)}
+                    restartAudio={ /*TODO: callbacks*/ (() => console.log("Clicked on Restart Audio"))}
+                    startCountdown={(() => console.log("Clicked on Start Countdown"))}
+                />
+
+            case AUDIO_TASK_STATES.COUNTING_DOWN:
+            case AUDIO_TASK_STATES.PLAYING:
+                return <div>TODO</div>
+
+            case AUDIO_TASK_STATES.SCORE_SCREEN:
+                return <AudioTaskScoreScreen
+                    player_num={3}
+                    word_lists={[
+                        this.props.audio_task.words_p1,
+                        this.props.audio_task.words_p2,
+                        this.props.audio_instance.words_typed
+                    ]}
+                    total_pay={30}
+                    total_correct={61}
+                    rewards={[5, 10, 15]}
+                />
+        }
+    }
 
     render() {
-        let stage_num = this.props.audio_instance.state;
-        let seconds_left = this.state.seconds_left;
-        let render_output = null;
-
-        switch(stage_num) {
-            case AudioInstanceStates.WAITING:
-            case AudioInstanceStates.TASK:
-                render_output = this.renderAudioScreen(seconds_left);
-                break;
-
-            case AudioInstanceStates.SCORE:
-                render_output = this.renderScoreScreen(seconds_left); 
-                break;
-        }
+        // console.log(this.props);
+        // let stage_num = this.props.audio_instance.state;
+        // let seconds_left = this.state.seconds_left;
+        // let render_output = null;
 
         return (
-            <div id="task-hide-overflow">
-            <div id="task-outer">
-            <div id="task-inner">
-            {/* Hack to center the game*/}
-
-            {render_output}
-
-            </div>
-            </div>
+            <div id="audio-container">
+                {this.renderCurrentTask()}
             </div>
         );            
     }

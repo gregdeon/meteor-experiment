@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
+import {withTracker} from 'meteor/react-meteor-data';
+
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
 import {ConsentForm} from './ConsentForm'
-import {AudioTaskView, AudioTaskInput, PlaybackBar, ScrollingTranscript} from './AudioTask.jsx'
+import {AudioTask, AudioTaskView, AudioTaskInput, PlaybackBar, ScrollingTranscript} from './AudioTask.jsx'
 import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx'
 import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
@@ -13,6 +15,8 @@ import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
 import {ProgressBar, WorkflowHeader} from './Workflow'
+
+import {getSandboxAudio} from '../api/sandbox.js';
 
 import './Sandbox.css'
 
@@ -42,8 +46,12 @@ function SandboxItem(props) {
     </ExpansionPanel>
 }
 
-export default class Sandbox extends Component {
+class Sandbox extends Component {
     render() {
+        if(!this.props.ready) {
+            return <div>Subscribing to collections...</div>
+        }
+
         // Word lists for score screen
         let word_lists = [
             // P1
@@ -104,6 +112,17 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Audio Task">
+                <SandboxItem>
+                    <button onClick={function(){Meteor.call('sandbox.resetAudio')}}>
+                        Reset sandbox audio task
+                    </button>
+                </SandboxItem>
+                <SandboxItem title="Full Task">
+                    <AudioTask
+                        audio_task={this.props.sandbox_audio.task}
+                        audio_instance={this.props.sandbox_audio.instance}
+                    />
+                </SandboxItem>
                 <SandboxCategory title="Task Screen">
                     <SandboxItem title="Not Started">
                         <AudioTaskView
@@ -147,11 +166,13 @@ export default class Sandbox extends Component {
                         total_time={119}
                     />
                 </SandboxItem>
-                <SandboxItem title="Transcript">
-                    <ScrollingTranscript 
-                        words={["these", "are", "a", "few", "words", "that", "have", "been", "typed"]}
-                    />
-                </SandboxItem>
+                <SandboxCategory title="Transcript">
+                    <SandboxItem title="Transcript">
+                        <ScrollingTranscript 
+                            words={["these", "are", "a", "few", "words", "that", "have", "been", "typed"]}
+                        />
+                    </SandboxItem>
+                </SandboxCategory>
             </SandboxCategory>
 
             <SandboxCategory title="Audio Results">
@@ -290,3 +311,24 @@ export default class Sandbox extends Component {
         </div>
     }
 }
+
+export default withTracker(() => {
+    const sub = [
+        Meteor.subscribe('audiotasks'),
+        Meteor.subscribe('audioinstances'),
+    ];
+
+    // Check if ready by putting together subscriptions
+    let all_ready = true;
+    sub.map((sub_item, idx) => {
+        if(!sub_item.ready())
+        {
+            all_ready = false;
+        }
+    });
+
+    return {
+        ready: all_ready,
+        sandbox_audio: getSandboxAudio(),
+    };
+})(Sandbox);

@@ -209,6 +209,7 @@ function getPayments(found_list, reward_mode) {
     return getRewards(found_list, reward_mode, 0);
 }
 
+// TODO: test
 function normalizeWord(word) {
     let lower_case = word.toLowerCase();
 
@@ -228,16 +229,23 @@ function normalizeWord(word) {
 }
 
 Meteor.methods({
-    'audioInstances.submitWord'(instance_id, player_num, word) {
-        // TODO: normalize word?
+    'audioInstances.recordTimeEntered'(audio_instance) {
+        if(!audio_instance.time_entered) {
+            let time_entered = new Date();
+            AudioInstances.update(
+                {_id: audio_instance._id},
+                {$set: {time_entered: time_entered}}
+            )
+        }
+    },
+
+
+    'audioInstances.submitWord'(audio_instance, word) {
         let normalized_words = normalizeWord(word);
 
-        let push_data = {}
-        push_data['words.' + player_num] = {$each: normalized_words}
-
         AudioInstances.update(
-            {_id: instance_id},
-            {$push: push_data}
+            {_id: audio_instance._id},
+            {$push: {words_typed: {$each: normalized_words}}}
         );
     },
 
