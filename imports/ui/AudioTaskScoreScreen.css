@@ -1,3 +1,19 @@
 .audio-transcript-legend-top {
     display: block;
 }
+
+.audio-transcript-wrapper {
+    max-width: 960px;
+    text-align: left;
+    margin: auto;
+}
+
+.audio-transcript {
+    max-width: 960px;
+    border: 2px solid #7f7f7f;
+
+    font-size: 0;
+    text-align: justify;
+    text-justify: distribute-all-lines;
+    margin: 5px auto 10px;
+}

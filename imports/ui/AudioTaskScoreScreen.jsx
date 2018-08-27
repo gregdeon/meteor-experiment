@@ -118,7 +118,7 @@ export class AudioTaskScoreScreen extends Component {
                         rewards={this.props.rewards}
                     />
                     <RewardQuestions
-                        submit_callback={console.log /*TODO*/}
+                        submit_callback={this.props.submitCallback}
                     />
                 </div>
             );

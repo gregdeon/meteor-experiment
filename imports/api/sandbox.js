@@ -9,7 +9,7 @@ function setUpSandboxAudio() {
         {_id: 'test_id'},
         {
             audio_path: 'public/ambitious-01.mp3',
-            audio_length: 37,
+            audio_length: 10,
             countdown_length: 3,
             words_truth: ['this', 'is', 'a', 'bunch', 'of', 'words'],
             words_p1: ['this', 'is', 'a', 'few', 'words'],

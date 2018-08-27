@@ -11,10 +11,12 @@ import './RewardForm.css'
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: '#00c853',
+      main: '#24780B',
+      // main: '#00c853',
     },
     secondary: {
-      main: '#d50000',
+      main: '#710C0C',
+      // main: '#d50000',
     },
   },
 });

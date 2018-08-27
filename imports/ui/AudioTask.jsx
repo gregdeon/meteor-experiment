@@ -244,6 +244,16 @@ export class AudioTask extends Component {
         );
     }
 
+    handleSubmit(rating) {
+        Meteor.call(            
+            'audioInstances.submitRating',
+            this.props.audio_instance,
+            rating,
+            new Date(),
+        );
+        this.props.finishedCallback();
+    }
+
     // TODO: integrate sound into timing logic
     /*
     in constructor:
@@ -339,22 +349,6 @@ export class AudioTask extends Component {
     }
     */
 
-    // TODO: pass this into the score screen
-    /*
-    handleSubmit(ratings) {
-        console.log(this.props);
-        Meteor.call(            
-            'audioInstances.submitRating',
-            this.props.audio_instance._id,
-            this.props.player_num,
-            ratings
-        );
-    }
-    */
-
-
-
-
     renderCurrentTask() {
         let current_stage = this.state.current_stage;
         let time_elapsed = getSecondsSince(this.props.audio_instance.time_started_task);
@@ -404,6 +398,7 @@ export class AudioTask extends Component {
                     total_pay={this.props.audio_instance.total_bonus}
                     total_correct={num_correct}
                     rewards={this.props.audio_instance.bonuses}
+                    submitCallback={this.handleSubmit.bind(this)}
                 />
         }
     }

@@ -70,6 +70,7 @@ class AudioSandbox extends Component {
                     <AudioTask
                         audio_task={this.props.sandbox_audio.task}
                         audio_instance={this.props.sandbox_audio.instance}
+                        finishedCallback={(() => console.log("Finished Callback"))}
                     />
                 </SandboxItem>
             </SandboxCategory>
@@ -219,6 +220,7 @@ export default class Sandbox extends Component {
                         total_pay={30}
                         total_correct={61}
                         rewards={[5, 10, 15]}
+                        submitCallback={console.log}
                     />
                 </SandboxItem>
                 <SandboxItem title="Unloaded Results Screen">

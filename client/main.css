@@ -312,25 +312,6 @@ button:disabled {
     font-size: 24px;
 }
 
-.audio-transcript-wrapper {
-    width: 960px;
-    text-align: left;
-    margin: auto;
-}
-
-.audio-transcript {
-    width: 960px;
-    border: 2px solid #7f7f7f;
-    /*
-    height: 100px;
-    overflow-y: scroll;
-    */
-    font-size: 0;
-    text-align: justify;
-    text-justify: distribute-all-lines;
-    margin: 5px auto 10px;
-}
-
 .audio-transcript-word,
 .audio-transcript-players {
     display: inline-block;

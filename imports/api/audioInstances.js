@@ -1,13 +1,18 @@
 // audioInstances.js
 // Collection for storing a single group transcription
 // Contents:
-// TODO: update these
 // - audio_task: ID of an AudioTask
-// - state: current state of the group (countdown, transcribe, score screen)
-// - time_started: list of times starting each of the stages
-// - words: list of lists: [typed by P1, typed by P2, typed by P3]
-// - bonuses: list of rewards paid (in cents)
-// - ratings: list of objects like {self: 4, others: 3, time_submitted: Date.now()}
+// - time_entered: time when the task screen was loaded
+// - time_started_task: time when "Start Clip" was clicked
+// - time_started_rating: time when the rating screen was loaded
+// - time_finished: time when the rating was submitted
+// - words_typed: list of {word, time_typed}
+// - diffs: list of lists: [P1 diff, P2 diff, P3 diff]
+//   - each diff is a list of {text, state} where state describes correct/incorrect/not typed
+// - num_correct: list of number of correct words by each combination of players
+// - total_bonus: total amount of reward earned by the team
+// - bonuses: list of [P1 bonus, P2 bonus, P3 bonus]
+// - rating: fairness rating: 0 for "Unfair", 1 for "Neutral", 2 for "Fair"
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
@@ -224,17 +229,16 @@ Meteor.methods({
         );
     },
 
-    'audioInstances.submitRating'(instance_id, player_num, ratings) {
-        // Save a timestamp in case we need it
-        ratings.time_submitted = new Date(getServerTime());
-
-        // Put it into the puzzle instance
-        let upd = {};
-        upd['ratings.' + player_num] = ratings;
-        console.log(upd);
-        AudioInstances.update(
-            {_id: instance_id},
-            {$set: upd}
-        );
+    'audioInstances.submitRating'(audio_instance, rating, date) {
+        if(!audio_instance.time_finished) {
+            let time_finished = date;
+            AudioInstances.update(
+                {_id: audio_instance._id},
+                {$set: {
+                    rating: rating,
+                    time_finished: time_finished,
+                }}
+            );
+        }
     },
 });
