@@ -38,10 +38,11 @@ export class ScrollingTranscript extends Component {
 
 export class PlaybackBar extends Component { 
     render() {
-        let time_percent = this.props.time_elapsed / this.props.total_time * 100 + "%";
+        let time_fraction = this.props.time_elapsed / this.props.total_time;
+        let transform = 'scaleX(' + time_fraction + ') translateX(-' + 100*time_fraction + '%)';
         return <div className="audio-view">
             <div className="audio-playback"> 
-                <div className="audio-playback-filled" style={{width: time_percent}}/>
+                <div className="audio-playback-filled" style={{transform: transform}}/>
             </div>
             <div className="audio-view-bottom">
                 <div className="audio-view-time">
@@ -392,26 +393,19 @@ export class AudioTask extends Component {
                 />
 
             case AUDIO_TASK_STATES.SCORE_SCREEN:
+                let num_correct_list = this.props.audio_instance.num_correct
+                let num_correct = (num_correct_list ? num_correct_list[0b111] : 0)
                 return <AudioTaskScoreScreen
                     player_num={3}
-                    word_lists={[
-                        this.props.audio_task.words_p1,
-                        this.props.audio_task.words_p2,
-                        this.props.audio_instance.words_typed
-                    ]}
-                    total_pay={30}
-                    total_correct={61}
-                    rewards={[5, 10, 15]}
+                    word_lists={this.props.audio_instance.diffs}
+                    total_pay={this.props.audio_instance.total_bonus}
+                    total_correct={num_correct}
+                    rewards={this.props.audio_instance.bonuses}
                 />
         }
     }
 
     render() {
-        // console.log(this.props);
-        // let stage_num = this.props.audio_instance.state;
-        // let seconds_left = this.state.seconds_left;
-        // let render_output = null;
-
         return (
             <div id="audio-container">
                 {this.renderCurrentTask()}

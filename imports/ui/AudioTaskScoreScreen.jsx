@@ -35,7 +35,7 @@ export class AudioTranscriptText extends Component {
 
         return <div className="audio-transcript">
             {this.props.words.map((word, idx) => {
-                let div_class = class_lookup[word.status];
+                let div_class = class_lookup[word.state];
                 return <div key={idx} className={div_class}>
                     {word.text}
                 </div>
@@ -52,13 +52,13 @@ export class AudioTranscript extends Component {
         }
 
         let num_words = this.props.words.filter(
-            v => v.status == DIFF_STATES.CORRECT || v.status == DIFF_STATES.NOT_TYPED
+            v => v.state == DIFF_STATES.CORRECT || v.state == DIFF_STATES.NOT_TYPED
         ).length;
         let num_typed = this.props.words.filter(
-            v => v.status == DIFF_STATES.CORRECT || v.status == DIFF_STATES.INCORRECT
+            v => v.state == DIFF_STATES.CORRECT || v.state == DIFF_STATES.INCORRECT
         ).length;
         let num_correct = this.props.words.filter(
-            v => v.status == DIFF_STATES.CORRECT
+            v => v.state == DIFF_STATES.CORRECT
         ).length;
 
         return <div className="audio-transcript-wrapper">
@@ -92,32 +92,36 @@ export class AudioTranscriptLegend extends Component {
 
 export class AudioTaskScoreScreen extends Component {
     render() {
-        /* TODO: move this into audio task wrapper
-        let results = getInstanceResults(this.props.audio_instance);
-        let num_found = results.anybody_found.filter(v => v).length;
-        let total_pay = results.payments[3];
-        */
-        return (
-            <div className="task-container">
+        // Use bonuses to check if results are ready yet
+        if(!this.props.rewards) {
+            return <div className="task-container">
                 <div className="task-header">Audio clip finished!</div>
-                <AudioTranscriptLegend/>
-                {this.props.word_lists.map((word_list, idx) => (
-                    <AudioTranscript
-                        key={idx}
-                        player_num={idx+1}
-                        is_user={idx+1 == this.props.player_num}
-                        words={word_list}
-                    />
-                ))}
-                <p>Your team earned <b>{centsToString(this.props.total_pay)}</b> for typing <b>{this.props.total_correct}</b> correct words (5c per 10 words).</p>
-                <p>Individual payments: </p>
-                <RewardDisplay
-                    rewards={this.props.rewards}
-                />
-                <RewardQuestions
-                    submit_callback={console.log /*TODO*/}
-                />
+                <p>Processing results...</p>
             </div>
-        );
+        }
+        else {
+            return (
+                <div className="task-container">
+                    <div className="task-header">Audio clip finished!</div>
+                    <AudioTranscriptLegend/>
+                    {this.props.word_lists.map((word_list, idx) => (
+                        <AudioTranscript
+                            key={idx}
+                            player_num={idx+1}
+                            is_user={idx+1 == this.props.player_num}
+                            words={word_list}
+                        />
+                    ))}
+                    <p>Your team earned <b>{centsToString(this.props.total_pay)}</b> for typing <b>{this.props.total_correct}</b> correct words (5c per 10 words).</p>
+                    <p>Individual payments: </p>
+                    <RewardDisplay
+                        rewards={this.props.rewards}
+                    />
+                    <RewardQuestions
+                        submit_callback={console.log /*TODO*/}
+                    />
+                </div>
+            );
+        }
     }
 }

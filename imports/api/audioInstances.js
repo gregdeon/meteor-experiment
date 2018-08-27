@@ -215,6 +215,7 @@ Meteor.methods({
     },
 
     'audioInstances.submitWord'(audio_instance, word) {
+        // TODO: log a timestamp on these too?
         let normalized_words = normalizeWord(word);
 
         AudioInstances.update(

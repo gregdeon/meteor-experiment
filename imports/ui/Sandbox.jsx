@@ -33,59 +33,107 @@ function SandboxCategory(props) {
     </ExpansionPanel>
 }
 
-function SandboxItem(props) {
-    return <ExpansionPanel style={{width:"100%"}} expanded={true}>
-        <ExpansionPanelSummary>
-            {props.title}
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-            <div className="sandbox-item">
-                {props.children}
-            </div>
-        </ExpansionPanelDetails>
-    </ExpansionPanel>
+class SandboxItem extends Component {
+    shouldComponentUpdate(next_props, next_state) {
+        return this.props.children.props != next_props.children.props
+    }
+
+    render() {
+        return <ExpansionPanel style={{width:"100%"}} expanded={true}>
+            <ExpansionPanelSummary>
+                {this.props.title}
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails>
+                <div className="sandbox-item">
+                    {this.props.children}
+                </div>
+            </ExpansionPanelDetails>
+        </ExpansionPanel>
+    }
 }
 
-class Sandbox extends Component {
+// Separate class for the reactive audio task
+class AudioSandbox extends Component {
     render() {
         if(!this.props.ready) {
             return <div>Subscribing to collections...</div>
         }
 
+        return <div className='sandbox-container'>
+            <SandboxCategory title="Audio Task">
+                <SandboxItem>
+                    <button onClick={function(){Meteor.call('sandbox.resetAudio')}}>
+                        Reset sandbox audio task
+                    </button>
+                </SandboxItem>
+                <SandboxItem title="Full Task">
+                    <AudioTask
+                        audio_task={this.props.sandbox_audio.task}
+                        audio_instance={this.props.sandbox_audio.instance}
+                    />
+                </SandboxItem>
+            </SandboxCategory>
+        </div>
+    }
+}
+
+DynamicAudioSandbox = withTracker(() => {
+    const sub = [
+        Meteor.subscribe('audiotasks'),
+        Meteor.subscribe('audioinstances'),
+    ];
+
+    // Check if ready by putting together subscriptions
+    let all_ready = true;
+    sub.map((sub_item, idx) => {
+        if(!sub_item.ready())
+        {
+            all_ready = false;
+        }
+    });
+
+    return {
+        ready: all_ready,
+        sandbox_audio: getSandboxAudio(),
+    };
+})(AudioSandbox);
+
+export default class Sandbox extends Component {
+    render() {
         // Word lists for score screen
         let word_lists = [
             // P1
             [
-                {text: 'these', status: DIFF_STATES.CORRECT},
-                {text: 'are', status: DIFF_STATES.INCORRECT},
-                {text: 'some', status: DIFF_STATES.NOT_TYPED},
-                {text: 'words', status: DIFF_STATES.CORRECT}
+                {text: 'these', state: DIFF_STATES.CORRECT},
+                {text: 'are', state: DIFF_STATES.INCORRECT},
+                {text: 'some', state: DIFF_STATES.NOT_TYPED},
+                {text: 'words', state: DIFF_STATES.CORRECT}
             ],
             // P2
             [
-                {text: 'this', status: DIFF_STATES.CORRECT},
-                {text: 'is', status: DIFF_STATES.CORRECT},
-                {text: 'a', status: DIFF_STATES.CORRECT},
-                {text: 'slightly', status: DIFF_STATES.CORRECT},
-                {text: 'longer', status: DIFF_STATES.CORRECT},
-                {text: 'list', status: DIFF_STATES.CORRECT},
-                {text: 'of', status: DIFF_STATES.CORRECT},
-                {text: 'words', status: DIFF_STATES.CORRECT},
-                {text: 'which', status: DIFF_STATES.CORRECT},
-                {text: 'is', status: DIFF_STATES.CORRECT},
-                {text: 'mostly', status: DIFF_STATES.CORRECT},
-                {text: 'correct', status: DIFF_STATES.NOT_TYPED},
+                {text: 'this', state: DIFF_STATES.CORRECT},
+                {text: 'is', state: DIFF_STATES.CORRECT},
+                {text: 'a', state: DIFF_STATES.CORRECT},
+                {text: 'slightly', state: DIFF_STATES.CORRECT},
+                {text: 'longer', state: DIFF_STATES.CORRECT},
+                {text: 'list', state: DIFF_STATES.CORRECT},
+                {text: 'of', state: DIFF_STATES.CORRECT},
+                {text: 'words', state: DIFF_STATES.CORRECT},
+                {text: 'which', state: DIFF_STATES.CORRECT},
+                {text: 'is', state: DIFF_STATES.CORRECT},
+                {text: 'mostly', state: DIFF_STATES.CORRECT},
+                {text: 'correct', state: DIFF_STATES.NOT_TYPED},
             ],
-            // P2
+            // P3
             [
-                {text: 'this', status: DIFF_STATES.CORRECT},
-                {text: 'list', status: DIFF_STATES.CORRECT},
-                {text: 'of', status: DIFF_STATES.CORRECT},
-                {text: 'words', status: DIFF_STATES.CORRECT},
-                {text: 'is', status: DIFF_STATES.CORRECT},
-                {text: 'not', status: DIFF_STATES.CORRECT},
-                {text: 'as', status: DIFF_STATES.CORRECT},
-                {text: 'long', status: DIFF_STATES.CORRECT},
+                {text: 'this', state: DIFF_STATES.CORRECT},
+                {text: 'list', state: DIFF_STATES.CORRECT},
+                {text: 'of', state: DIFF_STATES.CORRECT},
+                {text: 'words', state: DIFF_STATES.CORRECT},
+                {text: 'is', state: DIFF_STATES.CORRECT},
+                {text: 'not', state: DIFF_STATES.CORRECT},
+                {text: 'as', state: DIFF_STATES.CORRECT},
+                {text: 'long', state: DIFF_STATES.CORRECT},
             ]
         ]
 
@@ -97,6 +145,7 @@ class Sandbox extends Component {
         }
 
         return <div className='sandbox-container'>
+            <DynamicAudioSandbox/>
             <SandboxCategory title="Workflow">
                 <SandboxItem title="Progress bar">
                     <ProgressBar num_stages={10} current_stage={2} />
@@ -111,18 +160,7 @@ class Sandbox extends Component {
                 </SandboxItem>
             </SandboxCategory>
 
-            <SandboxCategory title="Audio Task">
-                <SandboxItem>
-                    <button onClick={function(){Meteor.call('sandbox.resetAudio')}}>
-                        Reset sandbox audio task
-                    </button>
-                </SandboxItem>
-                <SandboxItem title="Full Task">
-                    <AudioTask
-                        audio_task={this.props.sandbox_audio.task}
-                        audio_instance={this.props.sandbox_audio.instance}
-                    />
-                </SandboxItem>
+            <SandboxCategory title="Audio Task Components">
                 <SandboxCategory title="Individual Task Screens">
                     <SandboxItem title="Not Started">
                         <AudioTaskView
@@ -181,6 +219,11 @@ class Sandbox extends Component {
                         total_pay={30}
                         total_correct={61}
                         rewards={[5, 10, 15]}
+                    />
+                </SandboxItem>
+                <SandboxItem title="Unloaded Results Screen">
+                    <AudioTaskScoreScreen
+                        player_num={3}
                     />
                 </SandboxItem>
                 <SandboxCategory title="Transcript">
@@ -309,24 +352,3 @@ class Sandbox extends Component {
         </div>
     }
 }
-
-export default withTracker(() => {
-    const sub = [
-        Meteor.subscribe('audiotasks'),
-        Meteor.subscribe('audioinstances'),
-    ];
-
-    // Check if ready by putting together subscriptions
-    let all_ready = true;
-    sub.map((sub_item, idx) => {
-        if(!sub_item.ready())
-        {
-            all_ready = false;
-        }
-    });
-
-    return {
-        ready: all_ready,
-        sandbox_audio: getSandboxAudio(),
-    };
-})(Sandbox);
