@@ -12,7 +12,7 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 import {AudioTasks} from './audioTasks.js'
-import {getRewards} from './scoreFunctions.js';
+import {getReward, getRewards} from './scoreFunctions.js';
 import {getServerTime} from './utils.js';
 
 import * as diff from 'diff';
@@ -68,6 +68,27 @@ export const DIFF_STATES = {
     CORRECT: 0,
     INCORRECT: 1,
     NOT_TYPED: 2,
+}
+
+// Normalize and split words 
+// Convert everything to lowercase, replace "-" with " ", and remove all other punctuation 
+// Returns a list of words obtained by splitting on spaces
+export function normalizeWord(word) {
+    let lower_case = word.toLowerCase();
+
+    let allowed_chars = new Set("abcdefghijklmnopqrstuvwxyz0123456789 ")
+    let space_chars = new Set("-")
+    let normalized = '';
+    for(let i = 0; i < lower_case.length; i++) {
+        let c = lower_case.charAt(i);
+        if(allowed_chars.has(c)) {
+            normalized += c;
+        }
+        else if(space_chars.has(c)) {
+            normalized += " ";
+        }
+    }
+    return normalized.split(" ");
 }
 
 // Find the Myers diff between the ground truth and a set of words
@@ -127,105 +148,29 @@ export function getNumCorrectByPlayers(typed_p1, typed_p2, typed_p3) {
     return ret;
 }
 
+export function processResults(audio_task, audio_instance) {
+    let diffs = [
+        diffWords(audio_task.words_truth, audio_task.words_p1),
+        diffWords(audio_task.words_truth, audio_task.words_p2),
+        diffWords(audio_task.words_truth, audio_instance.words_typed),
+    ]
 
-// Wrapper function for getResultsFromText
-export function getInstanceResults(audio_instance) {
-    console.log(audio_instance);
-    let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task});
+    // Find which of the ground truth words they typed
+    let typed_truth = diffs.map(diff => listGroundTruthTyped(diff));
 
-    let true_words = audio_task.words;
-    let all_typed_words = audio_instance.words;
+    // Count how many words each coalition typed
+    let num_typed = getNumCorrectByPlayers(...typed_truth)
 
-    return getResultsFromText(true_words, all_typed_words, audio_task.reward_mode);
-}
-
-// Get some statistics on how well the group performed
-// This includes:
-// - found: list of lists. found[i] is a list describing which players 
-//          found word i (ex: [true, false, false] means only P1 found it)
-// - typed: list. typed[i] is how many words player i+1 typed.
-// - correct: list. correct[i] is how many words player i+1 typed correctly.
-// - anybody_found: list of True/False for each word
-// - payments: list. payments[i] is how many cents player i+1 earned.
-// Note that number of errors is typed[i] - correct[i].
-export function getResultsFromText(true_words, all_typed_words, reward_mode) {
-    let num_words = true_words.length;
-    let num_players = all_typed_words.length;
-
-    let found = Array(num_words);
-    for(let i = 0; i < num_words; i++) {
-        found[i] = new Array(0);
-    }
-    let anybody_found = Array(num_words).fill(false);
-
-    let typed = Array(num_players);
-    let diffs = Array(num_players);
-
-    for(let i = 0; i < num_players; i++) {
-        typed[i] = new Array(0);
-
-        let typed_words = all_typed_words[i];
-        let words_diff = diff.diffArrays(true_words, typed_words);
-        diffs[i] = words_diff;
-
-        let current_word = 0;
-        words_diff.map(part => {
-            // Words they typed that weren't in the string
-            if(part.added) {
-                for(let j = 0; j < part.count; j++) {
-                    typed[i].push(false)
-                }
-            }
-            // Words they missed
-            else if(part.removed) {
-                for(let j = 0; j < part.count; j++) {
-                    found[current_word+j].push(false);
-                }
-                current_word += part.count;
-            } 
-            // Words they typed correctly
-            else {
-                for(let j = 0; j < part.count; j++) {
-                    found[current_word+j].push(true);
-                    anybody_found[current_word+j] = true;
-                    typed[i].push(true);
-                }
-                current_word += part.count;
-            }
-        });
-    }
+    // Get bonuses
+    let total_bonus = getReward(num_typed[0b111]);
+    let bonuses = getRewards(num_typed, audio_task.reward_mode);
 
     return {
-        found: found,
-        anybody_found: anybody_found,
-        typed: typed,
-        diffs: diffs,
-        payments: getPayments(found, reward_mode),
-    };
-}
-
-// Helper function for 
-function getPayments(found_list, reward_mode) {
-    return getRewards(found_list, reward_mode, 0);
-}
-
-// TODO: test
-function normalizeWord(word) {
-    let lower_case = word.toLowerCase();
-
-    let allowed_chars = new Set("abcdefghijklmnopqrstuvwxyz0123456789 ")
-    let space_chars = new Set("-")
-    let normalized = '';
-    for(let i = 0; i < lower_case.length; i++) {
-        let c = lower_case.charAt(i);
-        if(allowed_chars.has(c)) {
-            normalized += c;
-        }
-        else if(space_chars.has(c)) {
-            normalized += " ";
-        }
+        'diffs': diffs,
+        'num_correct': num_typed,
+        'bonuses': bonuses,
+        'total_bonus': total_bonus,
     }
-    return normalized.split(" ");
 }
 
 Meteor.methods({
@@ -249,14 +194,22 @@ Meteor.methods({
         }
     },
 
-    'audioInstances.startScoreScreen'(audio_instance, date) {
+    'audioInstances.startScoreScreen'(audio_task, audio_instance, date) {
         if(!audio_instance.time_started_rating) {
             let time_started = date;
-            // TODO: process the instance right now
-            // Need a function that produces diffs and bonuses together
+
+            // Do all of the results processing now
+            let results = processResults(audio_task, audio_instance)
+
             AudioInstances.update(
                 {_id: audio_instance._id},
-                {$set: {time_started_rating: time_started}}
+                {$set: {
+                    diffs: results.diffs,
+                    num_correct: results.num_correct,
+                    total_bonus: results.total_bonus,
+                    bonuses: results.bonuses,
+                    time_started_rating: time_started
+                }}
             );
         }
     },

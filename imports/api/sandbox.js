@@ -27,7 +27,12 @@ function setUpSandboxAudio() {
             time_started_rating: null,
             time_finished: null,
             words_typed: [],
-            bonuses: [],
+            // Set at processing time
+            diffs: null,
+            num_correct: null,
+            total_bonus: null,
+            bonuses: null,
+            // Set when rating submitted
             rating: null,
         }
     );

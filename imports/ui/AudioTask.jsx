@@ -153,7 +153,7 @@ export class AudioTask extends Component {
                 250
             ),
             current_stage: AUDIO_TASK_STATES.WAITING,
-            /* Hack: make the UI update */
+            /* Hack: make the UI update by changing this */
             update_flag: 0,
         };
     }
@@ -188,6 +188,7 @@ export class AudioTask extends Component {
                     // Submit for processing
                     Meteor.call(
                         'audioInstances.startScoreScreen',
+                        this.props.audio_task,
                         this.props.audio_instance,
                         new Date(),
                     )
@@ -200,7 +201,7 @@ export class AudioTask extends Component {
                 return;
 
             case AUDIO_TASK_STATES.SCORE_SCREEN:
-                // TODO
+                // We'll never change stages again until advanceWorkflow gets called
                 return;
         }
     }
