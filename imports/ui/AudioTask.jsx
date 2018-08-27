@@ -39,10 +39,13 @@ export class ScrollingTranscript extends Component {
 export class PlaybackBar extends Component { 
     render() {
         let time_fraction = this.props.time_elapsed / this.props.total_time;
-        let transform = 'scaleX(' + time_fraction + ') translateX(-' + 100*time_fraction + '%)';
+        let transform = 'scaleX(' + time_fraction + ')';
         return <div className="audio-view">
             <div className="audio-playback"> 
-                <div className="audio-playback-filled" style={{transform: transform}}/>
+                <div className="audio-playback-filled" style={{
+                    transformOrigin: 'top left',
+                    transform: transform
+                }}/>
             </div>
             <div className="audio-view-bottom">
                 <div className="audio-view-time">
