@@ -8,7 +8,9 @@ import {soundManager} from 'soundmanager2'
 
 export class ScrollingTranscript extends Component {
     scrollToBottom() {
-        this.bottom_placeholder.scrollIntoView({behavior: "smooth" });
+        if(this.text_area){
+            this.text_area.scrollTop = this.text_area.scrollHeight;
+        }
     }
 
     componentDidMount() {
@@ -21,7 +23,7 @@ export class ScrollingTranscript extends Component {
 
     render() {
         return (
-            <div className="audio-typed">
+            <div className="audio-typed" ref={text_area => this.text_area = text_area}>
                 {this.props.words.map((word, idx) => 
                     <div className="audio-typed-word" key={idx}>{word}</div>
                 )}
