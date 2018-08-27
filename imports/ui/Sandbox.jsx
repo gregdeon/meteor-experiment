@@ -123,7 +123,7 @@ class Sandbox extends Component {
                         audio_instance={this.props.sandbox_audio.instance}
                     />
                 </SandboxItem>
-                <SandboxCategory title="Task Screen">
+                <SandboxCategory title="Individual Task Screens">
                     <SandboxItem title="Not Started">
                         <AudioTaskView
                             started_countdown={false}
@@ -166,13 +166,11 @@ class Sandbox extends Component {
                         total_time={119}
                     />
                 </SandboxItem>
-                <SandboxCategory title="Transcript">
-                    <SandboxItem title="Transcript">
-                        <ScrollingTranscript 
-                            words={["these", "are", "a", "few", "words", "that", "have", "been", "typed"]}
-                        />
-                    </SandboxItem>
-                </SandboxCategory>
+                <SandboxItem title="Transcript">
+                    <ScrollingTranscript 
+                        words={["these", "are", "a", "few", "words", "that", "have", "been", "typed"]}
+                    />
+                </SandboxItem>
             </SandboxCategory>
 
             <SandboxCategory title="Audio Results">

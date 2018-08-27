@@ -229,9 +229,9 @@ function normalizeWord(word) {
 }
 
 Meteor.methods({
-    'audioInstances.recordTimeEntered'(audio_instance) {
+    'audioInstances.recordTimeEntered'(audio_instance, date) {
         if(!audio_instance.time_entered) {
-            let time_entered = new Date();
+            let time_entered = date;
             AudioInstances.update(
                 {_id: audio_instance._id},
                 {$set: {time_entered: time_entered}}
@@ -239,6 +239,27 @@ Meteor.methods({
         }
     },
 
+    'audioInstances.startTask'(audio_instance, date) {
+        if(!audio_instance.time_started_task) {
+            let time_started = date;
+            AudioInstances.update(
+                {_id: audio_instance._id},
+                {$set: {time_started_task: time_started}}
+            )
+        }
+    },
+
+    'audioInstances.startScoreScreen'(audio_instance, date) {
+        if(!audio_instance.time_started_rating) {
+            let time_started = date;
+            // TODO: process the instance right now
+            // Need a function that produces diffs and bonuses together
+            AudioInstances.update(
+                {_id: audio_instance._id},
+                {$set: {time_started_rating: time_started}}
+            );
+        }
+    },
 
     'audioInstances.submitWord'(audio_instance, word) {
         let normalized_words = normalizeWord(word);

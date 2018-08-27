@@ -148,18 +148,71 @@ export class AudioTask extends Component {
         super(props);
 
         this.state = {
-            // seconds_left: this.props.audio_task.time_s[0],
-            // update_interval: setInterval(
-            //     this.updateTimer.bind(this),
-            //     250,
-            // ),
+            update_interval: setInterval(
+                this.updateState.bind(this),
+                250
+            ),
+            current_stage: AUDIO_TASK_STATES.WAITING,
+            /* Hack: make the UI update */
+            update_flag: 0,
         };
+    }
+
+    updateState() {
+        // Common variables to make JS happy
+        let time_elapsed = getSecondsSince(this.props.audio_instance.time_started_task);
+
+        switch(this.state.current_stage) {
+            case AUDIO_TASK_STATES.WAITING:
+                // Done waiting if they've clicked on the button
+                if(this.props.audio_instance.time_started_task) {
+                    this.setState({current_stage: AUDIO_TASK_STATES.COUNTING_DOWN});
+                }
+                return;
+
+            case AUDIO_TASK_STATES.COUNTING_DOWN:
+                // Done waiting if enough time has passed
+                if(time_elapsed > this.props.audio_task.countdown_length) {
+                    this.setState({current_stage: AUDIO_TASK_STATES.PLAYING});
+                }
+                else {
+                    this.setState({update_flag: this.state.update_flag + 1});
+                }
+                return;
+
+            case AUDIO_TASK_STATES.PLAYING:
+                if(time_elapsed > 
+                    this.props.audio_task.countdown_length + 
+                    this.props.audio_task.audio_length
+                ) {
+                    // Submit for processing
+                    Meteor.call(
+                        'audioInstances.startScoreScreen',
+                        this.props.audio_instance,
+                        new Date(),
+                    )
+
+                    this.setState({current_stage: AUDIO_TASK_STATES.SCORE_SCREEN});
+                }
+                else {
+                    this.setState({update_flag: this.state.update_flag + 1});
+                }
+                return;
+
+            case AUDIO_TASK_STATES.SCORE_SCREEN:
+                // TODO
+                return;
+        }
     }
 
     componentDidMount() {
         // Log entry time here
         if(!this.props.audio_instance.time_entered) {
-            Meteor.call('audioInstances.recordTimeEntered', this.props.audio_instance);
+            Meteor.call(
+                'audioInstances.recordTimeEntered', 
+                this.props.audio_instance,
+                new Date(),
+            );
         }
     }
 
@@ -169,16 +222,22 @@ export class AudioTask extends Component {
         }
     }
 
-    /* TODO: get time left from audio task */
-    /*
-    let end_s = this.props.audio_task.time_s[AudioInstanceStates.TASK];
-    let time_s = end_s - this.props.time_left;
-    if(this.props.show_countdown) {
-        time_s = 0;
+    handleStartCountdown() {
+        Meteor.call(
+            'audioInstances.startTask',
+            this.props.audio_instance,
+            new Date(),
+        );
     }
-    let time_percent = time_s / end_s * 100 + "%";
-    */
 
+    handleTypedWord(word) {
+        // TODO: check current stage first? Can't be on the results screen
+        Meteor.call(
+            'audioInstances.submitWord', 
+            this.props.audio_instance,
+            word
+        );
+    }
 
     // TODO: integrate sound into timing logic
     /*
@@ -286,93 +345,50 @@ export class AudioTask extends Component {
             ratings
         );
     }
-
-    updateTimer() {
-        let stage_num = this.props.audio_instance.state;
-        let time_started = this.props.audio_instance.time_started[stage_num]
-        if(!time_started)
-               return;
-
-        let time_elapsed = getSecondsSince(time_started);
-        let time_left = Math.floor(this.props.audio_task.time_s[stage_num] - time_elapsed);
-        if(time_left < 0)
-            time_left = 0;
-        
-        this.setState({seconds_left: time_left});
-    }
-
-    getTimeLeftStage() {
-        let stage_num = this.props.audio_instance.state;
-        let stage_len_s = this.props.audio_task.time_s[stage_num];
-        let time_started = this.props.audio_instance.time_started[stage_num];
-
-        if(!time_started)
-            return stage_len_s;
-
-        let time_now = new Date();
-        let diff_s = Math.abs(time_now - time_started) / 1000;
-
-        if(diff_s > stage_len_s)
-            return 0;
-        else
-            return stage_len_s - diff_s
-    }
-
-    renderAudioScreen(seconds_left) {
-        let stage_num = this.props.audio_instance.state;
-        //let seconds_left = Math.floor(this.getTimeLeftStage());
-        let counting_down = (stage_num === AudioInstanceStates.WAITING)
-
-        return (
-            <AudioTaskView
-                audio_task={this.props.audio_task}
-                audio_instance={this.props.audio_instance}
-                player_num={this.props.player_num}
-                time_left={seconds_left}
-                show_countdown={counting_down}
-            />
-        )
-    }
-
-    renderScoreScreen(seconds_left) {
-        return (
-            <AudioTaskScoreScreen
-                audio_task={this.props.audio_task} 
-                audio_instance={this.props.audio_instance}
-                player_num={this.props.player_num}
-                time_left={seconds_left}
-            />
-        );
-    }
     */
 
-    handleTypedWord(word) {
-        // TODO: check current stage first
-        Meteor.call(
-            'audioInstances.submitWord', 
-            this.props.audio_instance,
-            word
-        );
-    }
+
 
 
     renderCurrentTask() {
-        let current_stage = 0;
+        let current_stage = this.state.current_stage;
+        let time_elapsed = getSecondsSince(this.props.audio_instance.time_started_task);
+
+        let common_props = {
+            words: this.props.audio_instance.words_typed,
+            audio_clip_length: this.props.audio_task.audio_length,
+            onTypedWord: this.handleTypedWord.bind(this),
+            restartAudio: (() => console.log("Clicked on Restart Audio")),
+        }
+
         switch(current_stage) {
             case AUDIO_TASK_STATES.WAITING:
                 return <AudioTaskView 
                     started_countdown={false}
                     audio_clip_elapsed={0}
-                    audio_clip_length={119}
-                    words={this.props.audio_instance.words_typed}
-                    onTypedWord={this.handleTypedWord.bind(this)}
-                    restartAudio={ /*TODO: callbacks*/ (() => console.log("Clicked on Restart Audio"))}
-                    startCountdown={(() => console.log("Clicked on Start Countdown"))}
+                    startCountdown={this.handleStartCountdown.bind(this)}
+                    {...common_props}
                 />
 
             case AUDIO_TASK_STATES.COUNTING_DOWN:
+                let time_left = this.props.audio_task.countdown_length - time_elapsed;
+                let time_left_pretty = (time_left > 0 ? Math.ceil(time_left) : 0);
+                return <AudioTaskView 
+                    started_countdown={true}
+                    countdown_time={time_left_pretty}
+                    audio_clip_elapsed={0}
+                    {...common_props}
+                />
+
             case AUDIO_TASK_STATES.PLAYING:
-                return <div>TODO</div>
+                let time_elapsed_audio = time_elapsed - this.props.audio_task.countdown_length;
+                let time_elapsed_pretty = Math.floor(time_elapsed_audio);
+                return <AudioTaskView 
+                    started_countdown={true}
+                    countdown_time={0}
+                    audio_clip_elapsed={time_elapsed_pretty}
+                    {...common_props}
+                />
 
             case AUDIO_TASK_STATES.SCORE_SCREEN:
                 return <AudioTaskScoreScreen

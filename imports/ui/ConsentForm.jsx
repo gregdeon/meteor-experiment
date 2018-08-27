@@ -98,7 +98,6 @@ export class ConsentForm extends Component {
     }
 
     render() {
-        console.log(this.props);
         let consent_text = this.props.consentform.text;
         let lines = consent_text.slice();
         lines.push("Thank you for considering participation in this study.");
