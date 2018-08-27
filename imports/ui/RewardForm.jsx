@@ -23,6 +23,15 @@ const theme = createMuiTheme({
 
 
 export class OneRewardDisplay extends Component {
+    getPlayerString() {
+        if(this.props.is_self) {
+            return "You"
+        }
+        else {
+            return "P" + (this.props.player + 1);
+        }
+    }
+
     getRewardString() {
         if(this.props.percent <= 0) {
             return "";
@@ -33,10 +42,10 @@ export class OneRewardDisplay extends Component {
         }
 
         if(this.props.percent < 10) {
-            return "P" + (this.props.player + 1) + ": " + this.props.reward;
+            return this.getPlayerString() + ": " + this.props.reward;
         }
 
-        return "P" + (this.props.player + 1) + ": " + this.props.reward + "c";
+        return this.getPlayerString() + ": " + this.props.reward + "c";
     }
 
     render() {
@@ -73,6 +82,7 @@ export class RewardDisplay extends Component {
                     <OneRewardDisplay 
                         key={idx}
                         player={idx}
+                        is_self={(idx+1) == this.props.player_number}
                         reward={rewards[idx]}
                         percent={percents[idx]}
                     />
@@ -98,7 +108,7 @@ export class RewardQuestions extends Component {
         return (
             <div>
                 <MuiThemeProvider theme={theme}>
-                    <p>Given you and your teamates' performance, how fair do you think your payments are?</p>
+                    <p>Given you and your teamates' performance, how fair do you think your team's payments are?</p>
                     <div className="reward-buttons-container">
                         {answer_buttons.map((button, idx) => (
                             <div className="reward-button-wrapper" key={idx}>

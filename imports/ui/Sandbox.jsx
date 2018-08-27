@@ -270,13 +270,13 @@ export default class Sandbox extends Component {
                 </SandboxItem>
                 <SandboxCategory title="Reward Display">
                     <SandboxItem title="Reward display">
-                        <RewardDisplay rewards={[20, 30, 50]} />
+                        <RewardDisplay player_number={3} rewards={[20, 30, 50]} />
                     </SandboxItem>
                     <SandboxItem title="Reward display with 0">
-                        <RewardDisplay rewards={[5, 0, 22]} />
+                        <RewardDisplay player_number={3} rewards={[5, 0, 22]} />
                     </SandboxItem>
                     <SandboxItem title="Reward display with small percentages">
-                        <RewardDisplay rewards={[2, 5, 50]} />
+                        <RewardDisplay player_number={3} rewards={[50, 2, 5]} />
                     </SandboxItem>
                 </SandboxCategory>
             </SandboxCategory>

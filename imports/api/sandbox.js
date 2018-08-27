@@ -1,19 +1,19 @@
 import { Meteor } from 'meteor/meteor';
 
 import {AudioTasks} from './audioTasks.js';
-import {AudioInstances} from './audioInstances.js';
+import {AudioInstances, normalizeWord} from './audioInstances.js';
 
 // Helper function: set up a dummy audio instance
 function setUpSandboxAudio() {
     AudioTasks.upsert(
         {_id: 'test_id'},
         {
-            audio_path: 'public/ambitious-01.mp3',
-            audio_length: 10,
+            audio_path: 'lawns-01.mp3',
+            audio_length: 38,
             countdown_length: 3,
-            words_truth: ['this', 'is', 'a', 'bunch', 'of', 'words'],
-            words_p1: ['this', 'is', 'a', 'few', 'words'],
-            words_p2: ['this', 'is', 'not', 'a', 'very', 'good', 'transcript'],
+            words_truth: normalizeWord('Where I live, in the great northeast of the United States, spring has finally gone full-bloom and summer’s right around the corner. When you get outside, it’s beautiful. The trees, the flowers — and of course, the lawns! Who doesn’t love a good lawn? It looks good, smells good, feels good. For a lot of people, a lawn is the perfect form of nature. Even though, let’s be honest, the lawns we like don’t actually occur in nature.'),
+            words_p1: normalizeWord('Where I live, in the great north east of the United States, sprng has finally gone full-bloom and summer’s rigt around the corner.'),
+            words_p2: normalizeWord('Where I live, in the States, spring has finally gone and summer’s around. it’s beautiful. trees, flowers and the lawns!'),
             reward_mode: 0,
         }
     );

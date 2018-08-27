@@ -154,10 +154,12 @@ export function getNumCorrectByPlayers(typed_p1, typed_p2, typed_p3) {
 }
 
 export function processResults(audio_task, audio_instance) {
+    let words_p3 = audio_instance.words_typed.map(obj => obj.word)
+
     let diffs = [
         diffWords(audio_task.words_truth, audio_task.words_p1),
         diffWords(audio_task.words_truth, audio_task.words_p2),
-        diffWords(audio_task.words_truth, audio_instance.words_typed),
+        diffWords(audio_task.words_truth, words_p3),
     ]
 
     // Find which of the ground truth words they typed
@@ -219,13 +221,15 @@ Meteor.methods({
         }
     },
 
-    'audioInstances.submitWord'(audio_instance, word) {
-        // TODO: log a timestamp on these too?
+    'audioInstances.submitWord'(audio_instance, word, date) {
         let normalized_words = normalizeWord(word);
+        let timestamped_words = normalized_words.map(word => 
+            ({word: word, time: date})
+        )
 
         AudioInstances.update(
             {_id: audio_instance._id},
-            {$push: {words_typed: {$each: normalized_words}}}
+            {$push: {words_typed: {$each: timestamped_words}}}
         );
     },
 

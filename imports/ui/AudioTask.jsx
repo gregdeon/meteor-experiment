@@ -157,6 +157,8 @@ export class AudioTask extends Component {
                 250
             ),
             current_stage: AUDIO_TASK_STATES.WAITING,
+            sound: null,
+            finished_sound: false,
             /* Hack: make the UI update by changing this */
             update_flag: 0,
         };
@@ -172,7 +174,7 @@ export class AudioTask extends Component {
                 if(this.props.audio_instance.time_started_task) {
                     this.setState({current_stage: AUDIO_TASK_STATES.COUNTING_DOWN});
                 }
-                return;
+                break;
 
             case AUDIO_TASK_STATES.COUNTING_DOWN:
                 // Done waiting if enough time has passed
@@ -182,7 +184,7 @@ export class AudioTask extends Component {
                 else {
                     this.setState({update_flag: this.state.update_flag + 1});
                 }
-                return;
+                break;
 
             case AUDIO_TASK_STATES.PLAYING:
                 if(time_elapsed > 
@@ -202,12 +204,14 @@ export class AudioTask extends Component {
                 else {
                     this.setState({update_flag: this.state.update_flag + 1});
                 }
-                return;
+                break;
 
             case AUDIO_TASK_STATES.SCORE_SCREEN:
                 // We'll never change stages again until advanceWorkflow gets called
-                return;
+                break;
         }
+
+        this.updateSound();
     }
 
     componentDidMount() {
@@ -222,6 +226,7 @@ export class AudioTask extends Component {
     }
 
     componentWillUnmount() {
+        this.removeSound();
         if(this.state.update_interval) {
             clearInterval(this.state.update_interval);
         }
@@ -240,7 +245,8 @@ export class AudioTask extends Component {
         Meteor.call(
             'audioInstances.submitWord', 
             this.props.audio_instance,
-            word
+            word,
+            new Date(),
         );
     }
 
@@ -254,28 +260,10 @@ export class AudioTask extends Component {
         this.props.finishedCallback();
     }
 
-    // TODO: integrate sound into timing logic
-    /*
-    in constructor:
-            sound_update_interval: setInterval(
-                this.updateAudio.bind(this),
-                250,
-            ),
-            sound: null,
-            finished_sound: false,
-
-    componentWillUnmount() {
-        this.removeSound();
-        if(this.state.sound_update_interval)
-        {
-            clearInterval(this.state.sound_update_interval);
-        }    
-    }
-
+    // Sound handling functions 
     createSound(url, finished_callback) {
         this.removeSound();
         let sound = soundManager.createSound({
-            //url: '/' + this.props.audio_task.audio_path,
             url: url,
             onfinish: finished_callback,
         });
@@ -301,7 +289,7 @@ export class AudioTask extends Component {
         });
     }
 
-    updateAudio() {
+    updateSound() {
         // Main function that controls audio
         // If we don't have a sound, load it now
         let sound = this.state.sound;
@@ -316,8 +304,9 @@ export class AudioTask extends Component {
         }
 
         // If we're in the task, play our sound (only once)
+        let audio_started = getSecondsSince(this.props.audio_instance.time_started_task) > this.props.audio_task.countdown_length;
         if(
-            this.props.audio_instance.state === AudioInstanceStates.TASK
+            audio_started
             && sound.playState === 0
             && !this.state.finished_sound
         ) {
@@ -331,33 +320,32 @@ export class AudioTask extends Component {
         }
     }
 
-    restartAudio() {
+    restartSound() {
         // Don't do anything if the audio hasn't started yet
         if(this.state.sound) {
             this.state.sound.stop();
-            if(this.props.audio_instance.state !== AudioInstanceStates.TASK) {
+            if(!this.props.audio_instance.time_started_task) {
                 this.state.sound.setPosition(0)
             }
             else {
-                let time_stage = this.props.audio_task.time_s[AudioInstanceStates.TASK];
-                let time_elapsed = time_stage - this.props.time_left;
-                this.state.sound.setPosition(time_elapsed * 1000);
+                let time_elapsed = getSecondsSince(this.props.audio_instance.time_started_task);
+                let time_elapsed_audio = time_elapsed - this.props.audio_task.countdown_length;
+                this.state.sound.setPosition(time_elapsed_audio * 1000);
             }
         }
 
-        this.updateAudio();
+        this.updateSound();
     }
-    */
 
     renderCurrentTask() {
         let current_stage = this.state.current_stage;
         let time_elapsed = getSecondsSince(this.props.audio_instance.time_started_task);
 
         let common_props = {
-            words: this.props.audio_instance.words_typed,
+            words: this.props.audio_instance.words_typed.map(word => word.word),
             audio_clip_length: this.props.audio_task.audio_length,
             onTypedWord: this.handleTypedWord.bind(this),
-            restartAudio: (() => console.log("Clicked on Restart Audio")),
+            restartAudio: (this.restartSound.bind(this)),
         }
 
         switch(current_stage) {
