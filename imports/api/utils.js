@@ -1,36 +1,61 @@
 // Counters for routing workflows
+// Counter documents have:
+// - name: the name of the counter
+// - value: the next value that will be received from the counter
 export const Counters = new Mongo.Collection('counters');
 
-// Timing
-export const ServerTime = new Mongo.Collection('servertime', {
-    idGeneration: 'MONGO',
-});
-
 if (Meteor.isServer) {
-    ServerTime.remove({});
-    ServerTime.insert({date: new Date()});
-    Meteor.publish('servertime', function serverTimePublication(){
-        return ServerTime.find({});
+    Meteor.publish('counters', function(){
+        return Counters.find();
     });
-    Meteor.setInterval(updateServerTime, 200);
 }
 
-function updateServerTime() {
-    let old_time = ServerTime.findOne({});
-    ServerTime.update(
-        {_id: old_time._id},
+// Server-side: get the next value for counter_name. Starts at 0.
+function getAndIncrementAsync(counter_name, callback) {
+    Counters.rawCollection().findOneAndUpdate(
+        // Selector
+        {name: counter_name},
+        // Update
         {
-            $set: {
-                date: new Date(),
-            }
-        }
+            $inc: {value: 1},
+            // $setOnInsert: {value: 0}
+        },
+        // Options
+        {
+            upsert: true, 
+            returnOriginal: false
+        },
+        callback
     )
 }
 
-export function getServerTime() {
-    let date = ServerTime.findOne({}).date;
-    return date;
+// Server-side: synchronous version of the counter getter
+// Note: there's no reason to use this on the client side
+export function getAndIncrementCounter(counter_name) {
+    // Subtract 1 because we want the pre-increment value
+    let ret = Meteor.wrapAsync(getAndIncrementAsync)(counter_name);
+    return ret.value.value - 1;
 }
+
+// Both sides: get the value of the counter
+export function getCounter(counter_name) {
+    counter = Counters.findOne({name: counter_name});
+    if(counter) {
+        return counter.value
+    } else {
+        // Error?
+        return 0;
+    }
+}
+
+Meteor.methods({   
+    // Example of server-side counter
+    'utils.incrementCounter'(counter_name) {
+        if(Meteor.isServer) {
+            console.log(getAndIncrementCounter(counter_name));
+        }
+    },
+});
 
 // Helper function: get seconds since a date
 // Edge case: if date isn't truthy, return 0 seconds
@@ -46,7 +71,7 @@ export function getSecondsSince(date) {
 }
 
 // Left-pad a number with 0s
-function pad(num, digits)
+export function pad(num, digits)
 {
     var ret = "" + num;
     while(ret.length < digits)

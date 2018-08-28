@@ -15,6 +15,7 @@ import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
 import {ProgressBar, WorkflowHeader} from './Workflow'
+import {Counters, getCounter} from '../api/utils.js'
 
 import {getSandboxAudio} from '../api/sandbox.js';
 
@@ -34,10 +35,6 @@ function SandboxCategory(props) {
 }
 
 class SandboxItem extends Component {
-    shouldComponentUpdate(next_props, next_state) {
-        return this.props.children.props != next_props.children.props
-    }
-
     render() {
         return <ExpansionPanel style={{width:"100%"}} expanded={true}>
             <ExpansionPanelSummary>
@@ -52,9 +49,10 @@ class SandboxItem extends Component {
     }
 }
 
-// Separate class for the reactive audio task
-class AudioSandbox extends Component {
+// Separate class for the reactive audio task and other db-reliant components
+class DynamicSandbox extends Component {
     render() {
+        console.log(this.props);
         if(!this.props.ready) {
             return <div>Subscribing to collections...</div>
         }
@@ -74,14 +72,25 @@ class AudioSandbox extends Component {
                     />
                 </SandboxItem>
             </SandboxCategory>
+            <SandboxCategory title="Utils">
+                <SandboxItem title="Workflow Counter">
+                    <p>Next workflow: {this.props.workflow_counter}</p>
+                    <button onClick={(function(){
+                        console.log(Meteor.call('utils.incrementCounter', 'workflow_instances'));
+                    })}>
+                        Update workflow number 
+                    </button>
+                </SandboxItem>
+            </SandboxCategory>
         </div>
     }
 }
 
-DynamicAudioSandbox = withTracker(() => {
+DynamicSandboxWithProps = withTracker(() => {
     const sub = [
         Meteor.subscribe('audiotasks'),
         Meteor.subscribe('audioinstances'),
+        Meteor.subscribe('counters')
     ];
 
     // Check if ready by putting together subscriptions
@@ -96,8 +105,9 @@ DynamicAudioSandbox = withTracker(() => {
     return {
         ready: all_ready,
         sandbox_audio: getSandboxAudio(),
+        workflow_counter: getCounter('workflow_instances'),
     };
-})(AudioSandbox);
+})(DynamicSandbox);
 
 export default class Sandbox extends Component {
     render() {
@@ -146,7 +156,7 @@ export default class Sandbox extends Component {
         }
 
         return <div className='sandbox-container'>
-            <DynamicAudioSandbox/>
+            <DynamicSandboxWithProps/>
             <SandboxCategory title="Workflow">
                 <SandboxItem title="Progress bar">
                     <ProgressBar num_stages={10} current_stage={2} />

@@ -18,7 +18,6 @@ import {Meteor} from 'meteor/meteor';
 import {Mongo} from 'meteor/mongo';
 import {AudioTasks} from './audioTasks.js'
 import {getReward, getRewards} from './scoreFunctions.js';
-import {getServerTime} from './utils.js';
 
 import * as diff from 'diff';
 

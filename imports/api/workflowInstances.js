@@ -38,7 +38,7 @@ if (Meteor.isServer) {
     });
 }
 
-// TODO: maybe handle this counter ourselves
+// TODO: handle this counter ourselves so we know what happens around zero
 const getWorkflowCounter = function() {
     return incrementCounter(Counters, 'workflow_instances')
 }

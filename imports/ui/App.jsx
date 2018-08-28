@@ -7,13 +7,11 @@ import {withTracker} from 'meteor/react-meteor-data';
 // API requirements
 import {WorkflowInstances} from '../api/workflowInstances.js';
 import {AudioTasks} from '../api/audioTasks.js';
-//import {AudioInstances} from '../api/audioInstances.js';
 import {BlockedUsers} from '../api/blockedUsers.js';
 
 // UI
 import WorkflowContainer from './Workflow.jsx';
 import {LoginForm} from './LoginForm.jsx';
-import {WordSearchPuzzle} from './WordSearchPuzzle.jsx';
 
 class StopRepeat extends Component {
     render() {
@@ -70,12 +68,14 @@ export default withTracker(() => {
         Meteor.subscribe('feedbackletters'),
         Meteor.subscribe('tutorials'),
         Meteor.subscribe('audiotasks'),
+
+        // Don't subscribe to audio instances here - do that in the workflow container
         //Meteor.subscribe('audioinstances'),
 
         Meteor.subscribe('audioratingtasks'),
         Meteor.subscribe('audioratinginstances'),
 
-        Meteor.subscribe('servertime'),
+        // TODO: remove this and replace with MTurk qualifications?
         Meteor.subscribe('blockedusers'),
     ];
 
@@ -95,8 +95,7 @@ export default withTracker(() => {
         // TODO: handle cases where user has joined more than one workflow
         // For now, assume there's only one
 
-        // Note that these may be undefined - it's up to the app to
-        // deal with these cases
+        // Note that app deal with case where this is undefined
         workflow_instance: WorkflowInstances.findOne(),
     };
 })(App);

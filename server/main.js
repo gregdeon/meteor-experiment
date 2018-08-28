@@ -24,6 +24,7 @@ import {ScoreModes, RewardModes} from '../imports/api/scoreFunctions.js';
 
 import {BlockedUsers} from '../imports/api/blockedUsers.js';
 import {ErrorLog} from '../imports/api/errorLog.js';
+import {Counters} from '../imports/api/utils.js';
 
 // Development
 import '../imports/api/sandbox.js';

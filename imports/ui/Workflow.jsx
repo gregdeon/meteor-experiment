@@ -172,12 +172,10 @@ export default WorkflowContainer = withTracker((props) => {
     let audio_handle = null;
     let ready = true;
 
-    // TODO: subscribe to output list from regular workflow instance
-
     return {
         ready: ready,
         workflow_instance: props.workflow_instance,
-        // TODO: only subscribe to our audio instances
+        // TODO: only subscribe to our audio instances from workflow instance
         audio_instances: AudioInstances.find().fetch(),
     };
 })(Workflow);

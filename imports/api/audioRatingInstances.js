@@ -8,15 +8,13 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
-import {getServerTime} from './utils.js';
-
 export const AudioRatingInstances = new Mongo.Collection('audioratinginstances', {
     idGeneration: 'MONGO',
 });
 
 if (Meteor.isServer) {
     Meteor.publish('audioratinginstances', function publish(){
-        // TODO: this publish function should be more selective
+        // TODOLATER: this publish function should be more selective
         // It shouldn't be a big deal for our purposes
         return AudioRatingInstances.find();
     });
@@ -34,7 +32,7 @@ export function createAudioRatingInstance(rating_task_id) {
 
 Meteor.methods({
     'audioRatingInstances.submitRating'(instance_id, answer) {
-        let time_submitted = new Date(getServerTime());
+        let time_submitted = new Date();
         let upd = {
             rating: answer,
             time_submitted: time_submitted,
