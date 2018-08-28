@@ -5,13 +5,7 @@ import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
 import {withTracker} from 'meteor/react-meteor-data';
 
-import {Puzzles} from '../api/puzzles.js';
-import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {Tutorials} from '../api/tutorials.js';
-
-import {PuzzleView} from './WordSearchPuzzle.jsx';
-import {WordSearchScoreScreen} from './WordSearchScoreScreen.jsx';
-
 import {TutorialScreen} from './Tutorial.jsx';
 
 import {LoginForm} from './LoginForm.jsx';
@@ -335,8 +329,6 @@ export default withTracker(() => {
 //        Meteor.subscribe('surveys'),
 //        Meteor.subscribe('surveyinstances'),
 //        Meteor.subscribe('feedbackletters'),
-        Meteor.subscribe('puzzles'),
-        Meteor.subscribe('puzzleinstances'),
         Meteor.subscribe('audiotasks'),
         Meteor.subscribe('audioinstances'),
         Meteor.subscribe('coopworkflowinstances'),

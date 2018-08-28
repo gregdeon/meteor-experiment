@@ -14,7 +14,6 @@ import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
 import {Tutorials} from '../api/tutorials.js';
 import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
-import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {AudioInstances} from '../api/audioInstances.js';
 import {AudioRatingInstances} from '../api/audioRatingInstances.js';
 import {centsToString} from '../api/utils.js';
@@ -170,25 +169,15 @@ class Workflow extends Component {
 
 
 export default WorkflowContainer = withTracker((props) => {
-    let puzzle_handle = null;
     let audio_handle = null;
     let ready = true;
 
     // TODO: subscribe to output list from regular workflow instance
-    /*
-    if(props.coop_instance) {
-        let stage_ids = props.coop_instance.output;
-        audio_handle = Meteor.subscribe('audioinstances.inList', stage_ids);
-        ready = audio_handle.ready();
-        //puzzle_handle = Meteor.subscribe('puzzleinstances.inList', stage_ids);
-        //ready = puzzle_handle.ready() && audio_handle.ready();
-    }
-    */
 
     return {
         ready: ready,
         workflow_instance: props.workflow_instance,
-        // Hack
+        // TODO: only subscribe to our audio instances
         audio_instances: AudioInstances.find().fetch(),
     };
 })(Workflow);

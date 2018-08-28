@@ -48,14 +48,12 @@ export const AudioInstanceStates = {
 };
 
 export function addAudioInstance(audio_id, num_players) {
-    //let audio_task = AudioTasks.findOne({_id: audio_id});
     let num_stages = AudioInstanceStates.FINISHED;
 
     let time_started = Array(num_stages).fill(null);
     let words = Array(num_players).fill([]);
     let ratings = Array(num_players).fill(null);
     let bonuses = Array(num_players).fill(null);
-    //let num_words = puzzle.words.length;
 
     let instance_id = AudioInstances.insert({
         audio_task: audio_id,

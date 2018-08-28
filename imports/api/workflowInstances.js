@@ -17,8 +17,6 @@ import {incrementCounter} from 'meteor/konecty:mongo-counter';
 
 import {Workflows, WorkflowStages} from './workflows.js';
 import {getRewards} from './scoreFunctions.js';
-import {Puzzles} from './puzzles.js';
-import {PuzzleInstances} from './puzzleInstances.js';
 import {AudioInstances} from './audioInstances.js';
 import {createAudioRatingInstance} from './audioRatingInstances.js';
 

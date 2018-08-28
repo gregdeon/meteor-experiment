@@ -6,8 +6,6 @@ import {withTracker} from 'meteor/react-meteor-data';
 
 // API requirements
 import {WorkflowInstances} from '../api/workflowInstances.js';
-import {Puzzles} from '../api/puzzles.js';
-//import {PuzzleInstances} from '../api/puzzleInstances.js';
 import {AudioTasks} from '../api/audioTasks.js';
 //import {AudioInstances} from '../api/audioInstances.js';
 import {BlockedUsers} from '../api/blockedUsers.js';
@@ -71,8 +69,6 @@ export default withTracker(() => {
         Meteor.subscribe('surveyinstances'),
         Meteor.subscribe('feedbackletters'),
         Meteor.subscribe('tutorials'),
-        Meteor.subscribe('puzzles'),
-        //Meteor.subscribe('puzzleinstances'),
         Meteor.subscribe('audiotasks'),
         //Meteor.subscribe('audioinstances'),
 

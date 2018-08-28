@@ -36,14 +36,14 @@ export function getTieredReward(points)
     return 0;
 }
 
-export function getReward(points) {
-    // TODO: handle tiered vs non-tiered reward?
-    /* This is per-word bonus
+// TODOLATER: select between tiered vs non-tiered reward
+function getLinearReward(points) {
     let cents_per_point = 0.5;
     return points * cents_per_point;
-    */
+}
 
-    // This is tiered reward
+// Tiered reward function
+export function getReward(points) {
     let n_words = 10
     let cents_per_group = 5
     let groups = Math.floor(points / n_words);
@@ -106,7 +106,7 @@ export function proportionalSplit(points_list) {
 
 
 // Weights for Shapley values
-// TODO: could calculate these automatically
+// TODOLATER: could calculate these automatically
 let shapley_weights = [
     [-2, 2, -1, 1, -1, 1, -2, 2], // P1
     [-2, -1, 2, 1, -1, -2, 1, 2], // P2

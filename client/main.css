@@ -221,20 +221,7 @@ button:disabled {
     100% { transform: rotate(360deg); }
 }
 
-/* Puzzle attributes */
-#task-hide-overflow {
-    overflow: hidden;
-}
-
-#task-outer {
-    position: relative; left: 50%; float: left;
-}
-
-#task-inner {
-    position: relative; left: -50%; float: left;
-    display: flex;
-}
-
+/* Task centering attributes */
 .task-container, 
 .word-search-puzzle-container {
     display: block;

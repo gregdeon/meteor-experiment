@@ -16,8 +16,6 @@ import {WorkflowInstances} from '../imports/api/workflowInstances.js';
 import {SurveyInstances} from '../imports/api/surveyInstances.js';
 
 // Puzzles and audio tasks
-import {Puzzles} from '../imports/api/puzzles.js';
-import {PuzzleInstances} from '../imports/api/puzzleInstances.js';
 import {AudioTasks} from '../imports/api/audioTasks.js';
 import {AudioInstances} from '../imports/api/audioInstances.js';
 import {AudioRatingTasks} from '../imports/api/audioRatingTasks.js';
