@@ -13,7 +13,7 @@ import {ConsentForms} from '../api/consentForms.js';
 import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
 import {Tutorials} from '../api/tutorials.js';
-import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
+import {getWorkflowProgress, getWorkflowBonus} from '../api/workflowInstances.js';
 import {AudioInstances} from '../api/audioInstances.js';
 import {AudioRatingInstances} from '../api/audioRatingInstances.js';
 import {centsToString} from '../api/utils.js';
@@ -54,10 +54,12 @@ export class WorkflowHeader extends Component {
 }
 
 class Workflow extends Component {
-    advanceWorkflowStage() {
+    advanceWorkflowStage(stage_num) {
         Meteor.call(
             'workflowinstances.advanceStage',
-            this.props.workflow_instance._id,
+            this.props.workflow,
+            this.props.workflow_instance,
+            stage_num,
         );
     }
 
@@ -79,7 +81,7 @@ class Workflow extends Component {
                 return (
                     <ConsentForm 
                         consentform={consentform}
-                        finishedCallback={this.advanceWorkflowStage.bind(this)}
+                        finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 );
 
@@ -89,7 +91,7 @@ class Workflow extends Component {
                     <Survey 
                         survey={survey}
                         workflow_instance_id={this.props.workflow_instance._id}
-                        finishedCallback={this.advanceWorkflowStage.bind(this)}
+                        finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 );
 
@@ -109,7 +111,7 @@ class Workflow extends Component {
                 return (
                     <TutorialScreen 
                         tutorial={tutorial}
-                        finishedCallback={this.advanceWorkflowStage.bind(this)}
+                        finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 );
 
@@ -120,7 +122,7 @@ class Workflow extends Component {
                 return (
                     <AudioRatingScreen
                         rating_instance={rating_instance}
-                        finishedCallback={this.advanceWorkflowStage.bind(this)}
+                        finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 )
         }
@@ -136,6 +138,7 @@ class Workflow extends Component {
             Meteor.call(
                 'workflowinstances.setUpWorkflow',
                 Meteor.user()._id,
+                // TODO: URL params here
             )
             return <div>Setting things up for you...</div>
         }
@@ -144,7 +147,7 @@ class Workflow extends Component {
                 this.props.workflow_instance,
             );
 
-            let earnings = getWorkflowEarnings(
+            let earnings = getWorkflowBonus(
                 this.props.workflow_instance,
                 Meteor.userId(),
             );
@@ -159,8 +162,8 @@ class Workflow extends Component {
                      />
                     {this.renderStage()}
 
-                    <span id="audio"></span>
                     {/* Hack: keep this around at the parent level so the audio doesn't stop */}
+                    <span id="audio"></span>
                 </div>
             );
         }
@@ -174,6 +177,7 @@ export default WorkflowContainer = withTracker((props) => {
 
     return {
         ready: ready,
+        workflow: Workflows.findOne({_id: props.workflow_instance.workflow_id}),
         workflow_instance: props.workflow_instance,
         // TODO: only subscribe to our audio instances from workflow instance
         audio_instances: AudioInstances.find().fetch(),

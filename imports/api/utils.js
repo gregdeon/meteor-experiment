@@ -18,7 +18,6 @@ function getAndIncrementAsync(counter_name, callback) {
         // Update
         {
             $inc: {value: 1},
-            // $setOnInsert: {value: 0}
         },
         // Options
         {
@@ -37,7 +36,7 @@ export function getAndIncrementCounter(counter_name) {
     return ret.value.value - 1;
 }
 
-// Both sides: get the value of the counter
+// Both sides: get the next value of the counter
 export function getCounter(counter_name) {
     counter = Counters.findOne({name: counter_name});
     if(counter) {

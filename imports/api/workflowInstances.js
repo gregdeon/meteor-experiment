@@ -38,22 +38,48 @@ if (Meteor.isServer) {
     });
 }
 
-// TODO: handle this counter ourselves so we know what happens around zero
-const getWorkflowCounter = function() {
-    return incrementCounter(Counters, 'workflow_instances')
+export function makeNewWorkflowInstance(workflow, user_id, worker_id, assign_id, hit_id) {
+    let output_list = workflow.stages.map((stage) => {
+        // TODO: do something more generic than a switch case?
+        switch(stage.type) {
+            case WorkflowStages.AUDIO_TASK:
+                // TODO: create a new audio instance here
+                return null;
+            case WorkflowStages.AUDIO_RATING:
+                return createAudioRatingInstance(stage.id);
+            // It's possible to back-reference the stage instance ID to match it up with the workflow
+            // This means that returning null isn't catastrophic
+            // However, analyzing the data is easier if we don't do this
+            default:
+                return null;
+        }
+    })
+
+    return {
+        user_id: user_id,
+        worker_id: worker_id,
+        assign_id: assign_id,
+        hit_id: hit_id,
+        workflow_id: workflow._id,
+        output: output_list,
+        stage: 0,
+        confirm_code: null,
+    }
 }
 
-export function getWorkflowProgress(instance) {
-    let workflow = Workflows.findOne({_id: instance.workflow_id});
+export function getWorkflowProgress(workflow, instance) {
     let done = 0;
     let total = 0;
-    workflow.stages.map((stage, idx) => {
+
+    // Do a forEach here in case we want 
+    workflow.stages.forEach((stage, idx) => {
         switch(stage.type) {
             case WorkflowStages.CONSENT:
             case WorkflowStages.SURVEY:
             case WorkflowStages.FEEDBACK:
             case WorkflowStages.TUTORIAL:
             case WorkflowStages.AUDIO_RATING:
+            case WorkflowStages.AUDIO_TASK:
                 total += 1;
                 if(instance.stage > idx)
                     done += 1;
@@ -63,126 +89,60 @@ export function getWorkflowProgress(instance) {
 
     return {
         done: done,
-        // Don't count the very last step
-        total: total-1,
+        total: total,
     };
 }
 
-export function getWorkflowEarnings(instance, user_id) {
-    let base = 0;
+export function getWorkflowEarnings(workflow, instance) {
     let bonus = 0;
 
-    console.log(user_id);
-
-    // TODO: this function assumes that the regular workflow is worth nothing
-    // TODO: port this code from coop workflows to regular workflows
-    /*
-    if(coop_instance) {
-        let player_num = getPlayerNumber(user_id, coop_instance);
-        let coop_workflow = CoopWorkflows.findOne({_id: coop_instance.coop_id});
-        if(coop_instance.ready_state == 2) {
-            coop_workflow.stages.map((stage, idx) => {
-                let rewards = [0, 0, 0]
-                // No money for stages we haven't done yet
-                if(idx >= coop_instance.stage)
-                    return;
-
-                switch(stage.type) {
-                    case CoopWorkflowStages.PUZZLE:
-                        let puzzle_instance_id = coop_instance.output[idx];
-                        let puzzle_instance = PuzzleInstances.findOne(puzzle_instance_id);
-                        let puzzle = Puzzles.findOne(puzzle_instance.puzzle);
-                        rewards = getRewards(
-                            puzzle_instance,
-                            puzzle.reward_mode,
-                            puzzle.score_mode,
-                        )
-                        console.log(rewards);
-                        console.log(player_num);
-
-                        // TODO: don't assume 50 cents
-                        base += 50;
-                        bonus += rewards[player_num];
-                        break;
-
-                    case CoopWorkflowStages.AUDIO:
-                        let audio_id = coop_instance.output[idx];
-                        let audio_instance = AudioInstances.findOne(audio_id);
-                        rewards = audio_instance.bonuses;
-
-                        base += 25;
-                        bonus += rewards[player_num];
-                        break;
+    workflow.stages.forEach((stage, idx) => {
+        switch(stage.type) {
+            case WorkflowStages.AUDIO_TASK:
+                let stage_instance_id = instance.output[idx];
+                let stage_instance = AudioInstances.findOne({_id: stage_instance_id});
+                if(stage_instance) {
+                    let stage_bonus = stage_instance.bonus;
+                    if(stage_bonus) {
+                        bonus += stage_bonus;
+                    }
                 }
-            });
+                break;
         }
-    }
+    })
 
-    */
-    return {
-        base: base,
-        bonus: bonus,
-    };
+    return bonus;
 }
 
 Meteor.methods({
-    'workflowinstances.setUpWorkflow'(user_id) {
+    'workflowinstances.setUpWorkflow'(user_id, worker_id, assign_id, hit_id) {
         // DEBUG
         console.log("Making workflow instance for " + user_id);
 
-        // Try to find an instance for them
-        let instance = WorkflowInstances.findOne({
-            user_id: user_id,
-            //workflow_id: workflow._id,
-        });
-
-        // They have one, so 
-        if(instance) {
+        // Don't make them an instance if they already have one
+        if(WorkflowInstances.find({user_id: user_id}).count() > 0) {
             return;
         }
         
         // None exist, so make a new one instead
         // Find the workflow that they should use
         let num_workflows = Workflows.find().count();
-        let workflow_num = (getWorkflowCounter() - 1) % num_workflows;
-        let workflow = Workflows.findOne({}, {sort: ['number'], skip: workflow_num});
+        let workflow_num = (getWorkflowCounter()) % num_workflows;
+        let workflow = Workflows.findOne({number: workflow_num});
         console.log(workflow_num);
 
-
-
-        // Build output list
-        // TODO: this should be more generic instead of a switch-case
-        let output_list = [];
-        for(let i = 0; i < workflow.stages.length; i++) {
-            let stage = workflow.stages[i];
-            let output_id = null;
-            switch(stage.type) {
-                case WorkflowStages.AUDIO_RATING:
-                    let task_id = stage.id;
-                    output_id = createAudioRatingInstance(task_id);
-                    break;
-            }
-
-            output_list.push(output_id);
-        }
-        
         // Add instance to the database
-        WorkflowInstances.insert({
-            user_id: user_id,
-            workflow_id: workflow._id,
-            stage: 0,
-            output: output_list,
-            confirm_code: null,
-        })
-
-        // No need to return - props will get updated right away
+        let workflow_instance = makeNewWorkflowInstance(workflow, user_id, worker_id, assign_id, hit_id);
+        WorkflowInstances.insert(workflow_instance);
     },
 
-    'workflowinstances.advanceStage'(instance_id) {
-        let instance = WorkflowInstances.findOne({_id: instance_id});
-        let workflow = Workflows.findOne({_id: instance.workflow_id});
-
+    'workflowinstances.advanceStage'(workflow, instance, current_stage) {
         let stage = instance.stage;
+        // Don't advance if they're on the wrong stage
+        if(stage != current_stage) {
+            return;
+        }
+
         let new_stage = stage + 1;
         let num_stages = workflow.stages.length;
 
@@ -200,7 +160,7 @@ Meteor.methods({
                 }
             }
 
-            WorkflowInstances.update(instance_id, {
+            WorkflowInstances.update(instance._id, {
                 $set: upd
             });
         }
