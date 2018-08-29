@@ -101,11 +101,5 @@ export default withTracker((props) => {
         worker_id: worker_id,
         assignment_id: assignment_id,
         hit_id: hit_id,
-
-        // TODO: handle cases where user has joined more than one workflow
-        // For now, assume there's only one
-
-        // Note that app deals with case where this is undefined
-        workflow_instance: WorkflowInstances.findOne(),
     };
 })(App);

@@ -164,6 +164,21 @@ export class AudioTask extends Component {
         };
     }
 
+    // Helper function because we need to reset after submit
+    getInitialState() {
+        return {
+            update_interval: setInterval(
+                this.updateState.bind(this),
+                250
+            ),
+            current_stage: AUDIO_TASK_STATES.WAITING,
+            sound: null,
+            finished_sound: false,
+            /* Hack: make the UI update by changing this */
+            update_flag: 0,
+        }
+    }
+
     updateState() {
         // Common variables to make JS happy
         let time_elapsed = getSecondsSince(this.props.audio_instance.time_started_task);
@@ -258,6 +273,8 @@ export class AudioTask extends Component {
             new Date(),
         );
         this.props.finishedCallback();
+        clearInterval(this.state.update_interval)
+        this.setState(this.getInitialState());
     }
 
     // Sound handling functions 

@@ -48,7 +48,7 @@ export const AudioInstanceStates = {
 
 export function createAudioTaskInstance(audio_id, num_players) {
     let instance_id = AudioInstances.insert({
-        audio_task: 'test_id',
+        audio_task: audio_id,
         // Set during tasks
         time_entered: null,
         time_started_task: null,

@@ -41,7 +41,6 @@ export function makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id) 
         // TODO: do something more generic than a switch case?
         switch(stage.type) {
             case WorkflowStages.AUDIO_TASK:
-                // TODO: create a new audio instance here
                 return createAudioTaskInstance(stage.id);
             case WorkflowStages.AUDIO_RATING:
                 return createAudioRatingInstance(stage.id);
