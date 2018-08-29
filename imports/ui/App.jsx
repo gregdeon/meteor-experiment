@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import {Meteor} from 'meteor/meteor';
 import {withTracker} from 'meteor/react-meteor-data';
+import * as qs from 'query-string';
 
 // API requirements
 import {WorkflowInstances} from '../api/workflowInstances.js';
@@ -12,6 +13,7 @@ import {BlockedUsers} from '../api/blockedUsers.js';
 // UI
 import WorkflowContainer from './Workflow.jsx';
 import {LoginForm} from './LoginForm.jsx';
+
 
 class StopRepeat extends Component {
     render() {
@@ -31,6 +33,7 @@ class StopRepeat extends Component {
 
 class App extends Component {
     render() {
+        console.log(this.props);
         // Wait for db connections
         if(!this.props.ready) {
             return (
@@ -38,13 +41,8 @@ class App extends Component {
             );
         }
 
-        // If not logged in, automatically log in with worker ID
-        if(!this.props.user) {
-            return <LoginForm />;
-        }
-
         // Check for repeat users
-        let blocked_num = BlockedUsers.find({username: this.props.user.username}).count();
+        let blocked_num = BlockedUsers.find({username: this.props.worker_id}).count();
         if(blocked_num > 0) {   
             return (<StopRepeat />);
         }
@@ -53,27 +51,35 @@ class App extends Component {
         return (
             <WorkflowContainer
                 workflow_instance={this.props.workflow_instance}
+                worker_id={this.props.worker_id}
+                assignment_id={this.props.assignment_id}
+                hit_id={this.props.hit_id}
             />
         );
     }
 }
 
-export default withTracker(() => {
+export default withTracker((props) => {
+    // Get MTurk details from URL params
+    let url_param_string = props.location.search;
+    let split_params = qs.parse(url_param_string, {ignoreQueryPrefix: true});
+
+    let worker_id = split_params.WORKER_ID || "greg";
+    let assignment_id = split_params.ASSSIGNMENT_ID || "no_assignment";
+    let hit_id = split_params.HIT_ID || "no_hit";
+
     const sub = [
         Meteor.subscribe('workflows'),
-        Meteor.subscribe('workflowinstances'),
+        Meteor.subscribe('workflowinstances.worker_id', worker_id),
         Meteor.subscribe('consentforms'),
         Meteor.subscribe('surveys'),
         Meteor.subscribe('surveyinstances'),
         Meteor.subscribe('feedbackletters'),
         Meteor.subscribe('tutorials'),
-        Meteor.subscribe('audiotasks'),
 
         // Don't subscribe to audio instances here - do that in the workflow container
+        // Meteor.subscribe('audiotasks'),
         //Meteor.subscribe('audioinstances'),
-
-        Meteor.subscribe('audioratingtasks'),
-        Meteor.subscribe('audioratinginstances'),
 
         // TODO: remove this and replace with MTurk qualifications?
         Meteor.subscribe('blockedusers'),
@@ -88,14 +94,18 @@ export default withTracker(() => {
         }
     });
 
+
     return {
         ready: all_ready,
-        user: Meteor.user(),
+        // user: Meteor.user(),
+        worker_id: worker_id,
+        assignment_id: assignment_id,
+        hit_id: hit_id,
 
         // TODO: handle cases where user has joined more than one workflow
         // For now, assume there's only one
 
-        // Note that app deal with case where this is undefined
+        // Note that app deals with case where this is undefined
         workflow_instance: WorkflowInstances.findOne(),
     };
 })(App);

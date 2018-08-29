@@ -1,12 +1,13 @@
 // workflowInstances.js
 // Collection for describing user's progress in a workflow steps
 // Contents:
-// - user_id: reference to user
+// - worker_id: MTurk worker ID
+// - assign_id: MTurk assignment ID
+// - hit_id: MTurk HIT ID
 // - workflow_id: reference to workflow
 // - stage: current stage of the user
 // - output: list of IDs of stage instances (task instances, survey instances, etc)
 //   (note: output list doesn't include all stage types. TODO.)
-// - assign_id: MTurk assignment ID
 // - confirm_code: UUID for confirmation code
 
 import {Meteor} from 'meteor/meteor'; 
@@ -28,17 +29,14 @@ export const WorkflowInstances = new Mongo.Collection('workflowinstances', {
 
 if (Meteor.isServer) {
     Meteor.publish('workflowinstances', function(){
-        // If they're logged in, show their instances
-        if(this.userId) {
-            return WorkflowInstances.find({user_id: this.userId});
-        }
-        else {
-            return this.ready();
-        }
+        return WorkflowInstances.find({});
     });
+    Meteor.publish('workflowinstances.worker_id', function(worker_id) {
+        return WorkflowInstances.find({worker_id: worker_id})
+    })
 }
 
-export function makeNewWorkflowInstance(workflow, user_id, worker_id, assign_id, hit_id) {
+export function makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id) {
     let output_list = workflow.stages.map((stage) => {
         // TODO: do something more generic than a switch case?
         switch(stage.type) {
@@ -56,7 +54,6 @@ export function makeNewWorkflowInstance(workflow, user_id, worker_id, assign_id,
     })
 
     return {
-        user_id: user_id,
         worker_id: worker_id,
         assign_id: assign_id,
         hit_id: hit_id,
@@ -115,12 +112,16 @@ export function getWorkflowEarnings(workflow, instance) {
 }
 
 Meteor.methods({
-    'workflowinstances.setUpWorkflow'(user_id, worker_id, assign_id, hit_id) {
+    'workflowinstances.setUpWorkflow'(worker_id, assign_id, hit_id) {
+        if(Meteor.isClient) {
+            return;
+        }
+
         // DEBUG
-        console.log("Making workflow instance for " + user_id);
+        console.log("Making workflow instance for " + worker_id);
 
         // Don't make them an instance if they already have one
-        if(WorkflowInstances.find({user_id: user_id}).count() > 0) {
+        if(WorkflowInstances.find({worker_id: worker_id}).count() > 0) {
             return;
         }
         
@@ -132,7 +133,7 @@ Meteor.methods({
         console.log(workflow_num);
 
         // Add instance to the database
-        let workflow_instance = makeNewWorkflowInstance(workflow, user_id, worker_id, assign_id, hit_id);
+        let workflow_instance = makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id);
         WorkflowInstances.insert(workflow_instance);
     },
 

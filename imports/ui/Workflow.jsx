@@ -138,8 +138,9 @@ class Workflow extends Component {
         if(!this.props.workflow_instance) {
             Meteor.call(
                 'workflowinstances.setUpWorkflow',
-                Meteor.user()._id,
-                // TODO: URL params here
+                this.props.worker_id,
+                this.props.assignment_id,
+                this.props.hit_id,
             )
             return <div>Setting things up for you...</div>
         }
@@ -152,12 +153,11 @@ class Workflow extends Component {
             let bonus = getWorkflowEarnings(
                 this.props.workflow,
                 this.props.workflow_instance,
-                Meteor.userId(),
             );
             return (
                 <div>
                     <WorkflowHeader
-                        username={Meteor.user().username + ' '}
+                        username={this.props.worker_id + ' '}
                         num_stages={progress.total}
                         current_stage={progress.done}
                         bonus_cents={bonus}
@@ -185,6 +185,11 @@ export default WorkflowContainer = withTracker((props) => {
 
     return {
         ready: ready,
+
+        worker_id: props.worker_id,
+        assignment_id: props.assignment_id,
+        hit_id: props.hit_id,
+
         workflow: workflow,
         workflow_instance: props.workflow_instance,
         // TODO: only subscribe to our audio instances from workflow instance

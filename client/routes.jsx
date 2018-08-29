@@ -11,12 +11,12 @@ import Sandbox from '../imports/ui/Sandbox.jsx';
 
 const browser_history = createBrowserHistory()
 
-export const renderRoutes = () => (
-  <Router history={browser_history}>
-    <Switch>
-      <Route exact path="/" component={App}/>
-      <Route exact path="/admin/" component={AdminUI}/>
-      {Meteor.isDevelopment ? <Route exact path="/sandbox/" component={Sandbox}/> : null}
-    </Switch>
-  </Router>
-);
+export const renderRoutes = (() => {
+    return <Router history={browser_history}>
+        <Switch>
+            <Route exact path="/" component={App}/>
+            <Route exact path="/admin/" component={AdminUI}/>
+            {Meteor.isDevelopment ? <Route exact path="/sandbox/" component={Sandbox}/> : null}
+        </Switch>
+    </Router>
+});
