@@ -13,7 +13,7 @@ import {ConsentForms} from '../api/consentForms.js';
 import {Surveys} from '../api/surveys.js';
 import {FeedbackLetters} from '../api/feedbackLetters.js';
 import {Tutorials} from '../api/tutorials.js';
-import {getWorkflowProgress, getWorkflowBonus} from '../api/workflowInstances.js';
+import {getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
 import {AudioInstances} from '../api/audioInstances.js';
 import {AudioRatingInstances} from '../api/audioRatingInstances.js';
 import {centsToString} from '../api/utils.js';
@@ -129,6 +129,7 @@ class Workflow extends Component {
     }
 
     render() {
+        console.log(this.props);
         if(!this.props.ready) {
             return null;
         }
@@ -144,10 +145,12 @@ class Workflow extends Component {
         }
         else {
             let progress = getWorkflowProgress(
+                this.props.workflow,
                 this.props.workflow_instance,
             );
 
-            let earnings = getWorkflowBonus(
+            let bonus = getWorkflowEarnings(
+                this.props.workflow,
                 this.props.workflow_instance,
                 Meteor.userId(),
             );
@@ -157,7 +160,7 @@ class Workflow extends Component {
                         username={Meteor.user().username + ' '}
                         num_stages={progress.total}
                         current_stage={progress.done}
-                        bonus_cents={earnings.bonus}
+                        bonus_cents={bonus}
                         workflow_instance={this.props.workflow_instance}
                      />
                     {this.renderStage()}
@@ -175,9 +178,14 @@ export default WorkflowContainer = withTracker((props) => {
     let audio_handle = null;
     let ready = true;
 
+    let workflow = null;
+    if(props.workflow_instance) {
+        workflow = Workflows.findOne({_id: props.workflow_instance.workflow_id})
+    }
+
     return {
         ready: ready,
-        workflow: Workflows.findOne({_id: props.workflow_instance.workflow_id}),
+        workflow: workflow,
         workflow_instance: props.workflow_instance,
         // TODO: only subscribe to our audio instances from workflow instance
         audio_instances: AudioInstances.find().fetch(),

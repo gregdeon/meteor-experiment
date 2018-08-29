@@ -17,10 +17,10 @@ import {incrementCounter} from 'meteor/konecty:mongo-counter';
 
 import {Workflows, WorkflowStages} from './workflows.js';
 import {getRewards} from './scoreFunctions.js';
-import {AudioInstances} from './audioInstances.js';
+import {AudioInstances, createAudioTaskInstance} from './audioInstances.js';
 import {createAudioRatingInstance} from './audioRatingInstances.js';
 
-import {Counters} from './utils.js';
+import {Counters, getAndIncrementCounter} from './utils.js';
 
 export const WorkflowInstances = new Mongo.Collection('workflowinstances', {
     idGeneration: 'MONGO',
@@ -44,7 +44,7 @@ export function makeNewWorkflowInstance(workflow, user_id, worker_id, assign_id,
         switch(stage.type) {
             case WorkflowStages.AUDIO_TASK:
                 // TODO: create a new audio instance here
-                return null;
+                return createAudioTaskInstance(stage.id);
             case WorkflowStages.AUDIO_RATING:
                 return createAudioRatingInstance(stage.id);
             // It's possible to back-reference the stage instance ID to match it up with the workflow
@@ -127,7 +127,7 @@ Meteor.methods({
         // None exist, so make a new one instead
         // Find the workflow that they should use
         let num_workflows = Workflows.find().count();
-        let workflow_num = (getWorkflowCounter()) % num_workflows;
+        let workflow_num = (getAndIncrementCounter('workflow_instances')) % num_workflows;
         let workflow = Workflows.findOne({number: workflow_num});
         console.log(workflow_num);
 

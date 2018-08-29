@@ -46,21 +46,22 @@ export const AudioInstanceStates = {
     FINISHED: 3,
 };
 
-export function addAudioInstance(audio_id, num_players) {
-    let num_stages = AudioInstanceStates.FINISHED;
-
-    let time_started = Array(num_stages).fill(null);
-    let words = Array(num_players).fill([]);
-    let ratings = Array(num_players).fill(null);
-    let bonuses = Array(num_players).fill(null);
-
+export function createAudioTaskInstance(audio_id, num_players) {
     let instance_id = AudioInstances.insert({
-        audio_task: audio_id,
-        state: AudioInstanceStates.WAITING,
-        time_started: time_started,
-        words: words,
-        bonuses: bonuses,
-        ratings: ratings,
+        audio_task: 'test_id',
+        // Set during tasks
+        time_entered: null,
+        time_started_task: null,
+        time_started_rating: null,
+        time_finished: null,
+        words_typed: [],
+        // Set at processing time
+        diffs: null,
+        num_correct: null,
+        total_bonus: null,
+        bonuses: null,
+        // Set when rating submitted
+        rating: null,
     });
 
     return instance_id;
