@@ -98,9 +98,10 @@ export function getWorkflowEarnings(workflow, instance) {
                 let stage_instance_id = instance.output[idx];
                 let stage_instance = AudioInstances.findOne({_id: stage_instance_id});
                 if(stage_instance) {
-                    let stage_bonus = stage_instance.bonus;
-                    if(stage_bonus) {
-                        bonus += stage_bonus;
+                    let stage_bonuses = stage_instance.bonuses;
+                    if(stage_bonuses) {
+                        // Hard coded for player 3
+                        bonus += stage_bonuses[2];
                     }
                 }
                 break;
