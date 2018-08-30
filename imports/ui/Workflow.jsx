@@ -20,7 +20,7 @@ import {AudioTasks} from '../api/audioTasks.js';
 import {AudioRatingInstances} from '../api/audioRatingInstances.js';
 import {centsToString} from '../api/utils.js';
 
-export class ProgressBar extends Component {
+export class WorkflowProgressBar extends Component {
     render() {
         let percent_done = this.props.current_stage / this.props.num_stages * 100;
         return <div className="workflow-progress-bar">
@@ -41,7 +41,7 @@ export class WorkflowHeader extends Component {
                 </div>            
                 <div className="workflow-progress">
                     Progress: 
-                    <ProgressBar 
+                    <WorkflowProgressBar 
                         num_stages={this.props.num_stages}
                         current_stage={this.props.current_stage}
                     /> 

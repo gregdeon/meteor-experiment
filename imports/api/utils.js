@@ -1,3 +1,6 @@
+
+import {Meteor} from 'meteor/meteor';
+
 // Counters for routing workflows
 // Counter documents have:
 // - name: the name of the counter
@@ -5,6 +8,11 @@
 export const Counters = new Mongo.Collection('counters');
 
 if (Meteor.isServer) {
+    // Subscribe to this for access to Meteor.users
+    Meteor.publish("allusers", function () {
+        return Meteor.users.find();
+    });
+
     Meteor.publish('counters', function(){
         return Counters.find();
     });

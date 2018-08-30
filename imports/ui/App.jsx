@@ -6,13 +6,10 @@ import {withTracker} from 'meteor/react-meteor-data';
 import * as qs from 'query-string';
 
 // API requirements
-import {WorkflowInstances} from '../api/workflowInstances.js';
-import {AudioTasks} from '../api/audioTasks.js';
 import {BlockedUsers} from '../api/blockedUsers.js';
 
 // UI
 import WorkflowContainer from './Workflow.jsx';
-
 
 class StopRepeat extends Component {
     render() {

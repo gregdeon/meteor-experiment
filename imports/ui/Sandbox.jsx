@@ -14,7 +14,7 @@ import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {SurveyQuestion, Survey} from './Survey'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
-import {ProgressBar, WorkflowHeader} from './Workflow'
+import {WorkflowProgressBar, WorkflowHeader} from './Workflow'
 import {Counters, getCounter} from '../api/utils.js'
 
 import {getSandboxAudio} from '../api/sandbox.js';
@@ -159,7 +159,7 @@ export default class Sandbox extends Component {
             <DynamicSandboxWithProps/>
             <SandboxCategory title="Workflow">
                 <SandboxItem title="Progress bar">
-                    <ProgressBar num_stages={10} current_stage={2} />
+                    <WorkflowProgressBar num_stages={10} current_stage={2} />
                 </SandboxItem>
                 <SandboxItem title="Header">
                     <WorkflowHeader

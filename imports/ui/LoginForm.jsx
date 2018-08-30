@@ -12,29 +12,19 @@ export class LoginForm extends Component {
         };
     }
 
-    loginOrRegister(username, password) {
-        // Try to log in
-        this.setState({status_message: 'Logging in...'})
-        Meteor.loginWithPassword(username, password, (err) => {
-            console.log(err);
-            if(err) {
-                if(err.reason === "User not found") {
-                    // Try to create account
-                    Accounts.createUser({
-                        username: username,
-                        password: password,
-                    }, (err) => {
-                        if(err) {
-                            this.setState({error_message: 'Error while creating new user: ' + err.reason})
-                        }
-                    }); 
-                }
-                else {
-                    this.setState({error_message: 'Login failed: ' + err.reason});
-                }
-            }
-            this.setState({status_message: ''})
-        });
+    setMessage(msg, is_error) {
+        if(is_error) {
+            this.setState({
+                status_message: '',
+                error_message: msg,
+            });
+        }
+        else {
+            this.setState({
+                status_message: msg,
+                error_message: '',
+            });
+        }
     }
 
     handleUsernameChange(e) {
@@ -43,6 +33,40 @@ export class LoginForm extends Component {
 
     handlePasswordChange(e) {
         this.setState({password: e.target.value});
+    }
+
+    checkIfUserExists(username) {
+        return Meteor.users.find({username: username}).count() > 0;
+    }
+
+    loginOrRegister(username, password) {
+        if(this.checkIfUserExists(username)) {
+            // Try to log in
+            this.setMessage('User is registered. Logging in...', false)
+            Meteor.loginWithPassword(username, password, (err) => {
+                if(err) {
+                    this.setMessage('Login failed: ' + err.reason, true)
+                }
+                else {
+                    this.setMessage('Success. Loading page...', false)
+                }
+            });
+        }
+        else {
+            // Register new account
+            this.setMessage('Registering...', false)
+            Accounts.createUser({
+                username: username,
+                password: password,
+            }, (err) => {
+                if(err) {
+                    this.setMessage('Error while creating new user: ' + err.reason, true)
+                }
+                else {
+                    this.setMessage('Success. Loading page...', false)
+                }
+            }); 
+        }
     }
 
     handleSubmit(e) {
@@ -56,7 +80,7 @@ export class LoginForm extends Component {
         }
 
         if(username === '' || password === '') {
-            this.setState({error_message: 'Username or password is empty'});
+            this.setMessage('Username or password is empty', true);
             return;
         }
 
@@ -91,11 +115,10 @@ export class LoginForm extends Component {
             >
                 <h1>Landing Page</h1>
                 <div className='login-field'>
-                    <label htmlFor="username">Worker ID: </label>
+                    <label htmlFor="username">Username: </label>
                     <input 
                         type="text" 
                         name="username"
-                        placeholder="MTurk ID (ex: A12345678)"
                         value={this.state.username}
                         onChange={this.handleUsernameChange.bind(this)}
                     />
