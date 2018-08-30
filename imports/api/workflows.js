@@ -26,4 +26,7 @@ if (Meteor.isServer) {
     Meteor.publish('workflows', function workflowPublication(){
         return Workflows.find();
     });
+    Meteor.publish('workflows.id', function(workflow_id) {
+        return Workflows.find({_id: workflow_id});
+    })
 }

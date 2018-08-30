@@ -143,10 +143,9 @@ class Workflow extends Component {
     }
 
     render() {
-        console.log(this.props);
         if(!this.props.ready) {
             return (
-                <div>Loading...</div>
+                <div>Connecting to server...</div>
             );
         }
 
@@ -158,7 +157,7 @@ class Workflow extends Component {
                 this.props.assignment_id,
                 this.props.hit_id,
             )
-            return <div>Setting things up for you...</div>
+            return <div>Setting up the experiment for you...</div>
         }
         else {
             let progress = getWorkflowProgress(
@@ -194,21 +193,43 @@ export default WorkflowContainer = withTracker((props) => {
     // TODO: handle cases where user has joined more than one workflow
     // For now, assume there's only one
     // Note that UI deals with case where this is undefined
+    // Feels weird to do this out of order, but necessary for subscriptions
     let workflow_instance = WorkflowInstances.findOne();
+    let workflow_id = null;
+    let instance_id_list = [];
     let workflow = null;
+    let stage_id_list = [];
+
     if(workflow_instance) {
-        workflow = Workflows.findOne({_id: workflow_instance.workflow_id})
+        workflow_id = workflow_instance.workflow_id;
+        instance_id_list = workflow_instance.output;
+        workflow = Workflows.findOne({_id: workflow_id});
     }
 
+    if(workflow) {
+        stage_id_list = workflow.stages.map(stage => stage.id);
+    }
+
+
     const sub = [
-        Meteor.subscribe('audiotasks'),
-        // TODO: only subscribe to our audio instances from workflow instance
-        Meteor.subscribe('audioinstances'),
+        // Static subscriptions
+        Meteor.subscribe('consentforms'),
+        Meteor.subscribe('surveys'),
+        Meteor.subscribe('feedbackletters'),
+        Meteor.subscribe('tutorials'),
+
+        // Dynamic subscriptions
+        Meteor.subscribe('workflows.id', workflow_id),
+        Meteor.subscribe('audiotasks.id_list', stage_id_list),
+        Meteor.subscribe('workflowinstances.worker_id', props.worker_id),
+        Meteor.subscribe('audioinstances.id_list', instance_id_list),
+        // TODO: is this subscription even necessary?
+        Meteor.subscribe('surveyinstances.id_list', instance_id_list),
     ];
 
     // Check if ready by putting together subscriptions
     let all_ready = true;
-    sub.map((sub_item, idx) => {
+    sub.forEach((sub_item, idx) => {
         if(!sub_item.ready())
         {
             all_ready = false;

@@ -32,7 +32,7 @@ if (Meteor.isServer) {
     });    
 
     // Subscribe 
-    Meteor.publish('audioinstances.inList', function publish(id_list){
+    Meteor.publish('audioinstances.id_list', function publish(id_list){
         return AudioInstances.find({
             _id: {$in: id_list}
         });

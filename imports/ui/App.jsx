@@ -12,7 +12,6 @@ import {BlockedUsers} from '../api/blockedUsers.js';
 
 // UI
 import WorkflowContainer from './Workflow.jsx';
-import {LoginForm} from './LoginForm.jsx';
 
 
 class StopRepeat extends Component {
@@ -33,24 +32,16 @@ class StopRepeat extends Component {
 
 class App extends Component {
     render() {
-        console.log(this.props);
-        // Wait for db connections
-        if(!this.props.ready) {
-            return (
-                <div>Loading...</div>
-            );
-        }
-
         // Check for repeat users
-        let blocked_num = BlockedUsers.find({username: this.props.worker_id}).count();
-        if(blocked_num > 0) {   
-            return (<StopRepeat />);
-        }
+        // TODO: remove this?
+        // let blocked_num = BlockedUsers.find({username: this.props.worker_id}).count();
+        // if(blocked_num > 0) {   
+        //     return (<StopRepeat />);
+        // }
      
         // Show their workflow
         return (
             <WorkflowContainer
-                workflow_instance={this.props.workflow_instance}
                 worker_id={this.props.worker_id}
                 assignment_id={this.props.assignment_id}
                 hit_id={this.props.hit_id}
@@ -68,36 +59,7 @@ export default withTracker((props) => {
     let assignment_id = split_params.ASSSIGNMENT_ID || "no_assignment";
     let hit_id = split_params.HIT_ID || "no_hit";
 
-    const sub = [
-        Meteor.subscribe('workflows'),
-        Meteor.subscribe('workflowinstances.worker_id', worker_id),
-        Meteor.subscribe('consentforms'),
-        Meteor.subscribe('surveys'),
-        Meteor.subscribe('surveyinstances'),
-        Meteor.subscribe('feedbackletters'),
-        Meteor.subscribe('tutorials'),
-
-        // Don't subscribe to audio instances here - do that in the workflow container
-        // Meteor.subscribe('audiotasks'),
-        //Meteor.subscribe('audioinstances'),
-
-        // TODO: remove this and replace with MTurk qualifications?
-        Meteor.subscribe('blockedusers'),
-    ];
-
-    // Check if ready by putting together subscriptions
-    let all_ready = true;
-    sub.map((sub_item, idx) => {
-        if(!sub_item.ready())
-        {
-            all_ready = false;
-        }
-    });
-
-
     return {
-        ready: all_ready,
-        // user: Meteor.user(),
         worker_id: worker_id,
         assignment_id: assignment_id,
         hit_id: hit_id,

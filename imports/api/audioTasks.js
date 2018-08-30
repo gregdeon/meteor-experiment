@@ -18,8 +18,10 @@ export const AudioTasks = new Mongo.Collection('audiotasks', {
 });
 
 if (Meteor.isServer) {
-    // TODO: don't publish all audio tasks
     Meteor.publish('audiotasks', function publish(){
         return AudioTasks.find();
     });
+    Meteor.publish('audiotasks.id_list', function (id_list) {
+        return AudioTasks.find({_id: {$in: id_list}});
+    })
 }

@@ -18,6 +18,9 @@ if (Meteor.isServer) {
     Meteor.publish('surveyinstances', function surveyInstancePublication(){
         return SurveyInstances.find();
     });
+    Meteor.publish('surveyinstances.id_list', function(id_list){
+        return SurveyInstances.find({_id: {$in: id_list}});
+    });
 }
 
 Meteor.methods({
