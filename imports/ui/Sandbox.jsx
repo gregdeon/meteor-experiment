@@ -6,12 +6,13 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
-import {ConsentForm} from './ConsentForm'
 import {AudioTask, AudioTaskView, AudioTaskInput, PlaybackBar, ScrollingTranscript} from './AudioTask.jsx'
 import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx'
 import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
-import {SurveyQuestion, Survey} from './Survey'
+import {ConsentForm} from './ConsentForm.jsx'
+import {AudioRatingTutorial, TutorialTextNextButton, TutorialTextNumberQuestion} from './Tutorial.jsx';
+import {SurveyQuestion, Survey} from './Survey.jsx'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
 import {WorkflowProgressBar, WorkflowHeader} from './Workflow'
@@ -156,7 +157,6 @@ export default class Sandbox extends Component {
         }
 
         return <div className='sandbox-container'>
-            <DynamicSandboxWithProps/>
             <SandboxCategory title="Workflow">
                 <SandboxItem title="Progress bar">
                     <WorkflowProgressBar num_stages={10} current_stage={2} />
@@ -300,6 +300,31 @@ export default class Sandbox extends Component {
                 />
             </SandboxCategory>
 
+            <SandboxCategory title="Tutorial">
+                <SandboxCategory title="Rating Screen Tutorial">
+                    <AudioRatingTutorial 
+                        finishedCallback={function(){console.log("Finished tutorial")}}
+                    />
+                </SandboxCategory>
+                <SandboxCategory title="Tutorial Components">
+                    <SandboxItem title="Text with Next Button">
+                        <TutorialTextNextButton
+                            text={"This is an example of a tutorial message."}
+                            button_text={"Next"}
+                            finishedCallback={function(){console.log("Clicked Next")}}
+                        />
+                    </SandboxItem>
+                    <SandboxItem title="Text with Number Question">
+                        <TutorialTextNumberQuestion
+                            text={"This is an example of a tutorial message."}
+                            question_text={"What number is 123?"}
+                            question_answer={123}
+                            finishedCallback={function(){console.log("Correct answer")}}
+                        />
+                    </SandboxItem>
+                </SandboxCategory>
+            </SandboxCategory>
+
             <SandboxCategory title="Survey">
                 <SandboxItem title="Full survey">
                     <Survey
@@ -361,6 +386,8 @@ export default class Sandbox extends Component {
                     <div style={{width:"100%"}}>Child</div>
                 </SandboxCategory>
             </SandboxCategory>
+            
+            <DynamicSandboxWithProps/>
         </div>
     }
 }

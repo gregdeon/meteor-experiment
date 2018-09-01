@@ -1,0 +1,17 @@
+.tutorial-container {
+}
+
+.tutorial-text {
+    /*display: flex;*/
+    max-width: 600px;
+    margin: 10px auto;
+    padding: 5px;
+}
+
+.tutorial-input {
+    margin-bottom: 5px;
+}
+
+.tutorial-error {
+    color: #ff0000;
+}

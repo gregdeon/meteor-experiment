@@ -9,6 +9,7 @@
 // - output: list of IDs of stage instances (task instances, survey instances, etc)
 //   (note: output list doesn't include all stage types. TODO.)
 // - confirm_code: UUID for confirmation code
+// TODO: add time started?
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
