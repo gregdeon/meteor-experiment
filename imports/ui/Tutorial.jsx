@@ -154,49 +154,22 @@ export class TutorialTextChoiceQuestion extends Component {
     }
 }
 
-const audio_rating_steps = [
-    {text: 'TODO'},
-]
+export class AudioTaskTutorial extends Component {
+    constructor(props) {
+
+    }
+}
 
 
 const audio_rating_last_step = 10;
 
 export class AudioRatingTutorial extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            current_step: 0,
-        };
-    }
-
-    handleNextStep(success_message) {
-        this.setState({
-            current_step: this.state.current_step + 1,
-            snackbar_message: "",
-            snackbar_visible: false,
-        });
-
-        if(success_message) {
-            this.setState({
-                snackbar_message: success_message,
-                snackbar_visible: true,
-            })
-        }
-    }
-
-    handleCloseSnackbar() {
-        this.setState({
-            snackbar_visible: false,
-        })
-    }
-
     handleSubmit(rating) {
-        if(this.state.current_step === audio_rating_last_step) {
-            console.log("TODO: submit tutorial and advance workflow");
+        if(this.props.current_step === audio_rating_last_step) {
+            this.props.finishTutorialCallback(rating);
         }
         else {
-            console.log("error: buttons not enabled yet")
+            alert("Please finish the tutorial before using these buttons.");
         }
     }
 
@@ -207,9 +180,9 @@ export class AudioRatingTutorial extends Component {
         let word_status_options = ["Correct", "Incorrect", "Not Typed"]
 
         let team_words_text = "We will count how many words were typed by at least one worker. Then. we will give the team a total bonus of 5 cents for every 10 words."
-        let nextStepCallback = this.handleNextStep.bind(this);
+        let nextStepCallback = this.props.nextStepCallback;
 
-        switch(this.state.current_step) {
+        switch(this.props.current_step) {
             case 0: 
                 return <TutorialTextNextButton
                     text={"At end of each of each audio clip, we will compare your transcript with 2 other previous workers. (In this example, we're showing 3 past workers.)"}
@@ -297,6 +270,7 @@ export class AudioRatingTutorial extends Component {
     }
 
     render() {
+        // TODO: generate word lists automatically from transcripts?
         let word_lists = [
             // P1
             [
@@ -333,7 +307,6 @@ export class AudioRatingTutorial extends Component {
             ]
         ]
         return <div className='tutorial-container'>
-            <h1>Tutorial</h1>
             <Paper>
                 {this.renderTutorialText()}
             </Paper>
@@ -345,7 +318,73 @@ export class AudioRatingTutorial extends Component {
                 rewards={[5, 10, 15]}
                 submitCallback={this.handleSubmit.bind(this)}
             />
+        </div>
+    }
+}
 
+export const TUTORIAL_TYPES = {
+    AUDIO_TASK: 0,
+    AUDIO_RATING: 1,
+}
+
+export class TutorialScreen extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            current_step: 0,
+            snackbar_message: "",
+            snackbar_visible: false,
+        };
+    }
+
+    handleNextStep(success_message) {
+        this.setState({
+            current_step: this.state.current_step + 1,
+            snackbar_message: "",
+            snackbar_visible: false,
+        });
+
+        if(success_message) {
+            this.setState({
+                snackbar_message: success_message,
+                snackbar_visible: true,
+            })
+        }
+    }
+
+    handleFinishTutorial(rating) {
+        // TODO: submit
+        console.log(rating);
+        this.props.finishedCallback();
+    }
+
+    handleCloseSnackbar() {
+        this.setState({
+            snackbar_visible: false,
+        })
+    }
+
+    renderTutorialContents() {
+        let tutorial_type = TUTORIAL_TYPES.AUDIO_RATING;
+        switch(tutorial_type) {
+            case TUTORIAL_TYPES.AUDIO_TASK:
+                return null;
+
+            case TUTORIAL_TYPES.AUDIO_RATING:
+                return <AudioRatingTutorial
+                    current_step={this.state.current_step}
+                    nextStepCallback={this.handleNextStep.bind(this)}
+                    finishTutorialCallback={this.handleFinishTutorial.bind(this)}
+                />
+        }
+
+    }
+
+    render() {
+        return <div className="tutorial-container">
+            <h1>Tutorial</h1>
+            {this.renderTutorialContents()}
             <Snackbar
                 open={this.state.snackbar_visible}
                 autoHideDuration={2000}
@@ -362,49 +401,5 @@ export class AudioRatingTutorial extends Component {
                 />
             </Snackbar>
         </div>
-    }
-}
-
-
-export class AudioTaskTutorial extends Component {
-    constructor() {
-
-    }
-}
-
-export class TutorialScreen extends Component {
-    render() {
-
-        let tutorial_items = this.props.tutorial.steps;
-        return (
-            <div className="tutorial-container">
-            <h1>Tutorial</h1>
-            <div className="tutorial-buttons">
-            <button
-                className="tutorial-button"
-                onClick={this.startTutorial.bind(this)}
-            >
-                Replay Tutorial
-            </button>
-            <button
-                className="tutorial-button"
-                onClick={this.props.finishedCallback}
-            >
-                Ready
-            </button>
-            </div>
-            <br />
-            <div className="tutorial-inner">
-                <img src={this.props.tutorial.image} />
-                {tutorial_items.map((item, idx) => (
-                    <TutorialItem 
-                        order={idx+1}
-                        key={idx+1}
-                        tutorial_item={item}
-                    />
-                ))}
-            </div>
-            </div>
-        );
     }
 }
