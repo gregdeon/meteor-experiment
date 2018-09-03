@@ -11,7 +11,7 @@ import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTra
 import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {ConsentForm} from './ConsentForm.jsx'
-import {AudioRatingTutorial, TutorialTextNextButton, TutorialTextNumberQuestion} from './Tutorial.jsx';
+import {AudioRatingTutorial, TutorialTextNextButton, TutorialTextNumberQuestion, TutorialTextChoiceQuestion} from './Tutorial.jsx';
 import {SurveyQuestion, Survey} from './Survey.jsx'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
@@ -322,6 +322,15 @@ export default class Sandbox extends Component {
                             finishedCallback={function(){console.log("Correct answer")}}
                         />
                     </SandboxItem>
+                    <SandboxItem title="Text with Multiple Choice Question">
+                        <TutorialTextChoiceQuestion
+                            text={"This is an example of a tutorial message."}
+                            question_text={"What number is 1?"}
+                            question_options={["1", "2", "3"]}
+                            question_answer={0}
+                            finishedCallback={function(){console.log("Correct answer")}}
+                        />
+                    </SandboxItem>
                 </SandboxCategory>
             </SandboxCategory>
 
@@ -386,7 +395,7 @@ export default class Sandbox extends Component {
                     <div style={{width:"100%"}}>Child</div>
                 </SandboxCategory>
             </SandboxCategory>
-            
+
             <DynamicSandboxWithProps/>
         </div>
     }

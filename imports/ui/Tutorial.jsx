@@ -5,7 +5,12 @@ import {Meteor} from 'meteor/meteor';
 
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Snackbar from "@material-ui/core/Snackbar";
 
+import { MySnackbarContentWrapper } from "./Snackbars.jsx";
 import {AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx';
 import {DIFF_STATES} from '../api/audioInstances.js'
 
@@ -17,11 +22,15 @@ import './Tutorial.css';
 // - words_truth: list of ground truth words
 
 export class TutorialTextNextButton extends Component {
+    handleButtonClick() {
+        this.props.finishedCallback("");
+    }
+
     render() {
         return <div className='tutorial-text'>
             <p>{this.props.text}</p>
-            <Button variant="contained" onClick={this.props.finishedCallback}>
-                {this.props.button_text}
+            <Button variant="contained" onClick={this.handleButtonClick.bind(this)}>
+                {this.props.button_text || "Next"}
             </Button>
         </div>
     }
@@ -54,7 +63,11 @@ export class TutorialTextNumberQuestion extends Component {
     handleSubmit() {
         let answer_number = parseInt(this.state.answer);
         if(answer_number === this.props.question_answer) {
-            this.props.finishedCallback();
+            this.setState({
+                answer: "",
+                error_message: "",
+            });
+            this.props.finishedCallback("Correct! The answer was \"" + this.props.question_answer + "\".");
         } else {
             this.setState({
                 error_message: "Incorrect - try again."
@@ -82,12 +95,71 @@ export class TutorialTextNumberQuestion extends Component {
     }
 }
 
+export class TutorialTextChoiceQuestion extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            answer: -1,
+            error_message: "",
+        };
+    }
+
+    handleAnswerSelected(option_num) {
+        this.setState({
+            answer: option_num,
+        });
+    }
+
+    handleSubmit() {
+        if(this.state.answer === this.props.question_answer) {
+            this.setState({
+                error_message: "",
+            });
+            this.props.finishedCallback(
+                "Correct! The answer was " + this.props.question_options[this.props.question_answer] + "."
+            );
+        } else {
+            this.setState({
+                error_message: "Incorrect - try again."
+            })
+        }
+    }
+
+    render() {
+        return <div className='tutorial-text'>
+            <p>{this.props.text}</p>
+            <p><b>Question:</b> {this.props.question_text}</p>
+            <div className="survey-choices">
+            {this.props.question_options.map((option, idx) => {
+                return <div key={idx}>
+                    <label>
+                        <input 
+                            type="radio"
+                            value={idx}
+                            checked={this.state.answer === idx}
+                            onChange={this.handleAnswerSelected.bind(this, idx)}
+                        />
+                        {option}
+                    </label>
+                </div>
+            })}
+            </div>
+            <br/>
+            <Button variant="contained" onClick={this.handleSubmit.bind(this)}>
+                {"Submit"}
+            </Button>
+            <p className='tutorial-error'>{this.state.error_message}</p>
+        </div>
+    }
+}
+
 const audio_rating_steps = [
     {text: 'TODO'},
 ]
 
 
-const num_steps_audio_rating = 2;
+const audio_rating_last_step = 10;
 
 export class AudioRatingTutorial extends Component {
     constructor(props) {
@@ -98,14 +170,29 @@ export class AudioRatingTutorial extends Component {
         };
     }
 
-    handleNextStep() {
+    handleNextStep(success_message) {
         this.setState({
             current_step: this.state.current_step + 1,
+            snackbar_message: "",
+            snackbar_visible: false,
         });
+
+        if(success_message) {
+            this.setState({
+                snackbar_message: success_message,
+                snackbar_visible: true,
+            })
+        }
+    }
+
+    handleCloseSnackbar() {
+        this.setState({
+            snackbar_visible: false,
+        })
     }
 
     handleSubmit(rating) {
-        if(this.state.current_step === num_steps_audio_rating - 1) {
+        if(this.state.current_step === audio_rating_last_step) {
             console.log("TODO: submit tutorial and advance workflow");
         }
         else {
@@ -113,43 +200,99 @@ export class AudioRatingTutorial extends Component {
         }
     }
 
-    // TODO: make these standalone classes
-    withNextButton(text) {
-        return <div className='tutorial-text'>
-            <p>{text}</p>
-            <Button variant="contained" onClick={this.handleNextStep.bind(this)}>
-                Next
-            </Button>
-        </div>
-    }
-
-    withNumberQuestion(text, question_text, answer) {
-        return null;
-    }
-
-    withFinishButton(text) {
-        return <div className='tutorial-text'>
-            <p>{text}</p>
-            <Button variant="contained" onClick={this.props.finishedCallback}>
-                Next
-            </Button>
-        </div>
-    }
-
     renderTutorialText() {
         let number_of_words_text = "For each worker, we will show you how many words they typed and how many were correct.";
 
+        let word_status_text = "We will also show you a detailed view of their transcripts. Black words were typed correctly, red words were typed incorrectly, and grey words were not typed.";
+        let word_status_options = ["Correct", "Incorrect", "Not Typed"]
+
+        let team_words_text = "We will count how many words were typed by at least one worker. Then. we will give the team a total bonus of 5 cents for every 10 words."
+        let nextStepCallback = this.handleNextStep.bind(this);
+
         switch(this.state.current_step) {
             case 0: 
-                return this.withNextButton("At end of each of each audio clip, we will compare your transcript with 2 other previous workers. (In this example, we're showing 3 past workers.)");
+                return <TutorialTextNextButton
+                    text={"At end of each of each audio clip, we will compare your transcript with 2 other previous workers. (In this example, we're showing 3 past workers.)"}
+                    finishedCallback={nextStepCallback}
+                />
             case 1:
-                return this.withNumberQuestion(
-                    number_of_words_text,
-                    "How many words did Worker 1 type?",
-                    23
-                );
-            case 1:
-                return this.withFinishButton("TODO: this is end of tutorial");
+                return <TutorialTextNumberQuestion
+                    text={number_of_words_text}
+                    question_text={"How many words did Worker 1 type?"}
+                    question_answer={123}
+                    finishedCallback={nextStepCallback}
+                />
+            case 2:
+                return <TutorialTextNumberQuestion
+                    text={number_of_words_text}
+                    question_text={"How many words did Worker 1 type correctly?"}
+                    question_answer={123}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 3:
+                return <TutorialTextChoiceQuestion
+                    text={word_status_text}
+                    question_text={"In Worker 2's transcript, what is the status of the word 'great'?"}
+                    question_options={word_status_options}
+                    question_answer={0}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 4:
+                return <TutorialTextChoiceQuestion
+                    text={word_status_text}
+                    question_text={"In Worker 2's transcript, what is the status of the word 'gone'?"}
+                    question_options={word_status_options}
+                    question_answer={2}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 5:
+                return <TutorialTextChoiceQuestion
+                    text={word_status_text}
+                    question_text={"In Worker 2's transcript, what is the status of the word 'sprg'?"}
+                    question_options={word_status_options}
+                    question_answer={1}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 6:
+                return <TutorialTextNumberQuestion
+                    text={team_words_text}
+                    question_text={"How many words did the entire team type?"}
+                    question_answer={123}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 7:
+                return <TutorialTextNumberQuestion
+                    text={team_words_text}
+                    question_text={"How many cents of bonus did the entire team earn?"}
+                    question_answer={123}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 8:
+                return <TutorialTextNumberQuestion
+                    text={"We will split this bonus between the three workers. (Note: if you transcribe every audio clip, we can use your transcriptions in future HITs, and we will award you bonuses as well.)"}
+                    question_text={"How many cents of bonus did Worker 3 earn in this round?"}
+                    question_answer={123}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 9: 
+                return <TutorialTextNextButton
+                    text={"Finally, we will ask whether you think these bonuses are fair to the three workers. You may answer 'Fair', 'Neutral', or 'Unfair' by clicking one of the buttons."}
+                    finishedCallback={nextStepCallback}
+                />
+
+            case 10:
+                return <TutorialTextNextButton
+                    text={"Click any of the rating buttons to continue to the next audio clip. Thank you for participating!"}
+                    button_text={"OK"}
+                    finishedCallback={function(){alert("Click one of the rating buttons at the bottom (fair/neutral/unfair) to continue.")}}
+                />
         }
     }
 
@@ -202,6 +345,22 @@ export class AudioRatingTutorial extends Component {
                 rewards={[5, 10, 15]}
                 submitCallback={this.handleSubmit.bind(this)}
             />
+
+            <Snackbar
+                open={this.state.snackbar_visible}
+                autoHideDuration={2000}
+                onClose={this.handleCloseSnackbar.bind(this)}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center"
+                }}
+            >
+                <MySnackbarContentWrapper
+                    onClose={this.handleCloseSnackbar.bind(this)}
+                    variant="success"
+                    message={this.state.snackbar_message}
+                />
+            </Snackbar>
         </div>
     }
 }
