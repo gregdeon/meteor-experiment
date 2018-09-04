@@ -214,6 +214,10 @@ export class AudioTask extends Component {
                         new Date(),
                     )
 
+                    // Report that we're done this part
+                    if(this.props.finishedTaskCallback) {
+                        this.props.finishedTaskCallback();
+                    }
                     this.setState({current_stage: AUDIO_TASK_STATES.SCORE_SCREEN});
                 }
                 else {
@@ -370,7 +374,9 @@ export class AudioTask extends Component {
                 return <AudioTaskView 
                     started_countdown={false}
                     audio_clip_elapsed={0}
-                    startCountdown={this.handleStartCountdown.bind(this)}
+                    startCountdown={
+                        this.props.enabled ? this.handleStartCountdown.bind(this) : function(){console.log("Button disabled")}
+                    }
                     {...common_props}
                 />
 

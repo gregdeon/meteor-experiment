@@ -11,14 +11,15 @@ import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTra
 import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {ConsentForm} from './ConsentForm.jsx'
-import {TutorialScreen, TutorialTextNextButton, TutorialTextNumberQuestion, TutorialTextChoiceQuestion} from './Tutorial.jsx';
+import {TutorialTextNextButton, TutorialTextNumberQuestion, TutorialTextChoiceQuestion} from './TutorialUtils.jsx';
+import {TUTORIAL_TYPES, TutorialScreen} from './Tutorial.jsx';
 import {SurveyQuestion, Survey} from './Survey.jsx'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
 import {WorkflowProgressBar, WorkflowHeader} from './Workflow'
 import {Counters, getCounter} from '../api/utils.js'
 
-import {getSandboxAudio} from '../api/sandbox.js';
+import {getSandboxAudio, getSandboxTutorial} from '../api/sandbox.js';
 
 import './Sandbox.css'
 
@@ -69,7 +70,23 @@ class DynamicSandbox extends Component {
                     <AudioTask
                         audio_task={this.props.sandbox_audio.task}
                         audio_instance={this.props.sandbox_audio.instance}
-                        finishedCallback={(() => console.log("Finished Callback"))}
+                        finishedTaskCallback={(() => console.log("Finished task"))}
+                        finishedCallback={(() => console.log("Finished rating"))}
+                    />
+                </SandboxItem>
+            </SandboxCategory>
+            <SandboxCategory title="Tutorial">
+                <SandboxItem>
+                    <button onClick={function(){Meteor.call('sandbox.resetTutorial')}}>
+                        Reset sandbox tutorial
+                    </button>
+                </SandboxItem>
+                <SandboxItem title="Tutorial">
+                    <TutorialScreen
+                        audio_task={this.props.sandbox_audio.task}
+                        audio_instance={this.props.sandbox_audio.instance}
+                        tutorial_type={TUTORIAL_TYPES.AUDIO_TASK} 
+                        finishedCallback={function(){console.log("Finished tutorial")}}
                     />
                 </SandboxItem>
             </SandboxCategory>
@@ -106,6 +123,7 @@ DynamicSandboxWithProps = withTracker(() => {
     return {
         ready: all_ready,
         sandbox_audio: getSandboxAudio(),
+        sandbox_tutorial: getSandboxTutorial(),
         workflow_counter: getCounter('workflow_instances'),
     };
 })(DynamicSandbox);
@@ -301,12 +319,6 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Tutorial">
-                <SandboxCategory title="Rating Screen Tutorial">
-                    <TutorialScreen
-                        // TODO: pick AUDIO_RATING here 
-                        finishedCallback={function(){console.log("Finished tutorial")}}
-                    />
-                </SandboxCategory>
                 <SandboxCategory title="Tutorial Components">
                     <SandboxItem title="Text with Next Button">
                         <TutorialTextNextButton

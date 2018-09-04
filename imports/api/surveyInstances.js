@@ -26,6 +26,7 @@ if (Meteor.isServer) {
 Meteor.methods({
     'surveys.addResponse'(survey_id, workflow_instance_id, responses) {
         // TODO: add start and finish date
+        // TODO: add this ID to the workflow instance output list
         SurveyInstances.insert({
             survey_id: survey_id,
             workflow_instance_id: workflow_instance_id,
