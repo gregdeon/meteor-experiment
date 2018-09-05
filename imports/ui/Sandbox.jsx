@@ -12,7 +12,7 @@ import {DIFF_STATES} from '../api/audioInstances.js'
 import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
 import {ConsentForm} from './ConsentForm.jsx'
 import {TutorialTextNextButton, TutorialTextNumberQuestion, TutorialTextChoiceQuestion} from './TutorialUtils.jsx';
-import {TUTORIAL_TYPES, TutorialScreen} from './Tutorial.jsx';
+import {TutorialScreen} from './Tutorial.jsx';
 import {SurveyQuestion, Survey} from './Survey.jsx'
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
@@ -83,9 +83,8 @@ class DynamicSandbox extends Component {
                 </SandboxItem>
                 <SandboxItem title="Tutorial">
                     <TutorialScreen
-                        audio_task={this.props.sandbox_audio.task}
-                        audio_instance={this.props.sandbox_audio.instance}
-                        tutorial_type={TUTORIAL_TYPES.AUDIO_TASK} 
+                        audio_task={this.props.sandbox_tutorial.task}
+                        audio_instance={this.props.sandbox_tutorial.instance}
                         finishedCallback={function(){console.log("Finished tutorial")}}
                     />
                 </SandboxItem>

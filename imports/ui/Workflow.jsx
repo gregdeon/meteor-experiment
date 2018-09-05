@@ -92,7 +92,7 @@ class Workflow extends Component {
                 return (
                     <Survey 
                         survey={survey}
-                        workflow_instance_id={this.props.workflow_instance._id}
+                        workflow_instance={this.props.workflow_instance}
                         finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 );
@@ -109,10 +109,13 @@ class Workflow extends Component {
                 );
 
             case WorkflowStages.TUTORIAL:
-                let tutorial = Tutorials.findOne({_id: stage.id});
+                let tutorial_instance_id = this.props.workflow_instance.output[stage_num];
+                let tutorial_instance = AudioInstances.findOne({_id: tutorial_instance_id});
+                let tutorial_task = AudioTasks.findOne({_id: tutorial_instance.audio_task})
                 return (
                     <TutorialScreen 
-                        tutorial={tutorial}
+                        audio_task={tutorial_task}
+                        audio_instance={tutorial_instance}
                         finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 );

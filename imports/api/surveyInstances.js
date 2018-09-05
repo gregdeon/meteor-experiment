@@ -10,6 +10,8 @@
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
 
+import {addOutputToInstance} from './workflowInstances.js';
+
 export const SurveyInstances = new Mongo.Collection('surveyinstances', {
     idGeneration: 'MONGO',
 });
@@ -24,14 +26,15 @@ if (Meteor.isServer) {
 }
 
 Meteor.methods({
-    'surveys.addResponse'(survey_id, workflow_instance_id, responses, time_started, time_finished) {
-        // TODO: add this ID to the workflow instance output list
-        SurveyInstances.insert({
+    'surveys.addResponse'(survey_id, responses, time_started, time_finished, workflow_instance) {
+        let survey_instance_id = SurveyInstances.insert({
             survey_id: survey_id,
-            workflow_instance_id: workflow_instance_id,
+            workflow_instance_id: workflow_instance._id,
             responses: responses,
             time_started: time_started,
             time_finished: time_finished,
         })
+
+        addOutputToInstance(workflow_instance._id, workflow_instance.stage, survey_instance_id);
     }
 })

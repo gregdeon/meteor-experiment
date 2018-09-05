@@ -11,16 +11,22 @@ import {TutorialTextNoInput, TutorialTextNextButton, TutorialTextNumberQuestion,
 import { MySnackbarContentWrapper } from "./Snackbars.jsx";
 import {AudioTask} from './AudioTask.jsx';
 import {AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx';
-import {DIFF_STATES} from '../api/audioInstances.js'
+import {normalizeWord, processResults } from '../api/audioInstances.js'
 
 import './Tutorial.css';
 
 
-const audio_rating_last_step = 14;
+const TUTORIAL_STAGES = {
+    AUDIO_TASK: 0,
+    AUDIO_RATING: 1,
+}
+
+const num_steps_audio_task = 4;
+const num_steps_audio_rating = 10;
 
 export class AudioTaskTutorial extends Component {
     handleSubmitRating(rating) {
-        if(this.props.current_step === audio_rating_last_step) {
+        if(this.props.current_step === num_steps_audio_rating - 1) {
             this.props.finishTutorialCallback(rating);
         }
         else {
@@ -28,7 +34,7 @@ export class AudioTaskTutorial extends Component {
         }
     }
 
-    renderTutorialText() {
+    renderTutorialText(tutorial_stage) {
         let number_of_words_text = "For each worker, we will show you how many words they typed and how many were correct.";
     
         let word_status_text = "We will also show you a detailed view of their transcripts. Black words were typed correctly, red words were typed incorrectly, and grey words were not typed.";
@@ -37,122 +43,119 @@ export class AudioTaskTutorial extends Component {
         let team_words_text = "We will count how many words were typed by at least one worker. Then. we will give the team a total bonus of 5 cents for every 10 words.";
         let nextStepCallback = this.props.nextStepCallback;
 
+        if(tutorial_stage === TUTORIAL_STAGES.AUDIO_TASK) {
+            switch(this.props.current_step) {
+                case 0:
+                    return <TutorialTextNextButton
+                        text={"During this study, you will transcribe 15 audio clips (30 to 40 seconds per clip)."}
+                        finishedCallback={nextStepCallback}
+                    />
 
-        switch(this.props.current_step) {
-            case 0:
-                return <TutorialTextNextButton
-                    text={"During this study, you will transcribe 15 audio clips (30 to 40 seconds per clip)."}
-                    finishedCallback={nextStepCallback}
-                />
+                case 1:
+                    return <TutorialTextNextButton
+                        text={"This is a real-time transcription task: you will not be able to pause or replay the audio. It's okay if you miss words or make mistakes; we don't expect your transcriptions to be perfect."}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 1:
-                return <TutorialTextNextButton
-                    text={"This is a real-time transcription task: you will not be able to pause or replay the audio. It's okay if you miss words or make mistakes; we don't expect your transcriptions to be perfect."}
-                    finishedCallback={nextStepCallback}
-                />
+                case 2:
+                    return <TutorialTextNextButton
+                        text={"We will remove all punctuation and convert your transcript to lowercase."}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 2:
-                return <TutorialTextNextButton
-                    text={"We will remove all punctuation and convert your transcript to lowercase."}
-                    finishedCallback={nextStepCallback}
-                />
+                case 3:
+                    return <TutorialTextNoInput
+                        text={"Transcribe the first audio clip now. We will use this first round to measure your initial skill level. Click the \"Start Clip\" button to begin."}
+                    />
 
-            case 3:
-                return <TutorialTextNoInput
-                    text={"Transcribe the first audio clip now. We will use this first round to measure your initial skill level. Click the \"Start Clip\" button to begin."}
-                />
+                default:
+                    return <TutorialTextNoInput text={"Loading next step..."}/>;
+            }
+        }
+        else {    
+            switch(this.props.current_step) {        
+                case 0: 
+                    return <TutorialTextNextButton
+                        text={"At end of each of each audio clip, we will compare your transcript with 2 other previous workers. (In this example, we're showing 3 past workers.)"}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 4: 
-                return <TutorialTextNextButton
-                    text={"At end of each of each audio clip, we will compare your transcript with 2 other previous workers. (In this example, we're showing 3 past workers.)"}
-                    finishedCallback={nextStepCallback}
-                />
+                case 1:
+                    return <TutorialTextNumberQuestion
+                        text={number_of_words_text}
+                        question_text={"How many words did Worker 1 type?"}
+                        question_answer={41}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 5:
-                return <TutorialTextNumberQuestion
-                    text={number_of_words_text}
-                    question_text={"How many words did Worker 1 type?"}
-                    question_answer={123}
-                    finishedCallback={nextStepCallback}
-                />
+                case 2:
+                    return <TutorialTextNumberQuestion
+                        text={number_of_words_text}
+                        question_text={"How many words did Worker 1 type correctly?"}
+                        question_answer={40}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 6:
-                return <TutorialTextNumberQuestion
-                    text={number_of_words_text}
-                    question_text={"How many words did Worker 1 type correctly?"}
-                    question_answer={123}
-                    finishedCallback={nextStepCallback}
-                />
+                case 3:
+                    return <TutorialTextChoiceQuestion
+                        text={word_status_text}
+                        question_text={"In Worker 2's transcript, what is the status of the word 'northeast'?"}
+                        question_options={word_status_options}
+                        question_answer={0}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 7:
-                return <TutorialTextChoiceQuestion
-                    text={word_status_text}
-                    question_text={"In Worker 2's transcript, what is the status of the word 'great'?"}
-                    question_options={word_status_options}
-                    question_answer={0}
-                    finishedCallback={nextStepCallback}
-                />
+                case 4:
+                    return <TutorialTextChoiceQuestion
+                        text={word_status_text}
+                        question_text={"In Worker 2's transcript, what is the status of the word 'gone'?"}
+                        question_options={word_status_options}
+                        question_answer={2}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 8:
-                return <TutorialTextChoiceQuestion
-                    text={word_status_text}
-                    question_text={"In Worker 2's transcript, what is the status of the word 'gone'?"}
-                    question_options={word_status_options}
-                    question_answer={2}
-                    finishedCallback={nextStepCallback}
-                />
+                case 5:
+                    return <TutorialTextChoiceQuestion
+                        text={word_status_text}
+                        question_text={"In Worker 2's transcript, what is the status of the word 'come'?"}
+                        question_options={word_status_options}
+                        question_answer={1}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 9:
-                return <TutorialTextChoiceQuestion
-                    text={word_status_text}
-                    question_text={"In Worker 2's transcript, what is the status of the word 'sprg'?"}
-                    question_options={word_status_options}
-                    question_answer={1}
-                    finishedCallback={nextStepCallback}
-                />
+                case 6:
+                    return <TutorialTextNumberQuestion
+                        text={team_words_text}
+                        question_text={"How many words did the entire team type?"}
+                        question_answer={71}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 10:
-                return <TutorialTextNumberQuestion
-                    text={team_words_text}
-                    question_text={"How many words did the entire team type?"}
-                    question_answer={123}
-                    finishedCallback={nextStepCallback}
-                />
+                case 7:
+                    return <TutorialTextNumberQuestion
+                        text={team_words_text}
+                        question_text={"How many cents of bonus did the entire team earn?"}
+                        question_answer={35}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 11:
-                return <TutorialTextNumberQuestion
-                    text={team_words_text}
-                    question_text={"How many cents of bonus did the entire team earn?"}
-                    question_answer={123}
-                    finishedCallback={nextStepCallback}
-                />
+                case 8:
+                    return <TutorialTextNumberQuestion
+                        text={"We will split this bonus between the three workers. (Note: if you transcribe every audio clip, we can use your transcriptions in future HITs, and we will award you bonuses as well.)"}
+                        question_text={"How many cents of bonus did Worker 3 earn in this round?"}
+                        question_answer={11}
+                        finishedCallback={nextStepCallback}
+                    />
 
-            case 12:
-                return <TutorialTextNumberQuestion
-                    text={"We will split this bonus between the three workers. (Note: if you transcribe every audio clip, we can use your transcriptions in future HITs, and we will award you bonuses as well.)"}
-                    question_text={"How many cents of bonus did Worker 3 earn in this round?"}
-                    question_answer={123}
-                    finishedCallback={nextStepCallback}
-                />
-
-            case 13: 
-                return <TutorialTextNextButton
-                    text={"Finally, we will ask whether you think these bonuses are fair to the three workers. You may answer 'Fair', 'Neutral', or 'Unfair' by clicking one of the buttons."}
-                    finishedCallback={nextStepCallback}
-                />
-
-            case 14:
-                return <TutorialTextNoInput
-                    text={"Click any of the rating buttons to continue to the next audio clip. Thank you for participating!"}
-                />
-
-            default:
-                return null;
+                case 9: 
+                    return <TutorialTextNoInput
+                        text={"Finally, we will ask whether you think these bonuses are fair to the three workers. You may answer 'Fair', 'Neutral', or 'Unfair' by clicking one of the buttons. Do this now to continue to the next audio clip. Thank you for participating!"}
+                    />
+            }
         }
     }
 
     renderTaskInterface() {
-        let nextStepCallback = this.props.nextStepCallback;
         return <div className='tutorial-container'>
             <Paper>
                 {this.renderTutorialText()}
@@ -160,50 +163,31 @@ export class AudioTaskTutorial extends Component {
             <AudioTask
                 audio_task={this.props.audio_task}
                 audio_instance={this.props.audio_instance}
-                enabled={this.props.current_step === 3}
-                finishedTaskCallback={nextStepCallback}
+                disabled={this.props.current_step !== num_steps_audio_task - 1}
+                finishedTaskCallback={this.props.nextStageCallback}
                 finishedCallback={(() => console.log("This shouldn't happen"))}
             />
         </div>
     }
 
     renderRewardInterface() {
-        // TODO: generate word lists automatically from transcripts?
-        let word_lists = [
-            // P1
-            [
-                {text: 'these', state: DIFF_STATES.CORRECT},
-                {text: 'are', state: DIFF_STATES.INCORRECT},
-                {text: 'some', state: DIFF_STATES.NOT_TYPED},
-                {text: 'words', state: DIFF_STATES.CORRECT}
-            ],
-            // P2
-            [
-                {text: 'this', state: DIFF_STATES.CORRECT},
-                {text: 'is', state: DIFF_STATES.CORRECT},
-                {text: 'a', state: DIFF_STATES.CORRECT},
-                {text: 'slightly', state: DIFF_STATES.CORRECT},
-                {text: 'longer', state: DIFF_STATES.CORRECT},
-                {text: 'list', state: DIFF_STATES.CORRECT},
-                {text: 'of', state: DIFF_STATES.CORRECT},
-                {text: 'words', state: DIFF_STATES.CORRECT},
-                {text: 'which', state: DIFF_STATES.CORRECT},
-                {text: 'is', state: DIFF_STATES.CORRECT},
-                {text: 'mostly', state: DIFF_STATES.CORRECT},
-                {text: 'correct', state: DIFF_STATES.NOT_TYPED},
-            ],
-            // P3
-            [
-                {text: 'this', state: DIFF_STATES.CORRECT},
-                {text: 'list', state: DIFF_STATES.CORRECT},
-                {text: 'of', state: DIFF_STATES.CORRECT},
-                {text: 'words', state: DIFF_STATES.CORRECT},
-                {text: 'is', state: DIFF_STATES.CORRECT},
-                {text: 'not', state: DIFF_STATES.CORRECT},
-                {text: 'as', state: DIFF_STATES.CORRECT},
-                {text: 'long', state: DIFF_STATES.CORRECT},
-            ]
-        ]
+        let words_truth = normalizeWord('Where I live, in the great northeast of the United States, spring has finally gone full-bloom and summer’s right around the corner. When you get outside, it’s beautiful. The trees, the flowers — and of course, the lawns! Who doesn’t love a good lawn? It looks good, smells good, feels good. For a lot of people, a lawn is the perfect form of nature. Even though, let’s be honest, the lawns we like don’t actually occur in nature.');
+        let words_p1 = normalizeWord('where i live in the great northeast of the united states spring has finally come. Who doesn’t love a good lawn? For a lot of people, a lawn is the perfect form of nature the lawns we like don’t actually occur');
+        let words_p2 = normalizeWord('where i live in the great northeast of the united states sprng has finally come full bloom the trees the flowers who doesnt love a good lawn it looks good it smells good feels good even though lets be honest the lawns we like actually dont occur in');
+        let words_p3 = normalizeWord('where i live in the united states, spring is right around the corner when you get outside the trees the flowers and the lawns who doesnt love for a lot of people a lawn is perfect lawns dont actually occur in nature');
+
+        let audio_task = {
+            words_truth: words_truth,
+            words_p1: words_p1,
+            words_p2: words_p2,
+            reward_mode: 1,
+        }
+
+        let audio_instance = {
+            words_typed: words_p3.map((word) => ({word: word, date: null})),
+        };
+
+        let results = processResults(audio_task, audio_instance)
 
         return <div className='tutorial-container'>
             <Paper>
@@ -211,17 +195,17 @@ export class AudioTaskTutorial extends Component {
             </Paper>
             <AudioTaskScoreScreen 
                 player_num={3}
-                word_lists={word_lists}
-                total_pay={30}
-                total_correct={61}
-                rewards={[5, 10, 15]}
+                word_lists={results.diffs}
+                total_pay={results.total_bonus}
+                total_correct={results.num_correct[0b111]}
+                rewards={results.bonuses}
                 submitCallback={this.handleSubmitRating.bind(this)}
             />
         </div>
     }
 
     render() {
-        if(this.props.current_step <= 3) {
+        if(!this.props.audio_instance.time_started_rating) {
             return this.renderTaskInterface();
         }
         else {
@@ -230,10 +214,7 @@ export class AudioTaskTutorial extends Component {
     }
 }
 
-export const TUTORIAL_TYPES = {
-    AUDIO_TASK: 0,
-    AUDIO_RATING: 1,
-}
+
 
 export class TutorialScreen extends Component {
     constructor(props) {
@@ -261,9 +242,23 @@ export class TutorialScreen extends Component {
         }
     }
 
+    handleNextStage() {
+        this.setState({
+            current_step: 0,
+            snackbar_message: "",
+            snackbar_visible: false,
+        });
+    }
+
     handleFinishTutorial(rating) {
-        // TODO: submit rating to database
-        console.log(rating);
+        // Submit rating before moving on
+        Meteor.call(            
+            'audioInstances.submitRating',
+            this.props.audio_instance,
+            rating,
+            new Date(),
+        );
+
         this.props.finishedCallback();
     }
 
@@ -274,23 +269,15 @@ export class TutorialScreen extends Component {
     }
 
     renderTutorialContents() {
-        switch(this.props.tutorial_type) {
-            case TUTORIAL_TYPES.AUDIO_TASK:
-                return <AudioTaskTutorial
-                    audio_task={this.props.audio_task}
-                    audio_instance={this.props.audio_instance}
-                    current_step={this.state.current_step}
-                    nextStepCallback={this.handleNextStep.bind(this)}
-                    finishTutorialCallback={this.handleFinishTutorial.bind(this)}
-                />
-
-            case TUTORIAL_TYPES.AUDIO_RATING:
-                // TODOLATER: rating-only tutorial
-                return null;
-
-            default:
-                return null;
-        }
+        // TODOLATER: separate class for AUDIO_RATING
+        return <AudioTaskTutorial
+            audio_task={this.props.audio_task}
+            audio_instance={this.props.audio_instance}
+            current_step={this.state.current_step}
+            nextStepCallback={this.handleNextStep.bind(this)}
+            nextStageCallback={this.handleNextStage.bind(this)}
+            finishTutorialCallback={this.handleFinishTutorial.bind(this)}
+        />
     }
 
     render() {

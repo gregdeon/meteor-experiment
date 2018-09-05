@@ -47,7 +47,8 @@ export function makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id) 
                 return createAudioTaskInstance(stage.id);
             case WorkflowStages.AUDIO_RATING:
                 return createAudioRatingInstance(stage.id);
-            // TODO: set up tutorial here
+            case WorkflowStages.TUTORIAL:
+                return createAudioTaskInstance(stage.id);
 
             // It's possible to back-reference the stage instance ID to match it up with the workflow
             // This means that returning null isn't catastrophic
@@ -117,6 +118,16 @@ export function getWorkflowEarnings(workflow, instance) {
     })
 
     return bonus;
+}
+
+// Server function: add an ID to the output list
+export function addOutputToInstance(instance_id, stage_num, output_id) {
+    let upd = {};
+    upd["output." + stage_num] = output_id;
+    WorkflowInstances.update(
+        {_id: instance_id},
+        {$set: upd},
+    );
 }
 
 // Server function: add a timestamp to the time_started list

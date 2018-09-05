@@ -1,3 +1,8 @@
+.tutorial-container {
+    max-width: 1000px;
+    margin: auto;
+    padding-bottom: 20px;
+}
 
 .tutorial-text {
     /*display: flex;*/

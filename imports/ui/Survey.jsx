@@ -134,15 +134,15 @@ export class Survey extends Component {
         window.scrollTo(0, 0);
 
         let time_finished = new Date();
-        
+
         // Submit
         Meteor.call(
             'surveys.addResponse',
             this.props.survey._id,
-            this.props.workflow_instance_id,
             this.state.responses,
             this.state.time_started,
-            time_finished
+            time_finished,
+            this.props.workflow_instance,
         );
         // Continue
         this.props.finishedCallback();

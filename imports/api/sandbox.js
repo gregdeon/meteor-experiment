@@ -41,7 +41,9 @@ function setUpSandboxAudio() {
         {_id: 'test_id'},
         getBlankAudioInstance('test_id'),
     );
+}
 
+function setUpSandboxTutorial() {
     // For tutorial 
     AudioTasks.upsert(
         {_id: 'tutorial_id'},
@@ -85,6 +87,7 @@ export function getSandboxTutorial() {
 
 if (Meteor.isServer) {
     setUpSandboxAudio();
+    setUpSandboxTutorial();
 
     Meteor.publish('sandbox.audiotasks', function publish(){
         return AudioTasks.find({_id: {$in: ['test_id', 'tutorial_id']}});
@@ -98,5 +101,9 @@ if (Meteor.isServer) {
 Meteor.methods({
     'sandbox.resetAudio'() {
         setUpSandboxAudio();
+    },
+
+    'sandbox.resetTutorial'() {
+        setUpSandboxTutorial();
     },
 })
