@@ -21,7 +21,6 @@ const audio_rating_last_step = 14;
 export class AudioTaskTutorial extends Component {
     handleSubmitRating(rating) {
         if(this.props.current_step === audio_rating_last_step) {
-            // TODO: log rating to database
             this.props.finishTutorialCallback(rating);
         }
         else {
@@ -263,7 +262,7 @@ export class TutorialScreen extends Component {
     }
 
     handleFinishTutorial(rating) {
-        // TODO: submit
+        // TODO: submit rating to database
         console.log(rating);
         this.props.finishedCallback();
     }

@@ -8,8 +8,10 @@
 // - stage: current stage of the user
 // - output: list of IDs of stage instances (task instances, survey instances, etc)
 //   (note: output list doesn't include all stage types. TODO.)
+// - time_started: list of start times for each stage
 // - confirm_code: UUID for confirmation code
 // TODO: add time started?
+// TODOLATER: add start time for each step
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';
@@ -39,12 +41,14 @@ if (Meteor.isServer) {
 
 export function makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id) {
     let output_list = workflow.stages.map((stage) => {
-        // TODO: do something more generic than a switch case?
+        // TODOLATER: do something more generic than a switch case?
         switch(stage.type) {
             case WorkflowStages.AUDIO_TASK:
                 return createAudioTaskInstance(stage.id);
             case WorkflowStages.AUDIO_RATING:
                 return createAudioRatingInstance(stage.id);
+            // TODO: set up tutorial here
+
             // It's possible to back-reference the stage instance ID to match it up with the workflow
             // This means that returning null isn't catastrophic
             // However, analyzing the data is easier if we don't do this
@@ -53,12 +57,15 @@ export function makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id) 
         }
     })
 
+    let time_started_list = workflow.stages.map((stage) => null);
+
     return {
         worker_id: worker_id,
         assign_id: assign_id,
         hit_id: hit_id,
         workflow_id: workflow._id,
         output: output_list,
+        time_started: time_started_list,
         stage: 0,
         confirm_code: null,
     }
@@ -112,6 +119,16 @@ export function getWorkflowEarnings(workflow, instance) {
     return bonus;
 }
 
+// Server function: add a timestamp to the time_started list
+export function addTimestampToInstance(instance_id, stage_num, time_started) {
+    let upd = {};
+    upd["time_started." + stage_num] = time_started;
+    WorkflowInstances.update(
+        {_id: instance_id},
+        {$set: upd},
+    );
+}
+
 Meteor.methods({
     'workflowinstances.setUpWorkflow'(worker_id, assign_id, hit_id) {
         if(Meteor.isClient) {
@@ -135,7 +152,10 @@ Meteor.methods({
 
         // Add instance to the database
         let workflow_instance = makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id);
-        WorkflowInstances.insert(workflow_instance);
+        let workflow_instance_id = WorkflowInstances.insert(workflow_instance);
+
+        // Add first timestamp
+        addTimestampToInstance(workflow_instance_id, 0, new Date());
     },
 
     'workflowinstances.advanceStage'(workflow, instance, current_stage) {
@@ -165,6 +185,9 @@ Meteor.methods({
             WorkflowInstances.update(instance._id, {
                 $set: upd
             });
+
+
+            addTimestampToInstance(instance._id, new_stage, new Date());
         }
     },
 });

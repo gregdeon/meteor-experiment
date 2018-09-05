@@ -70,7 +70,7 @@ export class AudioTaskInput extends Component {
     handleTextInput(event) {
         let new_text = event.target.value;
 
-        // TODO: support \n here? This would require watching for onkeydown instead of oninput 
+        // TODOLATER: support \n here? This would require watching for onkeydown instead of oninput 
         if(new_text.endsWith(" ")) {
             let typed_word = new_text.slice(0, -1);
             this.props.onTypedWord(typed_word)
@@ -260,7 +260,7 @@ export class AudioTask extends Component {
     }
 
     handleTypedWord(word) {
-        // TODO: check current stage first? Can't be on the results screen
+        // Possible issue: check current stage first? Can't be on the results screen
         Meteor.call(
             'audioInstances.submitWord', 
             this.props.audio_instance,

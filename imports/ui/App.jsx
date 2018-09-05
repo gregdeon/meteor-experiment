@@ -29,13 +29,6 @@ class StopRepeat extends Component {
 
 class App extends Component {
     render() {
-        // Check for repeat users
-        // TODO: remove this?
-        // let blocked_num = BlockedUsers.find({username: this.props.worker_id}).count();
-        // if(blocked_num > 0) {   
-        //     return (<StopRepeat />);
-        // }
-     
         // Show their workflow
         return (
             <WorkflowContainer

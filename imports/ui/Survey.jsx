@@ -99,6 +99,7 @@ export class Survey extends Component {
         let num_questions = survey.questions.length;
         this.state = {
             responses: Array(num_questions).fill(null),
+            time_started: new Date(),
         };
     }
 
@@ -131,12 +132,17 @@ export class Survey extends Component {
     handleSubmit() {
         console.log(this.state.responses);
         window.scrollTo(0, 0);
+
+        let time_finished = new Date();
+        
         // Submit
         Meteor.call(
             'surveys.addResponse',
             this.props.survey._id,
             this.props.workflow_instance_id,
             this.state.responses,
+            this.state.time_started,
+            time_finished
         );
         // Continue
         this.props.finishedCallback();

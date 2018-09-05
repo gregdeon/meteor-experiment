@@ -23,11 +23,11 @@ describe('workflowInstances', function() {
         }
 
         workflow_instance = {
-            todo: 'yes'
+            todolater: 'yes'
         }
     })
 
-    // TODO: these are hard to test without mocking the database. not worth it for now.
+    // TODOLATER: these are hard to test without mocking the database. not worth it for now.
     describe('makeNewWorkflowInstance', function() {
         // let new_workflow_instance = makeNewWorkflowInstance(workflow);
     })

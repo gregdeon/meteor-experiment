@@ -6,7 +6,7 @@ import {getResultsFromText} from '../api/audioInstances.js';
 import {AudioRatingTasks} from '../api/audioRatingTasks.js';
 import {centsToString} from '../api/utils.js';
 
-// TODO: this is mainly copied from the AudioTaskScore class in AudioTask.jsx
+// TODOLATER: this is mainly copied from the AudioTaskScore class in AudioTask.jsx
 // Would be best to refactor it to remove duplicate code
 export class AudioRatingScreen extends Component {
     constructor (props) {

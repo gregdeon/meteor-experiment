@@ -190,7 +190,7 @@ class Workflow extends Component {
 
 
 export default WorkflowContainer = withTracker((props) => {
-    // TODO: handle cases where user has joined more than one workflow
+    // TODOLATER: handle cases where user has joined more than one workflow
     // For now, assume there's only one
     // Note that UI deals with case where this is undefined
     // Feels weird to do this out of order, but necessary for subscriptions
@@ -223,7 +223,7 @@ export default WorkflowContainer = withTracker((props) => {
         Meteor.subscribe('audiotasks.id_list', stage_id_list),
         Meteor.subscribe('workflowinstances.worker_id', props.worker_id),
         Meteor.subscribe('audioinstances.id_list', instance_id_list),
-        // TODO: is this subscription even necessary?
+        // TODOLATER: is this subscription even necessary?
         Meteor.subscribe('surveyinstances.id_list', instance_id_list),
     ];
 
