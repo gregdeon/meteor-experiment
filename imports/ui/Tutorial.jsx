@@ -158,7 +158,7 @@ export class AudioTaskTutorial extends Component {
     renderTaskInterface() {
         return <div className='tutorial-container'>
             <Paper>
-                {this.renderTutorialText()}
+                {this.renderTutorialText(TUTORIAL_STAGES.AUDIO_TASK)}
             </Paper>
             <AudioTask
                 audio_task={this.props.audio_task}
@@ -191,7 +191,7 @@ export class AudioTaskTutorial extends Component {
 
         return <div className='tutorial-container'>
             <Paper>
-                {this.renderTutorialText()}
+                {this.renderTutorialText(TUTORIAL_STAGES.AUDIO_RATING)}
             </Paper>
             <AudioTaskScoreScreen 
                 player_num={3}

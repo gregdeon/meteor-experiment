@@ -375,7 +375,7 @@ export class AudioTask extends Component {
                     started_countdown={false}
                     audio_clip_elapsed={0}
                     startCountdown={
-                        this.props.disabled ? function(){console.log("Button disabled")} : this.handleStartCountdown.bind(this)
+                        this.props.disabled ? function(){alert("Please finish the tutorial first.")} : this.handleStartCountdown.bind(this)
                     }
                     {...common_props}
                 />

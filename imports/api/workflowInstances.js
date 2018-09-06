@@ -10,8 +10,6 @@
 //   (note: output list doesn't include all stage types. TODO.)
 // - time_started: list of start times for each stage
 // - confirm_code: UUID for confirmation code
-// TODO: add time started?
-// TODOLATER: add start time for each step
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';

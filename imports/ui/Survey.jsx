@@ -83,9 +83,10 @@ export class SurveyQuestion extends Component {
             <div className="survey-question">
                 <div className="survey-question-text">
                     {this.props.required ? <p className="survey-required">*</p> : null}
-                    <p>{this.props.text}</p>
+                    <p><b>{this.props.text}</b></p>
                 </div>
                 {this.renderInput()}
+                <hr/>
             </div>
         );
     }

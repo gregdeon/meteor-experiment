@@ -5,6 +5,8 @@
 // - stages: list of objects with
 //   - type: one of WorkflowStages
 //   - id: ID of a consent form, survey, feedback letter, etc
+// - team_worker_ids: list of worker IDs for [teammate 1, teammate 2]
+// - team_assign_ids: list of assignment IDs for [teammate 1, teammate 2]
 
 import {Meteor} from 'meteor/meteor'; 
 import {Mongo} from 'meteor/mongo';

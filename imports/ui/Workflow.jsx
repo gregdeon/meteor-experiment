@@ -42,10 +42,10 @@ export class WorkflowHeader extends Component {
                 <div className="workflow-progress">
                     Progress: 
                     <WorkflowProgressBar 
-                        num_stages={this.props.num_stages}
+                        num_stages={this.props.num_stages - 1}
                         current_stage={this.props.current_stage}
                     /> 
-                    {this.props.current_stage} / {this.props.num_stages}
+                    {this.props.current_stage} / {this.props.num_stages - 1}
                 </div>
                 <div className="workflow-earnings">
                     {"Bonus: " + centsToString(this.props.bonus_cents)}
