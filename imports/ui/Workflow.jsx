@@ -158,7 +158,6 @@ class Workflow extends Component {
                 'workflowinstances.setUpWorkflow',
                 this.props.worker_id,
                 this.props.assignment_id,
-                this.props.hit_id,
             )
             return <div>Setting up the experiment for you...</div>
         }
@@ -244,7 +243,6 @@ export default WorkflowContainer = withTracker((props) => {
 
         worker_id: props.worker_id,
         assignment_id: props.assignment_id,
-        hit_id: props.hit_id,
 
         workflow: workflow,
         workflow_instance: workflow_instance,

@@ -3,7 +3,6 @@
 // Contents:
 // - worker_id: MTurk worker ID
 // - assign_id: MTurk assignment ID
-// - hit_id: MTurk HIT ID
 // - workflow_id: reference to workflow
 // - stage: current stage of the user
 // - output: list of IDs of stage instances (task instances, survey instances, etc)
@@ -37,7 +36,7 @@ if (Meteor.isServer) {
     })
 }
 
-export function makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id) {
+export function makeNewWorkflowInstance(workflow, worker_id, assign_id) {
     let output_list = workflow.stages.map((stage) => {
         // TODOLATER: do something more generic than a switch case?
         switch(stage.type) {
@@ -61,7 +60,6 @@ export function makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id) 
     return {
         worker_id: worker_id,
         assign_id: assign_id,
-        hit_id: hit_id,
         workflow_id: workflow._id,
         output: output_list,
         time_started: time_started_list,
@@ -139,7 +137,7 @@ export function addTimestampToInstance(instance_id, stage_num, time_started) {
 }
 
 Meteor.methods({
-    'workflowinstances.setUpWorkflow'(worker_id, assign_id, hit_id) {
+    'workflowinstances.setUpWorkflow'(worker_id, assign_id) {
         if(Meteor.isClient) {
             return;
         }
@@ -160,7 +158,7 @@ Meteor.methods({
         console.log(workflow_num);
 
         // Add instance to the database
-        let workflow_instance = makeNewWorkflowInstance(workflow, worker_id, assign_id, hit_id);
+        let workflow_instance = makeNewWorkflowInstance(workflow, worker_id, assign_id);
         let workflow_instance_id = WorkflowInstances.insert(workflow_instance);
 
         // Add first timestamp

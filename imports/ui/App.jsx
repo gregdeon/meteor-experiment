@@ -34,7 +34,6 @@ class App extends Component {
             <WorkflowContainer
                 worker_id={this.props.worker_id}
                 assignment_id={this.props.assignment_id}
-                hit_id={this.props.hit_id}
             />
         );
     }
@@ -45,13 +44,11 @@ export default withTracker((props) => {
     let url_param_string = props.location.search;
     let split_params = qs.parse(url_param_string, {ignoreQueryPrefix: true});
 
-    let worker_id = split_params.WORKER_ID || "greg";
-    let assignment_id = split_params.ASSSIGNMENT_ID || "no_assignment";
-    let hit_id = split_params.HIT_ID || "no_hit";
+    let worker_id = split_params.workerId || "greg";
+    let assignment_id = split_params.assignmentId || "no_assignment";
 
     return {
         worker_id: worker_id,
         assignment_id: assignment_id,
-        hit_id: hit_id,
     };
 })(App);
