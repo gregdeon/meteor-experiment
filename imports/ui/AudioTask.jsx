@@ -39,6 +39,12 @@ export class ScrollingTranscript extends Component {
 export class PlaybackBar extends Component { 
     render() {
         let time_fraction = this.props.time_elapsed / this.props.total_time;
+        if(time_fraction > 1) {
+            time_fraction = 1;
+        }
+        if(time_fraction < 0) {
+            time_fraction = 0;
+        }
         let transform = 'scaleX(' + time_fraction + ')';
         return <div className="audio-view">
             <div className="audio-playback"> 
@@ -104,7 +110,10 @@ export class AudioTaskView extends Component {
     }
 
     renderHeader() {
-        if(!this.props.started_countdown) {
+        if(!this.props.audio_loaded) {
+            return <div className="task-header">Loading audio...</div>
+        }
+        else if(!this.props.started_countdown) {
             return <div>
                 <div className="task-header">Click to start audio clip</div>
                 <button onClick={this.handleStartCountdown.bind(this)}>
@@ -158,6 +167,7 @@ export class AudioTask extends Component {
             ),
             current_stage: AUDIO_TASK_STATES.WAITING,
             sound: null,
+            sound_loaded: false,
             finished_sound: false,
             /* Hack: make the UI update by changing this */
             update_flag: 0,
@@ -173,6 +183,7 @@ export class AudioTask extends Component {
             ),
             current_stage: AUDIO_TASK_STATES.WAITING,
             sound: null,
+            sound_loaded: false,
             finished_sound: false,
             /* Hack: make the UI update by changing this */
             update_flag: 0,
@@ -282,11 +293,13 @@ export class AudioTask extends Component {
     }
 
     // Sound handling functions 
-    createSound(url, finished_callback) {
+    createSound(url) {
         this.removeSound();
         let sound = soundManager.createSound({
             url: url,
-            onfinish: finished_callback,
+            multiShot: false,
+            onfinish: this.handleAudioDone.bind(this),
+            onload: this.handleAudioLoaded.bind(this),
         });
         this.setState({
             sound: sound,
@@ -304,6 +317,12 @@ export class AudioTask extends Component {
         });
     }
 
+    handleAudioLoaded() {
+        this.setState({
+            sound_loaded: true,
+        });
+    }
+
     handleAudioDone() {
         this.setState({
             finished_sound: true,
@@ -317,16 +336,22 @@ export class AudioTask extends Component {
         let update_state = false;
         if(sound === null) {
             update_state = true;
-            sound = this.createSound(
-                '/' + this.props.audio_task.audio_path,
-                this.handleAudioDone.bind(this)
-            );
+            sound = this.createSound('/' + this.props.audio_task.audio_path);
             sound.load();
         }
 
-        // If we're in the task, play our sound (only once)
+        let task_finished = (!!this.props.audio_instance.time_started_rating)
         let audio_started = getSecondsSince(this.props.audio_instance.time_started_task) > this.props.audio_task.countdown_length;
-        if(
+
+        // If the task is over, make sure there's no sound playing
+        if(task_finished) {
+            sound.stop();
+            this.setState({
+                finished_sound: true,
+            });
+        }
+        // If we're in the task, play our sound (only once)
+        else if(
             audio_started
             && sound.playState === 0
             && !this.state.finished_sound
@@ -361,6 +386,7 @@ export class AudioTask extends Component {
     renderCurrentTask() {
         let current_stage = this.state.current_stage;
         let time_elapsed = getSecondsSince(this.props.audio_instance.time_started_task);
+        let audio_loaded = this.state.sound_loaded;
 
         let common_props = {
             words: this.props.audio_instance.words_typed.map(word => word.word),
@@ -372,6 +398,7 @@ export class AudioTask extends Component {
         switch(current_stage) {
             case AUDIO_TASK_STATES.WAITING:
                 return <AudioTaskView 
+                    audio_loaded={audio_loaded}
                     started_countdown={false}
                     audio_clip_elapsed={0}
                     startCountdown={
@@ -384,6 +411,7 @@ export class AudioTask extends Component {
                 let time_left = this.props.audio_task.countdown_length - time_elapsed;
                 let time_left_pretty = (time_left > 0 ? Math.ceil(time_left) : 0);
                 return <AudioTaskView 
+                    audio_loaded={true}
                     started_countdown={true}
                     countdown_time={time_left_pretty}
                     audio_clip_elapsed={0}
@@ -394,6 +422,7 @@ export class AudioTask extends Component {
                 let time_elapsed_audio = time_elapsed - this.props.audio_task.countdown_length;
                 let time_elapsed_pretty = Math.floor(time_elapsed_audio);
                 return <AudioTaskView 
+                    audio_loaded={true}
                     started_countdown={true}
                     countdown_time={0}
                     audio_clip_elapsed={time_elapsed_pretty}

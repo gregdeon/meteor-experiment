@@ -190,8 +190,18 @@ export default class Sandbox extends Component {
 
             <SandboxCategory title="Audio Task Components">
                 <SandboxCategory title="Individual Task Screens">
+                    <SandboxItem title="Loading">
+                        <AudioTaskView
+                            audio_loaded={false}
+                            audio_clip_elapsed={0}
+                            audio_clip_length={119}
+                            words={[]}
+                            {...audio_task_callbacks}
+                        />
+                    </SandboxItem>
                     <SandboxItem title="Not Started">
                         <AudioTaskView
+                            audio_loaded={true}
                             started_countdown={false}
                             countdown_time={3}
                             audio_clip_elapsed={0}
@@ -202,6 +212,7 @@ export default class Sandbox extends Component {
                     </SandboxItem>
                     <SandboxItem title="Counting Down">
                         <AudioTaskView
+                            audio_loaded={true}
                             started_countdown={true}
                             countdown_time={3}
                             audio_clip_elapsed={0}
@@ -212,6 +223,7 @@ export default class Sandbox extends Component {
                     </SandboxItem>
                     <SandboxItem title="Playing">
                         <AudioTaskView
+                            audio_loaded={true}
                             started_countdown={true}
                             countdown_time={0}
                             audio_clip_elapsed={61}

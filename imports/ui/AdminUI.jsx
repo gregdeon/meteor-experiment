@@ -76,10 +76,10 @@ export class WorkflowSummary extends Component {
                         </div>   
                         <div className="workflow-progress">
                             <WorkflowProgressBar 
-                                num_stages={progress.total}
+                                num_stages={progress.total - 1}
                                 current_stage={progress.done}
                             />
-                            {progress.done} / {progress.total}
+                            {progress.done} / {progress.total - 1}
                         </div>
                         <div className="workflow-earnings">
                             {"Bonus: " + centsToString(bonus)}

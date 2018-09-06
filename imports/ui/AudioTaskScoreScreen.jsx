@@ -46,7 +46,7 @@ export class AudioTranscriptText extends Component {
 
 export class AudioTranscript extends Component {
     render() {
-        let player_string = "Player " + (this.props.player_num);
+        let player_string = "Worker " + (this.props.player_num);
         if(this.props.is_user) {
             player_string += " (you)"
         }
