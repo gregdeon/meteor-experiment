@@ -40,10 +40,12 @@ export function makeNewWorkflowInstance(workflow, worker_id, assign_id) {
     let output_list = workflow.stages.map((stage) => {
         // TODOLATER: do something more generic than a switch case?
         switch(stage.type) {
+            case WorkflowStages.SURVEY:
+                return null;
             case WorkflowStages.AUDIO_TASK:
                 return createAudioTaskInstance(stage.id);
             case WorkflowStages.AUDIO_RATING:
-                return createAudioRatingInstance(stage.id);
+                return null;
             case WorkflowStages.TUTORIAL:
                 return createAudioTaskInstance(stage.id);
 

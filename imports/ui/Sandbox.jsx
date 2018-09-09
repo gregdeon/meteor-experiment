@@ -7,9 +7,10 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Paper from '@material-ui/core/Paper';
 
 import {AudioTask, AudioTaskView, AudioTaskInput, PlaybackBar, ScrollingTranscript} from './AudioTask.jsx'
-import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen} from './AudioTaskScoreScreen.jsx'
+import {AudioTranscript, AudioTranscriptStatusBar, AudioTranscriptText, AudioTranscriptLegend, AudioTaskScoreScreen, AudioRatingScreen} from './AudioTaskScoreScreen.jsx'
+import {AudioRatingTask} from './AudioRatingTask.jsx';
 import {DIFF_STATES} from '../api/audioInstances.js'
-import {RewardDisplay, RewardQuestions} from './RewardForm.jsx'
+import {RewardDisplay, RewardQuestions, ExternalRewardQuestions} from './RewardForm.jsx'
 import {ConsentForm} from './ConsentForm.jsx'
 import {TutorialTextNextButton, TutorialTextNumberQuestion, TutorialTextChoiceQuestion} from './TutorialUtils.jsx';
 import {TutorialScreen} from './Tutorial.jsx';
@@ -19,7 +20,7 @@ import {FeedbackLetter} from './FeedbackLetter'
 import {WorkflowProgressBar, WorkflowHeader} from './Workflow'
 import {Counters, getCounter} from '../api/utils.js'
 
-import {getSandboxAudio, getSandboxTutorial} from '../api/sandbox.js';
+import {getSandboxAudio, getSandboxTutorial, getSandboxRating} from '../api/sandbox.js';
 
 import './Sandbox.css'
 
@@ -75,7 +76,7 @@ class DynamicSandbox extends Component {
                     />
                 </SandboxItem>
             </SandboxCategory>
-            <SandboxCategory title="Tutorial">
+            <SandboxCategory title="Audio Task Tutorial">
                 <SandboxItem>
                     <button onClick={function(){Meteor.call('sandbox.resetTutorial')}}>
                         Reset sandbox tutorial
@@ -86,6 +87,15 @@ class DynamicSandbox extends Component {
                         audio_task={this.props.sandbox_tutorial.task}
                         audio_instance={this.props.sandbox_tutorial.instance}
                         finishedCallback={function(){console.log("Finished tutorial")}}
+                    />
+                </SandboxItem>
+            </SandboxCategory>
+            <SandboxCategory title="Audio Rating Task">
+                <SandboxItem>
+                    <AudioRatingTask
+                        audio_rating_task={this.props.sandbox_rating_task}
+                        workflow_instance={"not tested in sandbox"}
+                        finishedCallback={(() => console.log("Finished rating"))}
                     />
                 </SandboxItem>
             </SandboxCategory>
@@ -123,6 +133,7 @@ DynamicSandboxWithProps = withTracker(() => {
         ready: all_ready,
         sandbox_audio: getSandboxAudio(),
         sandbox_tutorial: getSandboxTutorial(),
+        sandbox_rating_task: getSandboxRating(),
         workflow_counter: getCounter('workflow_instances'),
     };
 })(DynamicSandbox);
@@ -252,6 +263,26 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Audio Results">
+                <SandboxItem title="External Rating Screen">
+                    <AudioRatingScreen
+                        word_lists={word_lists}
+                        total_pay={30}
+                        total_correct={61}
+                        rewards={[5, 10, 15]}
+                        time_left={0}
+                        submitCallback={console.log}
+                    />
+                </SandboxItem>
+                <SandboxItem title="External Rating Screen (counting down)">
+                    <AudioRatingScreen
+                        word_lists={word_lists}
+                        total_pay={30}
+                        total_correct={61}
+                        rewards={[5, 10, 15]}
+                        time_left={3}
+                        submitCallback={console.log}
+                    />
+                </SandboxItem>
                 <SandboxItem title="Results Screen">
                     <AudioTaskScoreScreen
                         player_num={3}
@@ -302,11 +333,24 @@ export default class Sandbox extends Component {
             </SandboxCategory>
 
             <SandboxCategory title="Reward Screen">
-                <SandboxItem title="Reward Questions">
-                    <RewardQuestions 
-                        submit_callback={console.log}
-                    />
-                </SandboxItem>
+                <SandboxCategory title="Reward Questions">
+                    <SandboxItem title="Worker reward questions">
+                        <RewardQuestions 
+                            submit_callback={console.log}
+                        />
+                    </SandboxItem>
+                    <SandboxItem title="External reward questions">
+                        <ExternalRewardQuestions 
+                            submit_callback={console.log}
+                        />
+                    </SandboxItem>
+                    <SandboxItem title="External reward questions, counting down">
+                        <ExternalRewardQuestions 
+                            submit_callback={console.log}
+                            time_left={3}
+                        />
+                    </SandboxItem>
+                </SandboxCategory>
                 <SandboxCategory title="Reward Display">
                     <SandboxItem title="Reward display">
                         <RewardDisplay player_number={3} rewards={[20, 30, 50]} />

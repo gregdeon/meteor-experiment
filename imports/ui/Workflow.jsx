@@ -7,7 +7,7 @@ import {Survey} from './Survey.jsx';
 import {FeedbackLetter} from './FeedbackLetter.jsx';
 import {TutorialScreen} from './Tutorial.jsx';
 import {AudioTask} from './AudioTask.jsx';
-import {AudioRatingScreen} from './AudioRatingTask.jsx';
+import {AudioRatingTask} from './AudioRatingTask.jsx';
 
 import {Workflows, WorkflowStages} from '../api/workflows.js';
 import {ConsentForms} from '../api/consentForms.js';
@@ -17,7 +17,7 @@ import {Tutorials} from '../api/tutorials.js';
 import {WorkflowInstances, getWorkflowProgress, getWorkflowEarnings} from '../api/workflowInstances.js';
 import {AudioInstances} from '../api/audioInstances.js';
 import {AudioTasks} from '../api/audioTasks.js';
-import {AudioRatingInstances} from '../api/audioRatingInstances.js';
+import {AudioRatingTasks} from '../api/audioRatingTasks.js';
 import {centsToString} from '../api/utils.js';
 
 export class WorkflowProgressBar extends Component {
@@ -111,7 +111,7 @@ class Workflow extends Component {
             case WorkflowStages.TUTORIAL:
                 let tutorial_instance_id = this.props.workflow_instance.output[stage_num];
                 let tutorial_instance = AudioInstances.findOne({_id: tutorial_instance_id});
-                let tutorial_task = AudioTasks.findOne({_id: tutorial_instance.audio_task})
+                let tutorial_task = AudioTasks.findOne({_id: tutorial_instance.audio_task}, {reactive: false})
                 return (
                     <TutorialScreen 
                         audio_task={tutorial_task}
@@ -123,7 +123,7 @@ class Workflow extends Component {
             case WorkflowStages.AUDIO_TASK:
                 let audio_instance_id = this.props.workflow_instance.output[stage_num];
                 let audio_instance = AudioInstances.findOne({_id: audio_instance_id});
-                let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task})
+                let audio_task = AudioTasks.findOne({_id: audio_instance.audio_task}, {reactive: false})
                 return (
                     <AudioTask
                         audio_task={audio_task}
@@ -133,12 +133,12 @@ class Workflow extends Component {
                 )
 
             case WorkflowStages.AUDIO_RATING:
-                let output_id = this.props.workflow_instance.output[stage_num];
-                let rating_instance = AudioRatingInstances.findOne({_id: output_id});
-
+                let rating_task = AudioRatingTasks.findOne({_id: stage.id})
+                console.log(rating_task);
                 return (
-                    <AudioRatingScreen
-                        rating_instance={rating_instance}
+                    <AudioRatingTask
+                        audio_rating_task={rating_task}
+                        workflow_instance={this.props.workflow_instance}
                         finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 )
@@ -219,6 +219,7 @@ export default WorkflowContainer = withTracker((props) => {
         Meteor.subscribe('surveys'),
         Meteor.subscribe('feedbackletters'),
         Meteor.subscribe('tutorials'),
+        Meteor.subscribe('audioratingtasks'),
 
         // Dynamic subscriptions
         Meteor.subscribe('workflows.id', workflow_id),

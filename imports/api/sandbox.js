@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 
 import {AudioTasks} from './audioTasks.js';
 import {AudioInstances, normalizeWord} from './audioInstances.js';
+import {AudioRatingTasks} from './audioRatingTasks.js';
 
 function getBlankAudioInstance(audio_id) {
     return {
@@ -64,6 +65,21 @@ function setUpSandboxTutorial() {
     );
 }
 
+function setUpSandboxRating() {
+    AudioRatingTasks.upsert(
+        {_id: 'test_id'},
+        {
+            words_truth: normalizeWord('Where I live, in the great northeast of the United States, spring has finally gone full-bloom and summer’s right around the corner. When you get outside, it’s beautiful. The trees, the flowers — and of course, the lawns! Who doesn’t love a good lawn? It looks good, smells good, feels good. For a lot of people, a lawn is the perfect form of nature. Even though, let’s be honest, the lawns we like don’t actually occur in nature.'),
+            words_p1: normalizeWord('Where I live, in the great north east of the United States, sprng has finally gone full-bloom and summer’s rigt around the corner.'),
+            words_p2: normalizeWord('Where I live, in the States, spring has finally gone and summer’s around. it’s beautiful. trees, flowers and the lawns!'),
+            words_p3: normalizeWord('Where I live, in the States, spring has finally gone and summer’s around. it’s beautiful. trees, flowers and the lawns!'),
+            reward_mode: 1,
+            p3_rating: 1,
+            task_number: 0,
+        }
+    );
+}
+
 // Helper function: get the sandbox audio task and instance
 export function getSandboxAudio() {
     let audio_task = AudioTasks.findOne({_id: 'test_id'})
@@ -85,9 +101,14 @@ export function getSandboxTutorial() {
     };
 }
 
+export function getSandboxRating() {
+    return AudioRatingTasks.findOne({_id: 'test_id'})
+}
+
 if (Meteor.isServer) {
     setUpSandboxAudio();
     setUpSandboxTutorial();
+    setUpSandboxRating();
 
     Meteor.publish('sandbox.audiotasks', function publish(){
         return AudioTasks.find({_id: {$in: ['test_id', 'tutorial_id']}});
@@ -96,6 +117,10 @@ if (Meteor.isServer) {
     Meteor.publish('sandbox.audioinstances', function publish(){
         return AudioInstances.find({_id: {$in: ['test_id', 'tutorial_id']}});
     });
+
+    Meteor.publish('sandbox.audioratingtasks', function() {
+        return AudioRatingTasks.find({_id: 'test_id'})
+    })
 }
 
 Meteor.methods({

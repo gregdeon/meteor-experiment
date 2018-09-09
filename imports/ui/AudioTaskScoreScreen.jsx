@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 
 import {DIFF_STATES} from '../api/audioInstances.js';
-import {RewardDisplay, RewardQuestions} from './RewardForm.jsx';
+import {RewardDisplay, RewardQuestions, ExternalRewardQuestions} from './RewardForm.jsx';
 import {centsToString} from '../api/utils.js';
 
 import './AudioTaskScoreScreen.css';
@@ -123,5 +123,33 @@ export class AudioTaskScoreScreen extends Component {
                 </div>
             );
         }
+    }
+}
+
+// AudioRatingScreen: similar to score screen, but for external raters
+export class AudioRatingScreen extends Component {
+    render() {
+        return (
+            <div className="task-container">
+                <div className="task-header">Audio transcription results</div>
+                <AudioTranscriptLegend/>
+                {this.props.word_lists.map((word_list, idx) => (
+                    <AudioTranscript
+                        key={idx}
+                        player_num={idx+1}
+                        words={word_list}
+                    />
+                ))}
+                <p>The team earned <b>{centsToString(this.props.total_pay)}</b> for typing <b>{this.props.total_correct}</b> correct words (5c per 10 words).</p>
+                <p>Individual payments: </p>
+                <RewardDisplay
+                    rewards={this.props.rewards}
+                />
+                <ExternalRewardQuestions
+                    submit_callback={this.props.submitCallback}
+                    time_left={this.props.time_left}
+                />
+            </div>
+        );
     }
 }

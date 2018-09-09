@@ -130,3 +130,45 @@ export class RewardQuestions extends Component {
         );
     }
 }
+
+export class ExternalRewardQuestions extends Component {
+    handleClick(button_idx, event) {
+        this.props.submit_callback({fairness: button_idx})
+    }
+
+    render() {
+        // TODOLATER: refactor buttons into common class
+        let answer_buttons = [
+            {text: 'Unfair', color: 'secondary', icon: <RemoveIcon/> },
+            {text: 'Neutral', color: 'default', icon: <RadioButtonUncheckedIcon/>},
+            {text: 'Fair', color: 'primary', icon: <AddIcon/>}
+        ]
+
+        return (
+            <div>
+                <MuiThemeProvider theme={theme}>
+                    <p>Given the workers' performance, how fair do you think their payments are?</p>
+                    <div className="reward-buttons-container">
+                        {answer_buttons.map((button, idx) => (
+                            <div className="reward-button-wrapper" key={idx}>
+                                <Button 
+                                    variant="contained" 
+                                    color={button.color}
+                                    onClick={this.handleClick.bind(this, idx)}
+                                    disabled={this.props.time_left > 0}
+                                >
+                                    <div className="reward-button-contents">
+                                        {button.icon}
+                                        <p>{
+                                            this.props.time_left > 0 ? this.props.time_left + "..." : button.text
+                                        }</p>
+                                    </div>
+                                </Button>   
+                            </div>
+                        ))}
+                    </div>
+                </MuiThemeProvider>
+            </div>
+        );
+    }
+}
