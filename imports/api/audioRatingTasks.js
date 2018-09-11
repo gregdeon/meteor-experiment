@@ -6,6 +6,7 @@
 // - words_typed_p2: list of words typed by player 2
 // - words_typed_p3: list of words typed by player 3
 // - reward_mode: one of RewardModes
+// - reverse_order: if truthy, reverse the order of the buttons
 // - p3_rating: original rating by player 3 for convenience
 // - task_number: original task number in experiment sequence for convenience
 

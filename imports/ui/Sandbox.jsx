@@ -14,13 +14,14 @@ import {RewardDisplay, RewardQuestions, ExternalRewardQuestions} from './RewardF
 import {ConsentForm} from './ConsentForm.jsx'
 import {TutorialTextNextButton, TutorialTextNumberQuestion, TutorialTextChoiceQuestion} from './TutorialUtils.jsx';
 import {TutorialScreen} from './Tutorial.jsx';
-import {SurveyQuestion, Survey} from './Survey.jsx'
+import {TutorialScreenRating} from './TutorialRating.jsx';
+import {SurveyQuestion, Survey} from './Survey.jsx';
 import {QuestionTypes} from '../api/surveys.js';
 import {FeedbackLetter} from './FeedbackLetter'
 import {WorkflowProgressBar, WorkflowHeader} from './Workflow'
 import {Counters, getCounter} from '../api/utils.js'
 
-import {getSandboxAudio, getSandboxTutorial, getSandboxRating} from '../api/sandbox.js';
+import {getSandboxAudio, getSandboxTutorial, getSandboxRating, getSandboxRatingTutorial} from '../api/sandbox.js';
 
 import './Sandbox.css'
 
@@ -109,6 +110,15 @@ class DynamicSandbox extends Component {
                     </button>
                 </SandboxItem>
             </SandboxCategory>
+            <SandboxCategory title="Rating Tutorial">
+                <SandboxItem title="Tutorial">
+                    <TutorialScreenRating
+                        audio_rating_task={this.props.sandbox_rating_tutorial}
+                        workflow_instance={"not tested in sandbox"}
+                        finishedCallback={function(){console.log("Finished tutorial")}}
+                    />
+                </SandboxItem>
+            </SandboxCategory>
         </div>
     }
 }
@@ -117,6 +127,7 @@ DynamicSandboxWithProps = withTracker(() => {
     const sub = [
         Meteor.subscribe('audiotasks'),
         Meteor.subscribe('audioinstances'),
+        Meteor.subscribe('audioratingtasks'),
         Meteor.subscribe('counters')
     ];
 
@@ -134,6 +145,7 @@ DynamicSandboxWithProps = withTracker(() => {
         sandbox_audio: getSandboxAudio(),
         sandbox_tutorial: getSandboxTutorial(),
         sandbox_rating_task: getSandboxRating(),
+        sandbox_rating_tutorial: getSandboxRatingTutorial(),
         workflow_counter: getCounter('workflow_instances'),
     };
 })(DynamicSandbox);
@@ -341,6 +353,12 @@ export default class Sandbox extends Component {
                     </SandboxItem>
                     <SandboxItem title="External reward questions">
                         <ExternalRewardQuestions 
+                            submit_callback={console.log}
+                        />
+                    </SandboxItem>                    
+                    <SandboxItem title="External reward questions, reversed">
+                        <ExternalRewardQuestions 
+                            reverse_order={true}
                             submit_callback={console.log}
                         />
                     </SandboxItem>

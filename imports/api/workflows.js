@@ -19,9 +19,10 @@ export const WorkflowStages = {
     CONSENT: 0, 
     SURVEY: 1,
     FEEDBACK: 2,
-    TUTORIAL: 4,
+    TUTORIAL: 4, // audio task tutorial
     AUDIO_RATING: 5,
     AUDIO_TASK: 6,
+    TUTORIAL_RATING: 7,
 };
 
 if (Meteor.isServer) {

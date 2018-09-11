@@ -70,11 +70,29 @@ function setUpSandboxRating() {
         {_id: 'test_id'},
         {
             words_truth: normalizeWord('Where I live, in the great northeast of the United States, spring has finally gone full-bloom and summer’s right around the corner. When you get outside, it’s beautiful. The trees, the flowers — and of course, the lawns! Who doesn’t love a good lawn? It looks good, smells good, feels good. For a lot of people, a lawn is the perfect form of nature. Even though, let’s be honest, the lawns we like don’t actually occur in nature.'),
-            words_p1: normalizeWord('Where I live, in the great north east of the United States, sprng has finally gone full-bloom and summer’s rigt around the corner.'),
-            words_p2: normalizeWord('Where I live, in the States, spring has finally gone and summer’s around. it’s beautiful. trees, flowers and the lawns!'),
-            words_p3: normalizeWord('Where I live, in the States, spring has finally gone and summer’s around. it’s beautiful. trees, flowers and the lawns!'),
+            words_typed_p1: normalizeWord('Where I live, in the great north east of the United States, sprng has finally gone full-bloom and summer’s rigt around the corner.'),
+            words_typed_p2: normalizeWord('Where I live, in the States, spring has finally gone and summer’s around. it’s beautiful. trees, flowers and the lawns!'),
+            words_typed_p3: normalizeWord('Where I live, in the States, spring has finally gone and summer’s around. it’s beautiful. trees, flowers and the lawns!'),
             reward_mode: 1,
+            reverse_order: true,
             p3_rating: 1,
+            task_number: 0,
+        }
+    );
+}
+
+function setUpSandboxRatingTutorial() {
+    // For tutorial 
+    AudioRatingTasks.upsert(
+        {_id: 'tutorial_id'},
+        {
+            words_truth: normalizeWord('Where'),
+            words_typed_p1: normalizeWord(''),
+            words_typed_p2: normalizeWord(''),
+            words_typed_p3: normalizeWord(''),
+            reward_mode: 0,
+            reverse_order: false,
+            p3_rating: 0,
             task_number: 0,
         }
     );
@@ -105,10 +123,15 @@ export function getSandboxRating() {
     return AudioRatingTasks.findOne({_id: 'test_id'})
 }
 
+export function getSandboxRatingTutorial() {
+    return AudioRatingTasks.findOne({_id: 'tutorial_id'})
+}
+
 if (Meteor.isServer) {
     setUpSandboxAudio();
     setUpSandboxTutorial();
     setUpSandboxRating();
+    setUpSandboxRatingTutorial();
 
     Meteor.publish('sandbox.audiotasks', function publish(){
         return AudioTasks.find({_id: {$in: ['test_id', 'tutorial_id']}});
@@ -119,7 +142,7 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('sandbox.audioratingtasks', function() {
-        return AudioRatingTasks.find({_id: 'test_id'})
+        return AudioRatingTasks.find({_id: {$in: ['test_id', 'tutorial_id']}})
     })
 }
 

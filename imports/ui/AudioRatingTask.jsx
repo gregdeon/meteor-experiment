@@ -6,7 +6,7 @@ import {AudioInstanceStates, getInstanceResults} from '../api/audioInstances.js'
 import {getSecondsSince, secondsToString, centsToString} from '../api/utils.js';
 import {processResults} from '../api/audioInstances.js'
 
-const countdown_time_s = 5;
+const countdown_time_s = 0;
 
 // Wrapper to handle stages and timers
 export class AudioRatingTask extends Component {
@@ -51,6 +51,7 @@ export class AudioRatingTask extends Component {
     }
 
     render() {
+        console.log(this.props);
         let audio_task = {
             words_truth: this.props.audio_rating_task.words_truth,
             words_p1: this.props.audio_rating_task.words_typed_p1,
@@ -71,6 +72,7 @@ export class AudioRatingTask extends Component {
                     total_pay={results.total_bonus}
                     total_correct={results.num_correct[0b111]}
                     rewards={results.bonuses}
+                    reverse_order={this.props.audio_rating_task.reverse_order}
                     submitCallback={this.handleSubmit.bind(this)}
                     time_left={this.state.time_left}
                 />

@@ -139,10 +139,14 @@ export class ExternalRewardQuestions extends Component {
     render() {
         // TODOLATER: refactor buttons into common class
         let answer_buttons = [
-            {text: 'Unfair', color: 'secondary', icon: <RemoveIcon/> },
-            {text: 'Neutral', color: 'default', icon: <RadioButtonUncheckedIcon/>},
-            {text: 'Fair', color: 'primary', icon: <AddIcon/>}
+            {rating: 0, text: 'Unfair', color: 'secondary', icon: <RemoveIcon/> },
+            {rating: 1, text: 'Neutral', color: 'default', icon: <RadioButtonUncheckedIcon/>},
+            {rating: 2, text: 'Fair', color: 'primary', icon: <AddIcon/>}
         ]
+
+        if(this.props.reverse_order) {
+            answer_buttons = answer_buttons.reverse();
+        }
 
         return (
             <div>
@@ -154,7 +158,7 @@ export class ExternalRewardQuestions extends Component {
                                 <Button 
                                     variant="contained" 
                                     color={button.color}
-                                    onClick={this.handleClick.bind(this, idx)}
+                                    onClick={this.handleClick.bind(this, button.rating)}
                                     disabled={this.props.time_left > 0}
                                 >
                                     <div className="reward-button-contents">

@@ -28,7 +28,7 @@ Meteor.methods({
         let rating_instance_id = AudioRatingInstances.insert({
             task_id: task_id,
             workflow_instance_id: workflow_instance._id,
-            rating: response,
+            rating: rating,
             time_submitted: time_submitted,
         })
 

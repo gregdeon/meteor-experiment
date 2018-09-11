@@ -146,6 +146,7 @@ export class AudioRatingScreen extends Component {
                     rewards={this.props.rewards}
                 />
                 <ExternalRewardQuestions
+                    reverse_order={this.props.reverse_order}
                     submit_callback={this.props.submitCallback}
                     time_left={this.props.time_left}
                 />
