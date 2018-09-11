@@ -6,6 +6,7 @@ import {ConsentForm} from './ConsentForm.jsx';
 import {Survey} from './Survey.jsx';
 import {FeedbackLetter} from './FeedbackLetter.jsx';
 import {TutorialScreen} from './Tutorial.jsx';
+import {TutorialScreenRating} from './TutorialRating.jsx';
 import {AudioTask} from './AudioTask.jsx';
 import {AudioRatingTask} from './AudioRatingTask.jsx';
 
@@ -116,6 +117,16 @@ class Workflow extends Component {
                     <TutorialScreen 
                         audio_task={tutorial_task}
                         audio_instance={tutorial_instance}
+                        finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
+                    />
+                );
+
+            case WorkflowStages.TUTORIAL_RATING:
+                let tutorial_rating_task = AudioRatingTasks.findOne({_id: stage.id})
+                return (
+                    <TutorialScreenRating
+                        audio_rating_task={tutorial_rating_task}
+                        workflow_instance={this.props.workflow_instance}
                         finishedCallback={this.advanceWorkflowStage.bind(this, stage_num)}
                     />
                 );
